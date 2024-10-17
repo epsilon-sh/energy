@@ -23,7 +23,7 @@ ReactDOM.createRoot(appMount!)
       </StoreProvider>
     </React.StrictMode>)
 
-const cta = document.querySelector("#cta")!
+const cta = document.querySelector('form[name="waitlist"]')!
 const mail: HTMLInputElement = cta.querySelector('input[name="email"]')!
 cta.addEventListener('submit', () => console.log(`submit ${mail.value}`))
 mail.removeAttribute('required')
