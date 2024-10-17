@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- TODO: Restore and remove from JS main -->
+  <link rel="stylesheet" href="/styles/epsilon.css">
+  <title>Epsilon Energy - Empowering Today</title>
+
+</head>
+<body>
+<header>
+  <div class="container">
+    <h1 class="mb-0">epsilon energy</h1>
+    <p class="mt-0">empowering today</p>
+
+      <form id='cta' target="#preview" action="/submit-email" method="POST" class="flex-col w-fit mx">
+        <h3 class="mx">Ready to Shape the Future?</h3>
+        <p class="text-wrap text-center" style="width: 100%;">
+          We design, build and run the solutions of tomorrow.<br />
+          New developments create new challenges and opportunities<br />
+          for consumers, producers, and infrastructure.<br />
+        </p>
+        <p class="text-wrap text-center">
+          Step into the future of energy.
+        </p>
+        <input type="email" name="email" placeholder="Enter your email" required>
+        <button type="submit">Join the Energy Revolution</button>
+      </form>
+
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <h2>Empowering Today</h2>
+
+    <section class="grid">
+      <div class="card">
+        <h3>Actionable insights</h3>
+        <p>
+          All the information you need at your fingertips.
+        </p>
+      </div>
+
+      <div class="card">
+        <h3>Net positive</h3>
+        <p>
+          Participate in improving the energy network with our simple solutions.<br />
+        </p>
+      </div>
+
+      <div class="card center">
+        <h3>Power in Your Hands</h3>
+        <p>Take immediate control of your energy consumption and exports.</p>
+      </div>
+    </section>
+
+    <section>
+      <h3>Cutting-Edge Solutions</h3>
+      <div class="grid">
+
+        <div class="card">
+          <h4 class="mb-0">Energy monitoring</h4>
+          <p class="mt-0">Realtime access to your insights</p>
+
+          <ul>
+            <li>Consumption transparency</li>
+            <li>Storage planning</li>
+            <li>Generation patterns</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h4 class="mb-0">Delivery optimization</h4>
+          <p class="mt-0">Energy transmission efficiency</p>
+
+          <ul>
+            <li>Optimized energy storage and release</li>
+            <li>Simple imports and exports management</li>
+            <li>Energy traceability</li>
+          </ul>
+        </div>
+
+      </div>
+    </section>
+
+    <section class="mx-auto">
+    </section>
+  </div>
+</main>
+
+<footer>
+  <div class="container">
+    <p>Powering the future, today.<br />
+      &copy; 2024 Epsilon Energy.</p>
+  </div>
+</footer>
+
+<div id="app" class="absolute top w-full h-auto"></div>
+<script type="module" src="/src/main.tsx"></script>
+<script>
+  function checkLocationHash() {
+    if (window.location.hash === '#preview')
+      app.style.display = 'block';
+    else
+      app.style.display = 'none';
+  }
+
+  checkLocationHash();
+  window.addEventListener('hashchange', checkLocationHash);
+</script>
+</body>
+</html>

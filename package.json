@@ -1,0 +1,30 @@
+{
+  "name": "@epsilon/energy",
+  "version": "1.0.0",
+  "main": "index.mjs",
+  "scripts": {
+    "test": "node --test",
+    "lint": "eslint . --fix"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/epsilon-sh/framework.git"
+  },
+  "author": "ubarbaxor@epsilon.sh",
+  "license": "UNLICENSED",
+  "bugs": {
+    "url": "https://github.com/epsilon-sh/framework/issues"
+  },
+  "homepage": "https://github.com/epsilon-sh/framework#readme",
+  "description": "",
+  "workspaces": [
+    "front"
+  ],
+  "dependencies": {
+    "fast-xml-parser": "^4.5.0"
+  },
+  "devDependencies": {
+    "@types/three": "^0.169.0",
+    "eslint-config-standard": "^17.1.0"
+  }
+}
