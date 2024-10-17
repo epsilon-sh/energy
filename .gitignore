@@ -1,0 +1,24 @@
+# workspace drafts
+**/drafts/
+**/Scratches/
+**/notes.md
+
+# Local data storage for backend
+data/*
+
+# dependencies
+**/node_modules
+
+# compiled output
+front/dist
+
+# misc
+**/.DS_Store
+*.log
+
+# dotenv environment variables file
+*.env
+
+# IDE specific files
+.idea
+.vscode

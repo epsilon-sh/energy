@@ -1,0 +1,11 @@
+.charts {
+  width: 100%;
+  min-width: 200px;
+  height: 100%;
+  min-height: 200px;
+}
+
+.recharts-default-tooltip {
+  text-align: left;
+  color: rgba(255, 255, 255, 0.75);
+}
