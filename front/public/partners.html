@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="/styles/epsilon.css">
+  <title>Epsilon Energy - Our Partners</title>
+  
+  <meta property="og:title" content="Epsilon Energy - Our Partners" />
+  <meta property="og:description" content="Collaborate with Epsilon Energy to shape the future of sustainable energy solutions." />
+  <meta property="og:image" content="https://energy.epsilon.sh/favicon.svg" />
+  <meta property="og:url" content="https://energy.epsilon.sh/partners" />
+</head>
+<body>
+<header>
+  <div class="container">
+    <h1 class="mb-0">epsilon energy</h1>
+    <p class="mt-0">empowering today</p>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <h2>Our Partners</h2>
+
+    <section>
+      <h3>Collaboration for Innovation</h3>
+      <p>At Epsilon Energy, we believe in the power of collaboration. Our partnerships drive innovation and accelerate the transition to sustainable energy solutions.</p>
+    </section>
+
+    <section class="grid">
+      <div class="card">
+        <h3>Technology Partners</h3>
+        <p>Cutting-edge hardware and software providers that help us deliver state-of-the-art energy management solutions.</p>
+      </div>
+
+      <div class="card">
+        <h3>Energy Providers</h3>
+        <p>Collaborations with utility companies and renewable energy producers to ensure seamless integration and delivery.</p>
+      </div>
+
+      <div class="card">
+        <h3>Research Institutions</h3>
+        <p>Partnerships with universities and research centers to stay at the forefront of energy innovation.</p>
+      </div>
+    </section>
+
+    <section>
+      <h3>Benefits of Partnering with Epsilon Energy</h3>
+      <div class="grid">
+        <div class="card">
+          <h4 class="mb-0">Innovation Leadership</h4>
+          <p class="mt-0">Be part of shaping the future of energy</p>
+          <ul>
+            <li>Access to cutting-edge technologies</li>
+            <li>Collaborative R&D opportunities</li>
+            <li>Early adoption of new solutions</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <h4 class="mb-0">Market Expansion</h4>
+          <p class="mt-0">Grow your business with us</p>
+          <ul>
+            <li>Access to our growing customer base</li>
+            <li>Co-marketing opportunities</li>
+            <li>Expanded market reach</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="mx-auto">
+      <h3>Become a Partner</h3>
+      <p>Are you ready to join us in revolutionizing the energy sector? Contact us to explore partnership opportunities.</p>
+      <form name="partnership-inquiry" action="#preview" netlify class="flex-col w-fit mx">
+        <input type="email" name="email" placeholder="Your email" required>
+        <textarea name="message" placeholder="Tell us about your company and how you'd like to partner" required></textarea>
+        <button type="submit">Submit Inquiry</button>
+      </form>
+    </section>
+  </div>
+</main>
+
+<footer>
+  <div class="container">
+    <p>Powering the future, today.<br/>
+      &copy; 2024 Epsilon Energy.</p>
+  </div>
+</footer>
+
+<div id="app" class="absolute top w-full h-auto"></div>
+<script type="module" src="/src/main.tsx"></script>
+<script>
+  function checkLocationHash() {
+    if (window.location.hash === '#preview')
+      app.style.display = 'block';
+    else
+      app.style.display = 'none';
+  }
+
+  checkLocationHash();
+  window.addEventListener('hashchange', checkLocationHash);
+</script>
+</body>
+</html>
