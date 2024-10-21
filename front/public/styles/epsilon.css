@@ -18,7 +18,7 @@
   --line-width-1: 1px;
   --m-xs: .25em;
   --m-s: 0.5em;
-  --m-m: 1em;
+  --m-m: 1.5em;
   --m-l: 2em;
   --animation-speed-1: 0.2s;
   --animation-speed-2: 0.3s;
@@ -94,6 +94,14 @@ input[type="email"] {
   border-radius: var(--border-radius-1);
 }
 
+section > h2, section > h3 {
+  margin: 1rem 0;
+}
+
+section h4 {
+  margin-top: 0;
+}
+
 /* Media Queries */
 
 /*Light theme*/
@@ -125,7 +133,7 @@ input[type="email"] {
   :root {
     --m-xs: 0;
     --m-s: 0.25rem;
-    --m-m: 1rem;
+    --m-m: 1.25rem;
     --m-l: 1.5rem;
   }
 
@@ -152,9 +160,9 @@ input[type="email"] {
 @media screen and (min-width: 768px) {
   :root {
     --m-xs: 0.5rem;
-    --m-s: 1rem;
-    --m-m: 1.5rem;
-    --m-l: 3rem;
+    --m-s: 1em;
+    --m-m: 2em;
+    --m-l: 3em;
   }
 
   .workspace {
@@ -417,6 +425,10 @@ input[type="email"] {
   max-width: 1200px;
   margin: 0 auto;
   padding: 20px;
+}
+
+.container section:not(:last-child) {
+  margin-block-end: var(--m-m);
 }
 
 .controls {
