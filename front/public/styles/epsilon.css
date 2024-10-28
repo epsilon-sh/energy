@@ -78,6 +78,11 @@ button:focus-visible {
   outline: var(--line-width-1) solid var(--color-accent);
 }
 
+button svg {
+  vertical-align: middle;
+  height: 1em;
+}
+
 h1 {
   line-height: 1.1;
   font-size: 3.2em;
@@ -88,7 +93,7 @@ h1 {
 
 input[type="email"] {
   padding: 10px;
-  margin-bottom: 10px;
+  margin: 10px 0;
 
   border: var(--line-width-1) solid #ddd;
   border-radius: var(--border-radius-1);
@@ -141,18 +146,6 @@ section h4 {
     position: absolute;
     right: 0;
     flex-direction: column-reverse;
-  }
-
-  .controls button {
-    /*margin-top: auto;*/
-  }
-  .controls > button:last-of-type {
-    /*margin-right: var(--m-s);*/
-  }
-
-  .watermark {
-    /*top: 0;*/
-    /*left: 0;*/
   }
 }
 
@@ -235,6 +228,11 @@ section h4 {
   margin-right: auto;
 }
 
+.my {
+  margin-top: auto;
+  margin-bottom: auto;
+}
+
 .mx-s {
   margin-left: var(--m-s);
   margin-right: var(--m-s);
@@ -277,10 +275,6 @@ section h4 {
   gap: 1rem;
 }
 
-.selected {
-  /*background-color: var(--color-accent-alpha);*/
-}
-
 .noselect {
   user-select: none;
 }
@@ -311,6 +305,10 @@ section h4 {
   position: fixed;
 }
 
+.relative {
+  position: relative;
+}
+
 .full {
   position: absolute;
   top: 0;
@@ -326,6 +324,14 @@ section h4 {
 
 .top, .top-0 {
   top: 0;
+}
+
+.top-1\/2 {
+  top: 50%;
+}
+
+.translate-y-1\/2 {
+  transform: translateY(-50%);
 }
 
 .right-0 {
@@ -346,6 +352,10 @@ section h4 {
 
 .shadow-md {
   box-shadow: 0 4px 6px -1px var(--color-shadow), 0 2px 4px -1px var(--color-shadow);
+}
+
+.noshadow:hover {
+  box-shadow: none !important;
 }
 
 .max-w-md {
@@ -391,8 +401,14 @@ section h4 {
   /*background-color: var(--color-accent-alpha);*/
 }
 
+.card>a:only-child {
+  text-decoration: none;
+  color: inherit;
+}
+
 .workspace {
   display: flex;
+  flex-direction: column;
   flex: 1;
   width: 100%;
 }
@@ -413,12 +429,12 @@ section h4 {
   height: 100vh;
 }
 
-.modal > .title {
+/* .modal * {
   position: inherit;
   width: 100%;
   top: 30%;
   text-align: center;
-}
+} */
 
 .container {
   width: 90%;
@@ -447,6 +463,9 @@ section h4 {
 .watermark {
   position: absolute;
   bottom: 0;
-  right: 0;
   margin: 0;
+}
+
+.title {
+  text-align: center;
 }

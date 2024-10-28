@@ -1,25 +1,5 @@
-import { XMLParser } from 'fast-xml-parser'
-
-// import knownParams, {
-import {
-  getDocumentTypeKey,
-  getDomainKey,
-} from './params.mjs'
-
-const Parser = new XMLParser()
-const formatDate = date => date => `${date.getUTCFullYear()}${date.getUTCMonth() + 1}${date.getUTCDate()}${date.getUTCHours()}00`
-
-const defaults = {
-  range: {
-    start: new Date(),
-    end: new Date().setHours(defaults.start),
-  },
-}
-const startTime = new Date(START_UTC)
-const endTime = new Date(END_UTC)
-
+// ENTSO timestamp in format YYYYMMDDHH
 //   console.log(`ENTSO ${timestamp}`)
-
 //   const year = timestamp.slice(0, 4)
 //   const month = timestamp.slice(4, 6)
 //   const day = timestamp.slice(6, 8)
@@ -29,16 +9,6 @@ const endTime = new Date(END_UTC)
 //   console.log(`Dated ${date}`)
 //   return date
 // }
-
-const config = {
-  ...defaults,
-  securityToken: ENTSO_TOKEN || 'ENTSO_GUEST',
-  documentType: getDocumentTypeKey('DAY_AHEAD_PRICES'),
-  in_Domain: getDomainKey('FI'),
-  out_Domain: getDomainKey('FI'),
-  periodStart: date2entsoTimestamp(startTime),
-  periodEnd: date2entsoTimestamp(endTime),
-}
 
 // Translate params to human readable
 // const formatParams = params => {
@@ -50,6 +20,38 @@ const config = {
 //     end: entsoTimestamp2date(params.periodEnd || params.end),
 //   }
 // }
+
+import { formatDate } from './utils.mjs'
+
+import {
+  getDocumentTypeKey,
+  getDomainKey,
+} from './params.mjs'
+
+import { XMLParser } from 'fast-xml-parser'
+
+const { parse: parseXML } = new XMLParser()
+
+const startDate = new Date()
+const endDate = new Date()
+
+const defaultQuery = {
+  range: {
+    start: startDate,
+    end: new Date(startDate.getTime() + 24 * 60 * 60 * 1000),
+  },
+}
+
+const defaultRequest = {
+  ...defaultQuery,
+  securityToken: 'ENTSO_GUEST',
+  documentType: getDocumentTypeKey('DAY_AHEAD_PRICES'),
+  in_Domain: getDomainKey('FI'),
+  out_Domain: getDomainKey('FI'),
+  periodStart: formatDate(startDate),
+  periodEnd: formatDate(endDate),
+}
+
 
 const getPrices = async (params = defaultParams) => {
   const url = new URL(BASE_URL)
@@ -70,10 +72,10 @@ const getPrices = async (params = defaultParams) => {
     throw new Error(`Unsupported response body type: ${contentType} (expect ${expected})`)
 
   console.log('Got response type:', contentType)
-  const data = await response.text()
+  const page = await response.text()
 
-  console.log('Parsing XML data.')
-  const parsed = Parser.parse(data)
+  console.log('Parsing XML page.')
+  const parsed = parseXML(page)
 
   if (parsed.Publication_MarketDocument)
     return parsed.Publication_MarketDocument

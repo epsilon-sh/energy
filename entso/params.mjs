@@ -12,8 +12,6 @@ export const resolution = {
 }
 
 export const getDocumentTypeKey = value => {
-  console.log(value, 'getDocumentTypeKey')
-
   const [documentType] = Object.entries(documentTypes).find(([_key, v]) => value === v)
 
   return documentType

@@ -46,10 +46,12 @@
 
       <div class="grid">
         <div class="card">
+        <a href="#comparator">
           <h3>Actionable insights</h3>
           <p>
             All the information you need at your fingertips.
           </p>
+        </a>
         </div>
 
         <div class="card">
@@ -67,7 +69,7 @@
     </section>
 
     <section>
-      <h3>Our cutting-Edge Solutions</h3>
+      <h3>Cutting-Edge Solutions</h3>
       <div class="grid">
 
         <div class="card">
@@ -100,22 +102,11 @@
 <footer>
   <div class="container">
     <p>Powering the future, today.<br/>
-      &copy; 2024 Epsilon Energy.</p>
+      &copy; 2024 Epsilon Energy</p>
   </div>
 </footer>
 
-<div id="app" class="absolute top w-full h-auto"></div>
+<div id="app" class="absolute top w-full"></div>
 <script type="module" src="/src/main.tsx"></script>
-<script>
-  function checkLocationHash() {
-    if (window.location.hash === '#preview')
-      app.style.display = 'block';
-    else
-      app.style.display = 'none';
-  }
-
-  checkLocationHash();
-  window.addEventListener('hashchange', checkLocationHash);
-</script>
 </body>
 </html>

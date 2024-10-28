@@ -1,31 +1,19 @@
-import {
-    combineReducers,
-    configureStore,
-} from '@reduxjs/toolkit'
-
-import prices, {
-    actions as pricesActions,
-    reducer as pricesReducer,
-} from './slices/pricesSlice.ts'
-
-export const actions = {
-    prices: pricesActions,
-}
+import { configureStore } from '@reduxjs/toolkit';
+import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux';
+import { apiSlice } from './apiSlice';
 
 const store = configureStore({
-    reducer: combineReducers({
-        prices: pricesReducer,
-    })
-})
+  reducer: {
+    [apiSlice.reducerPath]: apiSlice.reducer,
+  },
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware().concat(apiSlice.middleware),
+});
 
-console.log(store.getState())
+export type RootState = ReturnType<typeof store.getState>;
+export type AppDispatch = typeof store.dispatch;
 
-const slices = {
-    prices,
-}
+export const useAppDispatch = () => useDispatch<AppDispatch>();
+export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector;
 
-export {
-    store as default,
-    store, prices,
-    slices
-}
+export default store;

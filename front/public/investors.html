@@ -103,7 +103,7 @@
 <script type="module" src="/src/main.tsx"></script>
 <script>
   function checkLocationHash() {
-    if (window.location.hash === '#preview')
+    if (window.location.hash.startsWith('#preview'))
       app.style.display = 'block';
     else
       app.style.display = 'none';

@@ -6,6 +6,7 @@ import ReactDOM from 'react-dom/client'
 import {Provider as StoreProvider} from 'react-redux'
 import App from './App.tsx'
 import store from './store.ts'
+import { BrowserRouter } from 'react-router-dom'
 
 // const API_LOCATION = new URL(window.location)
 
@@ -19,12 +20,13 @@ ReactDOM.createRoot(appMount!)
   .render(
     <React.StrictMode>
       <StoreProvider store={store}>
-        <App/>
+        <BrowserRouter>
+          <App />
+        </BrowserRouter>
       </StoreProvider>
     </React.StrictMode>)
 
 const cta = document.querySelector('form[name="waitlist"]')!
 const mail: HTMLInputElement = cta.querySelector('input[name="email"]')!
 cta.addEventListener('submit', () => console.log(`submit ${mail.value}`))
-mail.removeAttribute('required')
 console.log(cta)

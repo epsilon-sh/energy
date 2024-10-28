@@ -1,4 +1,4 @@
-import {FC, useState} from 'react';
+import {FC, useEffect, useState} from 'react';
 
 interface ModalProps {
   clickOut?: boolean | (() => void);
@@ -21,12 +21,18 @@ export const Modal: FC<ModalProps> = ({open = true, clickOut = true, onClose, ch
     onClose && onClose()
   }
 
+  useEffect(() => {
+    setVisible(open)
+  }, [open])
+
   return <div
     className='modal backdrop'
     style={{visibility: visible ? 'visible' : 'hidden'}}
     onClick={bgClick}
     {...props}>
-    {children || <p>Modal</p>}
+    <div onClick={e => e.stopPropagation()}>
+      {children || <p>Modal</p>}
+    </div>
   </div>
 }
 

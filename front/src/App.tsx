@@ -1,119 +1,37 @@
 import '/public/styles/epsilon.css'
-import Background from "@ui/Background.tsx";
+
 import Workspace from "@ui/Workspace.tsx";
 import Controls from "@ui/Controls.tsx";
 import Modal from "@ui/Modal.tsx";
-import {FC, useState, useEffect} from "react";
+import EnergyDashboard from "./EnergyDashboard.tsx";
+
+import { FC } from "react";
+import { useHash } from 'react-use'
+import Settings from './DataOptions';
+import { Braces } from 'lucide-react';
+import { usePanelManager } from './PanelManager';
+import { hashRoutes } from './types';
 
 const App: FC = () => {
-  const [nearPane, setNearPane] = useState(false);
-  const [farPane, setFarPane] = useState(false);
-  const [optionsPane, setOptionsPane] = useState(false);
-  const [workspace, setWorkspace] = useState(false);
-  const [modal, setModal] = useState(true);
+  const [hash] = useHash();
+  const view = hashRoutes.find(x => x === hash.slice(1));
+  const { panels, toggle, close, open } = usePanelManager(view);
 
-  const close = (setter: React.Dispatch<React.SetStateAction<boolean>>) => {
-    setter(false);
-  };
-
-  const toggle = (setter: React.Dispatch<React.SetStateAction<boolean>>) => {
-    setter(prev => !prev);
-  };
-
-  const closeTop = () => {
-    const panels: [boolean, React.Dispatch<React.SetStateAction<boolean>>][] = [
-      [modal, setModal],
-      [optionsPane, setOptionsPane],
-      [farPane, setFarPane],
-      [nearPane, setNearPane],
-      [workspace, setWorkspace],
-    ];
-
-    close(
-      panels.find(([state]) => state)?.[1]
-      || setOptionsPane
-    )
-  };
-
-  const handleKeyDown = (event: KeyboardEvent) => {
-    if (!workspace && event.key === '0') {
-      console.log('toggle workspace')
-      return toggle(setWorkspace);
-    }
-
-    switch (event.key) {
-      case '1':
-        return toggle(setNearPane);
-      case '2':
-        return toggle(setFarPane);
-      case '0':
-        return toggle(setOptionsPane);
-      case 'Escape':
-        return closeTop();
-
-    return;
-    }
-  };
-
-
-  useEffect(() => {
-    window.addEventListener('keydown', handleKeyDown);
-    return () => {
-      window.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [modal, optionsPane, farPane, nearPane, workspace]);
-
-  if (!workspace) return <Controls>
-      <button onClick={() => toggle(setWorkspace)}>Early access</button>
-    </Controls>
-
-  console.log({workspace})
-
-  return <>
-      <Background>
-        <Modal clickOut={false}>
-          <h1 className='watermark'>epsilon energy (preview)</h1>
-        </Modal>
-      </Background>
-
-      <div className='full flex-col'>
-        <Controls>
-            {workspace
-            ? <>
-                <button onClick={() => toggle(setNearPane)}>1</button>
-                <button onClick={() => toggle(setFarPane)}>2</button>
-                <button onClick={() => toggle(setOptionsPane)}>0</button>
-              </> : <button onClick={() => toggle(setWorkspace)}>0</button>}
-        </Controls>
-
-          {workspace && <Workspace>
-            {nearPane && <>
-                <div className='pane backdrop'>
-                  <div className='card'>
-                    <div className='card-header flex-row'>
-                      Local Pane
-                      <button className='block w-fit ml-auto' onClick={() => toggle(setNearPane)}>x close</button>
-                    </div>
-                  </div>
-                </div>
-              </>}
-
-            {farPane && <>
-                <div className='pane backdrop'>
-                  <div className='card'>
-                    <div className='card-header flex-row'>
-                      <div className='flex'>Distant Pane</div>
-                      <button className='flex w-fit ml-auto' onClick={() => toggle(setFarPane)}>x close</button>
-                    </div>
-                  </div>
-                </div>
-            </>}
-
-            {optionsPane && <Modal><h1 className='title'>Options pane</h1></Modal>}
-            {modal && <Modal><h1 className='title'>{'press <esc> to close.'}</h1></Modal>}
-          </Workspace>}
-      </div>
-  </>
+  return (Object.values(panels).every(x => !x))
+    ? view && <Controls><button onClick={() => open('workspace')}>Early preview</button></Controls>
+    : <div>
+      <Workspace open={panels.workspace}
+        controls={[<button key='options' onClick={() => toggle('options')} children={<Braces />} />]}>
+        <EnergyDashboard />
+      </Workspace>
+      <Modal open={panels.options} onClose={() => close('options')}>
+        <Settings />
+      </Modal>
+      <Modal open={panels.modal} onClose={() => close('modal')}>
+        <h1 className='title noselect relative top-1/2 translate-y-1/2'>{'press <esc> to close.'}</h1>
+      </Modal>
+      <h1 className='watermark right'>epsilon energy (preview)</h1>
+    </div>
 };
 
 export default App;
