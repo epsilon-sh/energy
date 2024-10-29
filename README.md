@@ -46,8 +46,8 @@ npm -v
 ### Clone the repository
 
 ```sh
-git clone https://github.com/epsilon-sh/framework.git
-cd framework
+git clone https://github.com/epsilon-sh/energy.git
+cd energy
 ```
 
 ### Install NPM packages
