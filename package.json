@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "main": "index.mjs",
   "scripts": {
+    "api:dev": "npm run dev --workspace=api",
     "test": "node --test",
     "lint": "eslint . --fix"
   },

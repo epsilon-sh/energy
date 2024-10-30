@@ -36,11 +36,15 @@ To get a local copy up and running, follow these simple steps:
 
 ### Prerequisites
 
-Ensure you have Node.js and npm installed on your system.
+Ensure you have Node.js 22.9.0 installed (we use nodenv for version management).
 
 ```sh
-node -v
+# Check your versions
+node -v  # Should be 22.9.0 (or higher)
 npm -v
+
+# If using nodenv, it will automatically pick up the correct version from .node-version
+nodenv install 22.9.0  # if you don't have this version yet
 ```
 
 ### Clone the repository
@@ -49,6 +53,17 @@ npm -v
 git clone https://github.com/epsilon-sh/energy.git
 cd energy
 ```
+
+### Configure Development Environment
+
+1. Edit `api/dev.env` with your configuration values
+
+2. Prevent git from tracking changes to your local environment file:
+```sh
+git update-index --assume-unchanged api/dev.env
+```
+
+This ensures your secret values won't be committed accidentally.
 
 ### Install NPM packages
 
