@@ -1,28 +1,35 @@
 import express from 'express'
-import data from '../../fingrid/data.mjs'
+import { getDatabase } from '../db.mjs'
+import data from '../../fingrid/consumptionData.mjs'
 import fs from 'fs/promises'
 import parseDsv from '../../fingrid/parseImport.mjs'
 import { parse as parseDuration, toSeconds } from 'iso8601-duration'
 
 const router = express.Router()
+const DB_CONSUMPTION_TABLE = process.env.DB_CONSUMPTION_TABLE || 'measurements'
 
-router.get('/', (req, res, next) => {
+router.get('/', async (req, res, next) => {
   try {
     const start = new Date(req.query.start || '2023/01/01 00:00 UTC+2')
     const period = req.query.period || 'P1Y'
+    const periodSeconds = toSeconds(parseDuration(period))
+    const end = new Date(req.query.end || (start.getTime() + periodSeconds * 1000))
     const resolution = req.query.resolution || 'PT1H'
 
-    // Calculate end time based on period
-    const periodSeconds = toSeconds(parseDuration(period))
-    const end = new Date(start.getTime() + periodSeconds * 1000)
+    const db = getDatabase()
+    const dbData = await db.all(
+      `SELECT * FROM ${DB_CONSUMPTION_TABLE} WHERE "Start Time" >= ? AND "Start Time" <= ?`,
+      start.getTime(),
+      end.getTime(),
+    )
 
     const result = data
       .from(start)
       .to(end)
       .match(req.query.filter || {})
       .groupBy(resolution)
-      .sort((a, b) => a.startTime - b.startTime)
-      .select(['startTime', 'resolution', 'quantity'])
+
+    console.log(result[0], result.at(-1))
 
     res.send(result)
   } catch (error) {

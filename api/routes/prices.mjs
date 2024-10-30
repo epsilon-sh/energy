@@ -1,8 +1,9 @@
 import express from 'express'
 import { getDatabase } from '../db.mjs'
 import fetchPrices from '../../entso/query.mjs'
+import { formatDate } from '../../entso/utils.mjs'
 import { parse as parseDuration, toSeconds } from 'iso8601-duration'
-import data from '../../entso/data.mjs'
+import data from '../../entso/priceData.mjs'
 
 const router = express.Router()
 const DB_PRICE_TABLE = process.env.DB_PRICE_TABLE || 'prices'
@@ -18,14 +19,18 @@ router.get('/', async (req, res, next) => {
     const end = new Date(start.getTime() + periodSeconds * 1000)
 
     const db = getDatabase()
-    let dbData = await db.all(
+    const dbData = await db.all(
       `SELECT * FROM ${DB_PRICE_TABLE} WHERE time >= ? AND time <= ?`,
       start.getTime(),
       end.getTime(),
     )
 
     if (dbData.length === 0) {
-      const fetchedData = await fetchPrices({ start, end })
+      const fetchedData = await fetchPrices({
+        periodStart: formatDate(start),
+        periodEnd: formatDate(end),
+      })
+
       await insertPrices(fetchedData)
       dbData = fetchedData
     }
