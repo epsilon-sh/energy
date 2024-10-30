@@ -41,3 +41,6 @@ fs.readFile(source, 'utf-8')
     data.push(...parsed)
     console.log(`Data size: ${data.length}`)
   })
+  .catch(error => {
+    console.error(error)
+  })
