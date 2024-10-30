@@ -34,6 +34,7 @@ const { parse: parseXML } = new XMLParser()
 
 const startDate = new Date()
 const endDate = new Date()
+const BASE_URL = 'https://web-api.tp.entsoe.eu/api'
 
 const defaultQuery = {
   range: {
@@ -42,9 +43,9 @@ const defaultQuery = {
   },
 }
 
-const defaultRequest = {
+const defaultParams = {
   ...defaultQuery,
-  securityToken: 'ENTSO_GUEST',
+  securityToken: process.env.ENTSO_TOKEN || 'ENTSO_GUEST',
   documentType: getDocumentTypeKey('DAY_AHEAD_PRICES'),
   in_Domain: getDomainKey('FI'),
   out_Domain: getDomainKey('FI'),
