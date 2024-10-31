@@ -55,10 +55,8 @@ const getPrices = async (params = defaultParams) => {
   if (contentType === expected) {
     console.log('Parsing XML page.')
     const parsed = parser.parse(page)
-    console.log(parsed.Publication_MarketDocument.TimeSeries[0].Period)
 
     if (parsed.Publication_MarketDocument) {
-      console.log(parsed.Publication_MarketDocument)
       return parsed.Publication_MarketDocument
     }
   } else {

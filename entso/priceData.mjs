@@ -1,5 +1,29 @@
 import { parse as parseDuration, toSeconds } from 'iso8601-duration'
 
+const compareString = (s1, s2) => {
+  if (s1 === s2) return 0
+  return s1 < s2 ? -1 : 1
+}
+
+export const comparePricePoints = (p1, p2) => {
+  if (!p1) return -1
+  if (!p2) return 1
+
+  if (p2.time > p1.time) return -1
+  if (p1.time > p2.time) return 1
+
+  if (p1.resolution !== p2.resolution) {
+    const d1 = toSeconds(parseDuration(p1.resolution))
+    const d2 = toSeconds(parseDuration(p2.resolution))
+    if (d1 < d2) return -1
+    if (d1 > d2) return 1
+  }
+
+  if (p1.domain !== p2.domain) return compareString(p1.domain, p2.domain)
+
+  return 0
+}
+
 export class PriceData extends Array {
   from(start) {
     return this.filter(measurement =>
@@ -78,11 +102,34 @@ export class PriceData extends Array {
     return new PriceData(...Array.from(resultMap.values()));
   }
 
-  sort(compareFn) {
+  sort(compareFn = comparePricePoints) {
     return new PriceData(...Array.from(this).sort(compareFn));
+  }
+
+  insert(...prices) {
+    if (!prices.length) return this;
+
+    prices.sort(comparePricePoints);
+
+    let insertIndex = this.findIndex(p => comparePricePoints(prices[0], p) <= 0);
+    if (insertIndex === -1) insertIndex = this.length;
+
+    for (const price of prices) {
+      while (insertIndex < this.length && comparePricePoints(this[insertIndex], price) < 0) {
+        insertIndex++;
+      }
+
+      if (insertIndex < this.length && comparePricePoints(this[insertIndex], price) === 0) {
+        this[insertIndex] = price;
+      } else {
+        this.splice(insertIndex, 0, price);
+      }
+      insertIndex++;
+    }
+
+    return this;
   }
 }
 
 const data = new PriceData();
 export default data;
-

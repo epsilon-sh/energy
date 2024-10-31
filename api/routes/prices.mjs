@@ -47,7 +47,7 @@ router.get('/', async (req, res, next) => {
       .to(end)
       .match(req.query.domain ? { domain: req.query.domain } : {})
       .groupBy(resolution)
-      .sort((a, b) => new Date(a.time) - new Date(b.time))
+      .sort(compare)
       .select(['time', 'domain', 'resolution', 'price'])
 
     res.send(result)

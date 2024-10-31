@@ -17,9 +17,11 @@ export const getDocumentTypeKey = value => {
   return documentType
 }
 export const getDomainKey = human => {
-  // console.log(human, 'getDomainKey')
-
   return Object.entries(domains).find(([_key, value]) => value === human)[0]
+}
+
+export const getDomainHuman = key => {
+  return domains[key] || key
 }
 
 export default {
