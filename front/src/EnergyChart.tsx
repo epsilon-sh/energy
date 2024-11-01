@@ -1,4 +1,6 @@
-import React from 'react';
+import './priceChart.css';
+
+import React, { useState } from 'react';
 import {
   ResponsiveContainer,
   ComposedChart,
@@ -38,12 +40,18 @@ const ErrorComponent = (error: string) => (
 );
 
 const CustomTooltip = ({ active, payload, label }: TooltipProps<ValueType, NameType>) => {
+  const [prevActive, setPrevActive] = useState(active);
+  if (active !== prevActive) {
+    console.log({label, payload});
+    setPrevActive(active);
+  }
   if (active && payload && payload.length) {
     return (
-      <div className="custom-tooltip" style={{ backgroundColor: '#fff', padding: '10px', border: '1px solid #ccc' }}>
-        <p className="label">{`Time: ${label}`}</p>
-        <p className="intro">{`Price: ${payload[0].value}`}</p>
-        <p className="intro">{`Consumption: ${payload[1].value}`}</p>
+      <div className="custom-tooltip">
+        <p className="label">{new Date(label).toLocaleString()}</p>
+        {payload.map((p, index) => (
+          <p key={index}>{`${p.name}: ${p.value}`}</p>
+        ))}
       </div>
     );
   }

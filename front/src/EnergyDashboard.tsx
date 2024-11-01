@@ -3,12 +3,13 @@ import { useSearchParams } from 'react-router-dom';
 import { useEnergyData } from './useEnergyData';
 import EnergyChart from './EnergyChart';
 import { DurationSelector } from './components/DurationSelector';
+import { DateTimeInput } from './components/DateTimeInput'
 import { Duration, periodResolutions } from './types/duration';
 
 const defaults = {
-  start: new Date('2023-01-01').toISOString(),
-  period: 'P1Y' as Duration,
-  resolution: 'P1D' as Duration,
+  start: new Date().toISOString(),
+  period: 'P1D' as Duration,
+  resolution: 'PT1H' as Duration,
 };
 
 const EnergyDashboard: React.FC = () => {
@@ -21,6 +22,13 @@ const EnergyDashboard: React.FC = () => {
   };
 
   const { prices, consumption } = useEnergyData(query);
+
+  const handleStartChange = (date: Date) => {
+    setSearchParams(prev => {
+      prev.set('start', date.toISOString());
+      return prev;
+    });
+  };
 
   const handlePeriodChange = (period: Duration) => {
     const availableResolutions = periodResolutions[period];
@@ -50,22 +58,36 @@ const EnergyDashboard: React.FC = () => {
   };
 
   return (
-    <div>
-      <h1>Energy Dashboard</h1>
+    <div className="p-4">
+      <h1 className="text-2xl font-bold mb-4">Energy Dashboard</h1>
 
-      <h3>Period:</h3>
-      <DurationSelector
-        options={['P1Y', 'P3M', 'P1M', 'P7D', 'P1D', 'PT1H']}
-        selected={query.period}
-        onChange={handlePeriodChange}
-      />
+      <div className="flex flex-col md:flex-row gap-4 mb-6">
+        <div className="flex-1">
+          <h3 className="text-sm font-semibold mb-2">Start Time:</h3>
+          <DateTimeInput
+            onChange={handleStartChange}
+            defaultValue={new Date(query.start)}
+          />
+        </div>
 
-      <h3>Resolution:</h3>
-      <DurationSelector
-        options={periodResolutions[query.period]}
-        selected={query.resolution}
-        onChange={handleResolutionChange}
-      />
+        <div className="flex-1">
+          <h3 className="text-sm font-semibold mb-2">Period:</h3>
+          <DurationSelector
+            options={['P1Y', 'P3M', 'P1M', 'P7D', 'P1D', 'PT1H']}
+            selected={query.period}
+            onChange={handlePeriodChange}
+          />
+        </div>
+
+        <div className="flex-1">
+          <h3 className="text-sm font-semibold mb-2">Resolution:</h3>
+          <DurationSelector
+            options={periodResolutions[query.period]}
+            selected={query.resolution}
+            onChange={handleResolutionChange}
+          />
+        </div>
+      </div>
 
       <EnergyChart
         prices={{

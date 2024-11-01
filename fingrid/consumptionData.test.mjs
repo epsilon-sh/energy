@@ -170,3 +170,124 @@ describe('ConsumptionData.groupBy', async () => {
     assert.equal(result.find(m => m.meteringPoint === 'MP2').quantity, 20);
   });
 });
+
+describe('ConsumptionData.insert', async () => {
+  let data;
+
+  const createMeasurement = (startTime, resolution = 'PT15M', meteringPoint = 'MP1', quantity = 100) => ({
+    startTime: new Date(startTime).toISOString(),
+    resolution,
+    meteringPoint,
+    productType: 'Energy',
+    readingType: 'Usage',
+    quantity,
+    unit: 'kWh'
+  });
+
+  beforeEach(() => {
+    data = new ConsumptionData();
+  });
+
+  it('should insert into empty array', () => {
+    const measurement = createMeasurement('2024-01-01T00:00:00Z');
+    data.insert(measurement);
+    assert.equal(data.length, 1);
+    assert.deepEqual(data[0], measurement);
+  });
+
+  it('should handle empty insert', () => {
+    const measurement = createMeasurement('2024-01-01T00:00:00Z');
+    data.push(measurement);
+    data.insert();
+    assert.equal(data.length, 1);
+    assert.deepEqual(data[0], measurement);
+  });
+
+  it('should maintain sort order when inserting multiple items', () => {
+    const measurements = [
+      createMeasurement('2024-01-01T01:00:00Z'),
+      createMeasurement('2024-01-01T02:00:00Z'),
+      createMeasurement('2024-01-01T03:00:00Z'),
+    ];
+    data.insert(...measurements);
+
+    const newMeasurements = [
+      createMeasurement('2024-01-01T00:00:00Z'),
+      createMeasurement('2024-01-01T01:30:00Z'),
+      createMeasurement('2024-01-01T04:00:00Z'),
+    ];
+    data.insert(...newMeasurements);
+
+    assert.equal(data.length, 6);
+    assert.deepEqual(
+      data.map(m => m.startTime),
+      [
+        '2024-01-01T00:00:00.000Z',
+        '2024-01-01T01:00:00.000Z',
+        '2024-01-01T01:30:00.000Z',
+        '2024-01-01T02:00:00.000Z',
+        '2024-01-01T03:00:00.000Z',
+        '2024-01-01T04:00:00.000Z',
+      ]
+    );
+  });
+
+  it('should handle resolution ordering', () => {
+    const measurements = [
+      createMeasurement('2024-01-01T00:00:00Z', 'PT1H'),
+      createMeasurement('2024-01-01T00:00:00Z', 'PT15M'),
+      createMeasurement('2024-01-01T00:00:00Z', 'PT30M'),
+    ];
+    data.insert(...measurements);
+
+    assert.deepEqual(
+      data.map(m => m.resolution),
+      ['PT15M', 'PT30M', 'PT1H']
+    );
+  });
+
+  it('should handle meteringPoint ordering', () => {
+    const measurements = [
+      createMeasurement('2024-01-01T00:00:00Z', 'PT15M', 'MP3'),
+      createMeasurement('2024-01-01T00:00:00Z', 'PT15M', 'MP1'),
+      createMeasurement('2024-01-01T00:00:00Z', 'PT15M', 'MP2'),
+    ];
+    data.insert(...measurements);
+
+    assert.deepEqual(
+      data.map(m => m.meteringPoint),
+      ['MP1', 'MP2', 'MP3']
+    );
+  });
+
+  it('should replace duplicates with new values', () => {
+    const original = createMeasurement('2024-01-01T00:00:00Z', 'PT15M', 'MP1', 100);
+    const updated = createMeasurement('2024-01-01T00:00:00Z', 'PT15M', 'MP1', 200);
+
+    data.insert(original);
+    data.insert(updated);
+
+    assert.equal(data.length, 1);
+    assert.equal(data[0].quantity, 200);
+  });
+
+  it('should handle large datasets efficiently', () => {
+    const largeMeasurementSet1 = Array.from({ length: 10000 }, (_, i) => {
+      const d = new Date();
+      d.setSeconds(d.getSeconds() + i);
+      return createMeasurement(d.toISOString());
+    });
+    const largeMeasurementSet2 = Array.from({ length: 10000 }, (_, i) => {
+      const d = new Date();
+      d.setSeconds(d.getSeconds() + i + 10000);
+      return createMeasurement(d.toISOString());
+    });
+
+    const start = performance.now();
+    data.insert(...largeMeasurementSet1);
+    data.insert(...largeMeasurementSet2);
+    const end = performance.now();
+
+    assert.ok(end - start < 1000, 'Inserting large datasets should be efficient');
+  });
+});

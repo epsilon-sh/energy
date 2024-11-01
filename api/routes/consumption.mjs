@@ -23,6 +23,8 @@ router.get('/', async (req, res, next) => {
       end.getTime(),
     )
 
+    data.insert(...dbData)
+
     const result = data
       .from(start)
       .to(end)
@@ -46,6 +48,7 @@ fs.readFile(source, 'utf-8')
   .then(parseDsv)
   .then(parsed => {
     data.push(...parsed)
+
     console.log(`Data size: ${data.length}`)
   })
   .catch(error => {

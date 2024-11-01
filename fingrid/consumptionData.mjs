@@ -48,6 +48,49 @@ export const fromKWh = (quantity, targetUnit) => {
 }
 
 export class ConsumptionData extends Array {
+  insert(...measurements) {
+    if (!measurements?.length) return this;
+
+    measurements.sort(compare);
+
+    let thisIndex = 0;
+    while (measurements.length) {
+      // Find insertion point
+      while (thisIndex < this.length && compare(this[thisIndex], measurements[0]) < 0) {
+        thisIndex++;
+      }
+
+      // Count duplicates and insertions
+      let duplicates = 0;
+      let insertCount = 0;
+      while (insertCount < measurements.length &&
+        (thisIndex + duplicates) < this.length) {
+        const comp = compare(this[thisIndex + duplicates], measurements[insertCount]);
+        if (comp === 0) {
+          // Duplicate found - will replace existing element
+          duplicates++;
+          insertCount++;
+        } else if (comp > 0) {
+          // New element to insert
+          insertCount++;
+        } else {
+          break;
+        }
+      }
+
+      // Add remaining measurements if we're at the end of this
+      if ((thisIndex + duplicates) >= this.length) {
+        insertCount = measurements.length;
+      }
+
+      // Perform the splice operation
+      this.splice(thisIndex, duplicates, ...measurements.splice(0, insertCount));
+      thisIndex += insertCount;
+    }
+
+    return this;
+  }
+
   from(start) {
     return this.filter(measurement =>
       new Date(measurement.startTime) >= new Date(start))

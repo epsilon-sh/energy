@@ -1,11 +1,32 @@
-.charts {
+/* .charts {
   width: 100%;
   min-width: 200px;
   height: 100%;
   min-height: 200px;
+} */
+
+/* .recharts-default-tooltip {
+  text-align: left;
+  color: rgba(255, 255, 255, 0.25);
+  background-color: rgba(255, 255, 255, 0.25);
+} */
+
+.custom-tooltip {
+  background-color: var(--color-bg-primary);
+  border: var(--line-width-1) solid var(--color-shadow-mid);
+  padding: var(--m-s);
+  border-radius: var(--border-radius-1);
+  box-shadow: 0 2px 4px var(--color-shadow);
+  color: var(--color-text-primary);
+  font-family: var(--font-family-alt);
 }
 
-.recharts-default-tooltip {
-  text-align: left;
-  color: rgba(255, 255, 255, 0.75);
+.custom-tooltip p {
+  margin: 0;
+  padding: var(--m-xs) 0;
+}
+
+.custom-tooltip .label {
+  font-weight: var(--font-weight-semibold);
+  margin-bottom: var(--m-xs);
 }
