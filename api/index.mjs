@@ -7,7 +7,7 @@ import { initializeDatabase } from './db.mjs'
 const app = express()
 
 if (process.env.TRUST_PROXY)
-  app.set('trust proxy', true)
+  app.set('trust proxy', process.env.TRUST_PROXY)
 
 const PORT = process.env.PORT || 8989
 
