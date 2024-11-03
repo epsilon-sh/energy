@@ -7,7 +7,7 @@ import { DateTimeInput } from './components/DateTimeInput'
 import { Duration, periodResolutions } from './types/duration';
 
 const defaults = {
-  start: new Date().toISOString(),
+  start: new Date('2023-01-01T00:00:00Z').toISOString(),
   period: 'P1D' as Duration,
   resolution: 'PT1H' as Duration,
 };

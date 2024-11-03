@@ -1,6 +1,6 @@
 import './priceChart.css';
 
-import React, { useState } from 'react';
+import React from 'react';
 import {
   ResponsiveContainer,
   ComposedChart,
@@ -40,11 +40,11 @@ const ErrorComponent = (error: string) => (
 );
 
 const CustomTooltip = ({ active, payload, label }: TooltipProps<ValueType, NameType>) => {
-  const [prevActive, setPrevActive] = useState(active);
-  if (active !== prevActive) {
-    console.log({label, payload});
-    setPrevActive(active);
-  }
+  // const [prevActive, setPrevActive] = useState(active);
+  // if (active !== prevActive) {
+  //   console.log({label, payload});
+  //   setPrevActive(active);
+  // }
   if (active && payload && payload.length) {
     return (
       <div className="custom-tooltip">
@@ -58,7 +58,11 @@ const CustomTooltip = ({ active, payload, label }: TooltipProps<ValueType, NameT
   return null;
 };
 
-const EnergyChart: React.FC<EnergyChartProps> = ({ prices, consumption, resolution }) => {
+const EnergyChart: React.FC<EnergyChartProps> = ({
+  prices,
+  consumption,
+  // resolution
+}) => {
   const chartData = prices.data?.map((priceItem, index) => ({
     timeStart: priceItem.time,
     timeEnd: index < (prices.data?.length || 0) - 1 ? prices.data?.[index + 1].time : '',
@@ -78,21 +82,21 @@ const EnergyChart: React.FC<EnergyChartProps> = ({ prices, consumption, resoluti
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis
               dataKey="timeStart"
-              interval={resolution === 'P1D' ? 23 : resolution === 'PT1H' ? 0 : 59}
+              // interval={resolution === 'P1D' ? 23 : resolution === 'PT1H' ? 0 : 59}
             />
-            <YAxis yAxisId="left" orientation="left" stroke="#8884d8" />
-            <YAxis yAxisId="right" orientation="right" stroke="#ffa500" />
+            <YAxis yAxisId="consumption" orientation="left" stroke="#ffa500" />
+            <YAxis yAxisId="prices" orientation="right" stroke="#8884d8" />
             <Tooltip content={<CustomTooltip />} />
             <Legend />
             <Bar
-              yAxisId="right"
+              yAxisId="consumption"
               dataKey="consumption"
               fill="#ffa500"
               fillOpacity={0.8}
               name="Consumption"
             />
             <Line
-              yAxisId="left"
+              yAxisId="prices"
               type="step"
               dataKey="price"
               stroke="#8884d8"

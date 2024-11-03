@@ -93,12 +93,12 @@
 <div id="app" class="absolute top w-full h-auto"></div>
 <script type="module" src="/src/main.tsx"></script>
 <script>
-  function checkLocationHash() {
-    if (window.location.hash.startsWith('#preview'))
-      app.style.display = 'block';
-    else
-      app.style.display = 'none';
-  }
+  // function checkLocationHash() {
+  //   if (window.location.hash.startsWith('#preview'))
+  //     app.style.display = 'block';
+  //   else
+  //     app.style.display = 'none';
+  // }
 
   checkLocationHash();
   window.addEventListener('hashchange', checkLocationHash);
