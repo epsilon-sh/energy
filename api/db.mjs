@@ -6,7 +6,7 @@ const DB_CONSUMPTION_TABLE = process.env.DB_CONSUMPTION_TABLE || 'measurements'
 
 let db
 
-export async function initializeDatabase() {
+export const initializeDatabase = async () => {
   try {
     db = await Database.open(DB_STRING)
 
@@ -22,6 +22,12 @@ export async function initializeDatabase() {
       resolution STRING NOT NULL,
       time INTEGER NOT NULL,
       consumption REAL NOT NULL
+    )`)
+
+    await db.run(`CREATE TABLE IF NOT EXISTS waitlist (
+      email TEXT PRIMARY KEY NOT NULL,
+      source TEXT,
+      created_at INTEGER DEFAULT (strftime('%s', 'now'))
     )`)
 
     console.log(`Connected to database ${DB_STRING}`)

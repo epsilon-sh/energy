@@ -2,6 +2,7 @@ import express from 'express'
 import cors from 'cors'
 import pricesRouter from './routes/prices.mjs'
 import consumptionRouter from './routes/consumption.mjs'
+import waitlistRouter from './routes/waitlist.mjs'
 import { initializeDatabase } from './db.mjs'
 
 const app = express()
@@ -30,6 +31,7 @@ app.use((req, _res, next) => {
 
 app.use('/prices', pricesRouter)
 app.use('/consumption', consumptionRouter)
+app.use('/waitlist', waitlistRouter)
 
 app.use((err, _req, res, _next) => {
   console.error(err.stack)

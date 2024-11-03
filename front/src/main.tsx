@@ -26,7 +26,36 @@ ReactDOM.createRoot(appMount!)
       </StoreProvider>
     </React.StrictMode>)
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8989';
+
 const cta = document.querySelector('form[name="waitlist"]')!
 const mail: HTMLInputElement = cta.querySelector('input[name="email"]')!
-cta.addEventListener('submit', () => console.log(`submit ${mail.value}`))
-console.log(cta)
+
+// Replace the console.log handler with actual API call
+const handleWaitlistSubmit = async (email: string) => {
+  try {
+    const target = new URL('/waitlist', API_URL)
+    const response = await fetch(target, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email }),
+    })
+    
+    if (!response.ok) {
+      throw new Error('Failed to join waitlist')
+    }
+    
+    alert('Successfully joined waitlist!')
+  } catch (error) {
+    console.error('Waitlist error:', error)
+    alert('Failed to join waitlist. Please try again later.')
+  }
+}
+
+// Update the event listener
+cta.addEventListener('submit', (e) => {
+  e.preventDefault()
+  handleWaitlistSubmit(mail.value)
+})
