@@ -28,6 +28,8 @@ router.post('/', async (req, res, next) => {
       [email, source],
     )
 
+    console.log(`waitlist ${email}`)
+
     // Handle response based on request type
     if (req.is('json'))
       return res.status(200).json({ message: 'Successfully joined waitlist' })
