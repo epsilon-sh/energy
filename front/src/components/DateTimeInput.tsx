@@ -2,14 +2,14 @@ import React from 'react';
 
 interface DateTimeInputProps {
   onChange: (date: Date) => void;
-  defaultValue?: Date;
+  value?: Date;
 }
 
 type DateField = 'year' | 'month' | 'day' | 'hour';
 
 export const DateTimeInput: React.FC<DateTimeInputProps> = ({ 
   onChange, 
-  defaultValue = new Date('2023-01-01T00:00:00') 
+  value: defaultValue = new Date('2023-01-01T00:00:00') 
 }) => {
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const { name, value } = e.target;

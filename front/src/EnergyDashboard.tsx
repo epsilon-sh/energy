@@ -66,7 +66,7 @@ const EnergyDashboard: React.FC = () => {
           <h3 className="text-sm font-semibold mb-2">Start Time:</h3>
           <DateTimeInput
             onChange={handleStartChange}
-            defaultValue={new Date(query.start)}
+            value={new Date(query.start)}
           />
         </div>
 
