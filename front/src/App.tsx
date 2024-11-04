@@ -29,7 +29,7 @@ const App: FC = () => {
         <Settings />
       </Modal>
       <Modal open={panels.modal} onClose={() => close('modal')}>
-        <h1 className='title noselect relative mt-1/3 translate-y-1/2'>{'press <esc> to close.'}</h1>
+        <h1 className='title noselect relative top-1/2 translate-y-1/2'>{'press <esc> to close.'}</h1>
       </Modal>
       <h1 className='watermark right'>epsilon energy (preview)</h1>
     </div>
