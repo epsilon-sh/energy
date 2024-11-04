@@ -59,28 +59,49 @@ const EnergyDashboard: React.FC = () => {
 
   return (
     <div className="p-4">
-      <h1 className="text-2xl font-bold mb-4">Energy Dashboard</h1>
+      <h1 className='my-s'>Energy Dashboard</h1>
 
-      <div className="flex flex-col md:flex-row gap-4 mb-6">
-        <div className="flex-1">
-          <h3 className="text-sm font-semibold mb-2">Start Time:</h3>
+      <div className="flex flex-col">
+        <div className='my-s'>
+          <h3 className='my-s'>Start Time:</h3>
           <DateTimeInput
             onChange={handleStartChange}
             value={new Date(query.start)}
           />
         </div>
 
-        <div className="flex-1">
-          <h3 className="text-sm font-semibold mb-2">Period:</h3>
+<EnergyChart
+  prices={{
+    data: prices.data,
+    isLoading: prices.isLoading,
+    error: getErrorMessage(prices.error)
+  }}
+  consumption={{
+    data: consumption.data,
+    isLoading: consumption.isLoading,
+    error: getErrorMessage(consumption.error)
+  }}
+  resolution={query.resolution}
+/>
+
+        <div className='my-s'>
+          <h3 className='my-s'>Period:</h3>
           <DurationSelector
-            options={['P1Y', 'P3M', 'P1M', 'P7D', 'P1D', 'PT1H']}
+            options={[
+              'P1Y',
+              // 'P3M',
+              'P1M',
+              'P7D',
+              'P1D',
+              // 'PT1H',
+            ]}
             selected={query.period}
             onChange={handlePeriodChange}
           />
         </div>
 
-        <div className="flex-1">
-          <h3 className="text-sm font-semibold mb-2">Resolution:</h3>
+        <div className='my-s'>
+          <h3 className='my-s'>Resolution:</h3>
           <DurationSelector
             options={periodResolutions[query.period]}
             selected={query.resolution}
@@ -88,20 +109,6 @@ const EnergyDashboard: React.FC = () => {
           />
         </div>
       </div>
-
-      <EnergyChart
-        prices={{
-          data: prices.data,
-          isLoading: prices.isLoading,
-          error: getErrorMessage(prices.error)
-        }}
-        consumption={{
-          data: consumption.data,
-          isLoading: consumption.isLoading,
-          error: getErrorMessage(consumption.error)
-        }}
-        resolution={query.resolution}
-      />
     </div>
   );
 };

@@ -31,7 +31,6 @@ const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8989';
 const cta = document.querySelector('form[name="waitlist"]')!
 const mail: HTMLInputElement = cta.querySelector('input[name="email"]')!
 
-// Replace the console.log handler with actual API call
 const handleWaitlistSubmit = async (email: string) => {
   try {
     const target = new URL('/waitlist', API_URL)

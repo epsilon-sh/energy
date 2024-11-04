@@ -71,19 +71,14 @@ const EnergyChart: React.FC<EnergyChartProps> = ({
   }));
 
   return (
-    <div style={{ position: 'relative' }}>
+    <div className='relative'>
       {(prices.isLoading || consumption.isLoading) && LoadingComponent}
       {(prices.error || consumption.error) && ErrorComponent(prices.error || consumption.error || 'Unknown error')}
       {(prices.data || consumption.data) && (
-        <ResponsiveContainer width="100%" height={400}>
-          <ComposedChart
-            data={chartData}
-          >
+        <ResponsiveContainer height={400}>
+          <ComposedChart data={chartData} margin={{ left: -25, right: -25, top: 10 }}>
             <CartesianGrid strokeDasharray="3 3" />
-            <XAxis
-              dataKey="timeStart"
-              // interval={resolution === 'P1D' ? 23 : resolution === 'PT1H' ? 0 : 59}
-            />
+            <XAxis dataKey="timeStart" />
             <YAxis yAxisId="consumption" orientation="left" stroke="#ffa500" />
             <YAxis yAxisId="prices" orientation="right" stroke="#8884d8" />
             <Tooltip content={<CustomTooltip />} />

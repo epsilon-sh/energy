@@ -22,7 +22,9 @@ const App: FC = () => {
     ? view && <Controls><button onClick={() => open('workspace')}>Early preview</button></Controls>
     : <div>
       <Workspace open={panels.workspace}
-        controls={[<button key='options' onClick={() => toggle('options')} children={<Braces />} />]}>
+        controls={[
+        <button key='options' onClick={() => toggle('options')} children={<Braces />} />
+        ]}>
         <EnergyDashboard />
       </Workspace>
       <Modal open={panels.options} onClose={() => close('options')}>

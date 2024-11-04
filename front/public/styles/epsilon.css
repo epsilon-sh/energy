@@ -153,9 +153,9 @@ section h4 {
 @media screen and (min-width: 768px) {
   :root {
     --m-xs: 0.5rem;
-    --m-s: 1em;
-    --m-m: 2em;
-    --m-l: 3em;
+    --m-s: 1rem;
+    --m-m: 2rem;
+    --m-l: 3rem;
   }
 
   .workspace {
@@ -188,6 +188,10 @@ section h4 {
   position: absolute;
 }
 
+.fixed {
+  position: fixed;
+}
+
 .block {
   display: block;
 }
@@ -210,6 +214,15 @@ section h4 {
   flex-direction: row !important;
 }
 
+.flex-wrap {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.gap-s {
+  gap: var(--m-s);
+}
+
 .right {
   right: 0;
 }
@@ -218,19 +231,29 @@ section h4 {
   margin-left: auto;
 }
 
+.my {
+  margin-top: auto;
+  margin-bottom: auto;
+}
+
 .my-0 {
   margin-top: 0;
   margin-bottom: 0;
 }
 
+.my-s {
+  margin-top: var(--m-s);
+  margin-bottom: var(--m-s);
+}
+
+.my-m {
+  margin-top: var(--m-m);
+  margin-bottom: var(--m-m);
+}
+
 .mx {
   margin-left: auto;
   margin-right: auto;
-}
-
-.my {
-  margin-top: auto;
-  margin-bottom: auto;
 }
 
 .mx-s {
@@ -309,10 +332,6 @@ section h4 {
   gap: 20px;
 }
 
-.fixed {
-  position: fixed;
-}
-
 .relative {
   position: relative;
 }
@@ -355,7 +374,7 @@ section h4 {
 }
 
 .p-4 {
-  padding: 1rem;
+  padding: var(--m-m);
 }
 
 .rounded-lg {
