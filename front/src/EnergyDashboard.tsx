@@ -52,8 +52,8 @@ const EnergyDashboard: React.FC = () => {
 
   const getErrorMessage = (error: unknown) => {
     if (!error) return undefined;
-    return 'message' in (error as Error) 
-      ? (error as Error).message 
+    return 'message' in (error as Error)
+      ? (error as Error).message
       : String(error);
   };
 
@@ -61,54 +61,53 @@ const EnergyDashboard: React.FC = () => {
     <div className="p-4">
       <h1 className='my-s'>Energy Dashboard</h1>
 
-      <div className="flex flex-col">
-        <div className='my-s'>
-          <h3 className='my-s'>Start Time:</h3>
-          <DateTimeInput
-            onChange={handleStartChange}
-            value={new Date(query.start)}
-          />
-        </div>
-
-<EnergyChart
-  prices={{
-    data: prices.data,
-    isLoading: prices.isLoading,
-    error: getErrorMessage(prices.error)
-  }}
-  consumption={{
-    data: consumption.data,
-    isLoading: consumption.isLoading,
-    error: getErrorMessage(consumption.error)
-  }}
-  resolution={query.resolution}
-/>
-
-        <div className='my-s'>
-          <h3 className='my-s'>Period:</h3>
-          <DurationSelector
-            options={[
-              'P1Y',
-              // 'P3M',
-              'P1M',
-              'P7D',
-              'P1D',
-              // 'PT1H',
-            ]}
-            selected={query.period}
-            onChange={handlePeriodChange}
-          />
-        </div>
-
-        <div className='my-s'>
-          <h3 className='my-s'>Resolution:</h3>
-          <DurationSelector
-            options={periodResolutions[query.period]}
-            selected={query.resolution}
-            onChange={handleResolutionChange}
-          />
-        </div>
+      <div className='my-s'>
+        <h3 className='my-s'>Start Time:</h3>
+        <DateTimeInput
+          onChange={handleStartChange}
+          value={new Date(query.start)}
+        />
       </div>
+
+      <EnergyChart
+        prices={{
+          data: prices.data,
+          isLoading: prices.isLoading,
+          error: getErrorMessage(prices.error)
+        }}
+        consumption={{
+          data: consumption.data,
+          isLoading: consumption.isLoading,
+          error: getErrorMessage(consumption.error)
+        }}
+        resolution={query.resolution}
+      />
+
+      <div className='my-s'>
+        <h3 className='my-s'>Period:</h3>
+        <DurationSelector
+          options={[
+            'P1Y',
+            // 'P3M',
+            'P1M',
+            'P7D',
+            'P1D',
+            // 'PT1H',
+          ]}
+          selected={query.period}
+          onChange={handlePeriodChange}
+        />
+      </div>
+
+      <div className='my-s'>
+        <h3 className='my-s'>Resolution:</h3>
+        <DurationSelector
+          options={periodResolutions[query.period]}
+          selected={query.resolution}
+          onChange={handleResolutionChange}
+        />
+      </div>
+
     </div>
   );
 };

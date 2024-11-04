@@ -14,7 +14,7 @@ const PORT = process.env.PORT || 8989
 
 // CORS configuration
 const corsOptions = {
-  origin: process.env.FRONTEND_URL || 'http://localhost:5173', // Allow requests from the frontend
+  origin: process.env.FRONTEND_URL || '*', // Restrict to frontend URL if provided
   optionsSuccessStatus: 200,
 }
 
@@ -40,8 +40,8 @@ app.use((err, _req, res, _next) => {
 
 const startServer = async () => {
   try {
-    app.listen(PORT, process.env.HOSTNAME || 'localhost', () => {
-      console.log(`Server running at http://${process.env.HOSTNAME || 'localhost'}:${PORT}`)
+    app.listen(PORT, () => {
+      console.log(`Server running at http://${process.env.HOST || 'localhost'}:${PORT}`)
     })
 
     await initializeDatabase()
