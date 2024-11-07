@@ -18,10 +18,14 @@ export const initializeDatabase = async () => {
     )`)
 
     await db.run(`CREATE TABLE IF NOT EXISTS ${DB_CONSUMPTION_TABLE} (
-      domain TEXT NOT NULL,
-      resolution STRING NOT NULL,
-      time INTEGER NOT NULL,
-      consumption REAL NOT NULL
+      "MeteringPointGSRN" TEXT,
+      "Product Type" TEXT,
+      "Resolution" TEXT,
+      "Unit Type" TEXT,
+      "Reading Type" TEXT,
+      "Start Time" TEXT,
+      "Quantity" TEXT,
+      "Quality" TEXT
     )`)
 
     await db.run(`CREATE TABLE IF NOT EXISTS waitlist (

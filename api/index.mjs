@@ -45,6 +45,16 @@ const startServer = async () => {
     })
 
     await initializeDatabase()
+
+    // process.on('SIGTERM', () => {
+    //   console.log('SIGTERM, goodbye!')
+    //   process.exit(0)
+    // })
+
+    // process.on('SIGINT', () => {
+    //   console.log('SIGINT, goodbye!')
+    //   process.exit(0)
+    // })
   } catch (error) {
     console.error('Failed to start server:', error)
     process.exit(1)

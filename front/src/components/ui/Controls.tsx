@@ -6,6 +6,6 @@ interface ControlProps {
 }
 
 const Controls: FC<ControlProps> = ({className, ...props}) => <div
-  className={`controls${className ? ' ' + className : ''}`} {...props} />
+  className={`controls${!className ? '' : ' ' + className}`} {...props} />
 
 export default Controls

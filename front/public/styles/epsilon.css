@@ -99,6 +99,11 @@ input[type="email"] {
   border-radius: var(--border-radius-1);
 }
 
+footer {
+  margin-top: auto;
+  width: 100%;
+}
+
 section > h2, section > h3 {
   margin: 1rem 0;
 }
@@ -141,11 +146,23 @@ section h4 {
     --m-m: 1.25rem;
     --m-l: 1.5rem;
   }
-
-  .controls {
-    position: absolute;
-    right: 0;
+  /* .controls {
+    margin-left: auto;
     flex-direction: column-reverse;
+    right: 0;
+    position: absolute;
+    height: 100%;
+  }
+  .controls > button {
+    margin: var(--m-s);
+  }
+  .controls > button:last-of-type {
+    margin-bottom: auto;
+  } */
+
+  .inputs-group {
+    flex-direction: column;
+    width: fit-content;
   }
 }
 
@@ -391,7 +408,7 @@ section h4 {
 }
 
 .shadow-md {
-  box-shadow: 0 4px 6px -1px var(--color-shadow), 0 2px 4px -1px var(--color-shadow);
+  box-shadow: 0 4px 6px -1px var(--color-shadow), 0 2px 4px -1px var(--color-shadow-mid);
 }
 
 .noshadow:hover {
@@ -503,7 +520,8 @@ section h4 {
 
 .watermark {
   position: fixed;
-  bottom: 0;
+  top: 0;
+  left: 0;
   margin: 0;
 
   font-size: 1rem;
@@ -513,4 +531,31 @@ section h4 {
 
 .title {
   text-align: center;
+}
+
+/* Add these new utility classes */
+.bg-primary {
+  background-color: var(--color-bg-primary);
+}
+
+.bg-transparent {
+  background-color: transparent;
+}
+
+.bg-shadow {
+  background-color: var(--color-shadow);
+}
+
+.bg-shadow-mid {
+  background-color: var(--color-shadow-mid);
+}
+
+.bg-shadow-heavy {
+  background-color: var(--color-shadow-heavy);
+}
+
+/* Add a{} for text primary, decoration underline dashed */
+a {
+  color: var(--color-text-primary);
+  text-decoration: underline dashed;
 }

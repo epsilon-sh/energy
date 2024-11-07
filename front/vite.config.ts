@@ -16,4 +16,14 @@ export default defineConfig({
     },
   },
   // envDir: '.',
+  server: {
+    proxy: {
+      '/api': {
+        target: 'http://localhost:8989',
+        changeOrigin: true,
+        // Remove /api prefix when forwarding to backend
+        // rewrite: (path) => path.replace(/^\/api/, '')
+      }
+    }
+  }
 })

@@ -3,7 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import { useEnergyData } from './useEnergyData';
 import EnergyChart from './EnergyChart';
 import { DurationSelector } from './components/DurationSelector';
-import { DateTimeInput } from './components/DateTimeInput'
+// import { DateTimeInput } from './components/DateTimeInput'
 import { Duration, periodResolutions } from './types/duration';
 
 const defaults = {
@@ -25,7 +25,7 @@ const EnergyDashboard: React.FC = () => {
 
   const handleStartChange = (date: Date) => {
     setSearchParams(prev => {
-      prev.set('start', date.toISOString());
+      console.log(prev.set('start', date.toISOString()), `startChange: ${date.toISOString()}`);
       return prev;
     });
   };
@@ -58,15 +58,49 @@ const EnergyDashboard: React.FC = () => {
   };
 
   return (
-    <div className="p-4">
-      <h1 className='my-s'>Energy Dashboard</h1>
+    <>
+      {/* <h1 className='my-s'>Energy Dashboard</h1> */}
 
-      <div className='my-s'>
-        <h3 className='my-s'>Start Time:</h3>
-        <DateTimeInput
-          onChange={handleStartChange}
-          value={new Date(query.start)}
-        />
+      <div className='my-m flex inputs-group'>
+
+        <div className='my-s mx-s'>
+          <h3 className='my-s'>Start Time:</h3>
+          <input type='datetime-local'
+            id='start'
+            step={query.resolution}
+            value={new Date(query.start).toISOString().slice(0, -1)}
+            onChange={e => {
+              const value = e.target.value!;
+              handleStartChange(new Date(value));
+            }}
+          />
+        </div>
+
+        <div className='my-s mx-s'>
+          <h3 className='my-s'>Period:</h3>
+          <DurationSelector
+            options={[
+              'P1Y',
+              // 'P3M',
+              'P1M',
+              'P7D',
+              'P1D',
+              // 'PT1H',
+            ]}
+            selected={query.period}
+            onChange={handlePeriodChange}
+          />
+        </div>
+
+        <div className='my-s mx-s'>
+          <h3 className='my-s'>Resolution:</h3>
+          <DurationSelector
+            options={periodResolutions[query.period]}
+            selected={query.resolution}
+            onChange={handleResolutionChange}
+          />
+        </div>
+
       </div>
 
       <EnergyChart
@@ -83,32 +117,7 @@ const EnergyDashboard: React.FC = () => {
         resolution={query.resolution}
       />
 
-      <div className='my-s'>
-        <h3 className='my-s'>Period:</h3>
-        <DurationSelector
-          options={[
-            'P1Y',
-            // 'P3M',
-            'P1M',
-            'P7D',
-            'P1D',
-            // 'PT1H',
-          ]}
-          selected={query.period}
-          onChange={handlePeriodChange}
-        />
-      </div>
-
-      <div className='my-s'>
-        <h3 className='my-s'>Resolution:</h3>
-        <DurationSelector
-          options={periodResolutions[query.period]}
-          selected={query.resolution}
-          onChange={handleResolutionChange}
-        />
-      </div>
-
-    </div>
+    </>
   );
 };
 

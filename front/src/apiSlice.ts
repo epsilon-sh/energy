@@ -18,6 +18,7 @@ const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8989/';
 export const apiSlice = createApi({
   reducerPath: 'api',
   baseQuery: fetchBaseQuery({ baseUrl: API_URL }),
+  tagTypes: ['Consumption'],
   endpoints: (builder) => ({
     getPrices: builder.query<PricePoint[], { start: string; period: string; resolution: string }>({
       query: (params) => {
@@ -37,7 +38,15 @@ export const apiSlice = createApi({
         return `consumption?${queryParams.toString()}`;
       },
     }),
+    uploadConsumption: builder.mutation<{ message: string }, FormData>({
+      query: (formData) => ({
+        url: 'consumption/upload',
+        method: 'POST',
+        body: formData,
+      }),
+      invalidatesTags: ['Consumption'],
+    }),
   }),
 });
 
-export const { useGetPricesQuery, useGetConsumptionQuery } = apiSlice;
+export const { useGetPricesQuery, useGetConsumptionQuery, useUploadConsumptionMutation } = apiSlice;

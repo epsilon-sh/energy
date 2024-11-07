@@ -7,7 +7,7 @@ const compareString = (s1, s2) => {
 }
 
 export const compare = (m1, m2) => {
-  const timeDiff = m1.startTime - m2.startTime
+  const timeDiff = new Date(m1.startTime).getTime() - new Date(m2.startTime).getTime()
   if (timeDiff !== 0) return timeDiff
 
   if (m1.meteringPoint !== m2.meteringPoint) return compareString(m1.meteringPoint, m2.meteringPoint)
@@ -15,13 +15,11 @@ export const compare = (m1, m2) => {
   if (m1.productType !== m2.productType) return compareString(m1.productType, m2.productType)
 
   if (m1.readingType !== m2.readingType) return compareString(m1.readingType, m2.readingType)
-
-  if (r1 !== r2) {
+  if (m1.resolution !== m2.resolution) {
     const d1 = parseDuration(m1.resolution)
     const d2 = parseDuration(m2.resolution)
     return d2 - d1
   }
-
   return 0;
 }
 
@@ -49,56 +47,76 @@ export const fromKWh = (quantity, targetUnit) => {
 
 export class ConsumptionData extends Array {
   insert(...measurements) {
+    console.log('inserting', measurements.length, 'into', this.length)
     if (!measurements?.length) return this;
 
     measurements.sort(compare);
 
-    let thisIndex = 0;
+    let offset = 0;
+    let insert = 0;
+    let dropped = 0;
+    let inserted = 0;
     while (measurements.length) {
-      // Find insertion point
-      while (thisIndex < this.length && compare(this[thisIndex], measurements[0]) < 0) {
-        thisIndex++;
+      const thisItem = this[offset + insert];
+      const measurement = measurements[insert];
+
+      if (!thisItem) {
+        console.log('insert rest', measurements.length - insert, 'at', offset + insert)
+        insert += measurements.length - insert;
+        this.splice(offset, 0, ...measurements.splice(0, insert));
+        inserted += insert;
+        insert = 0;
+        break;
       }
 
-      // Count duplicates and insertions
-      let duplicates = 0;
-      let insertCount = 0;
-      while (insertCount < measurements.length &&
-        (thisIndex + duplicates) < this.length) {
-        const comp = compare(this[thisIndex + duplicates], measurements[insertCount]);
-        if (comp === 0) {
-          // Duplicate found - will replace existing element
-          duplicates++;
-          insertCount++;
-        } else if (comp > 0) {
-          // New element to insert
-          insertCount++;
-        } else {
-          break;
+      if (!measurement) {
+        if (insert) {
+          console.log(`insert ${insert} at ${offset}`)
+          this.splice(offset, 0, ...measurements.splice(0, insert));
+          inserted += insert;
+          offset += insert + 1;
+          insert = 0;
         }
+        break; // done
       }
 
-      // Add remaining measurements if we're at the end of this
-      if ((thisIndex + duplicates) >= this.length) {
-        insertCount = measurements.length;
+      const comp = compare(measurement, thisItem);
+
+      if (comp < 0) {
+        insert++;
+        console.log('from', offset, 'offset', insert)
       }
 
-      // Perform the splice operation
-      this.splice(thisIndex, duplicates, ...measurements.splice(0, insertCount));
-      thisIndex += insertCount;
+      if (comp === 0) {
+        measurements.splice(insert, 1);
+        dropped++;
+      }
+
+      if (comp > 0) {
+        // console.log('stop insert', insert, 'at', offset + insert)
+        this.splice(offset, 0, ...measurements.splice(0, insert));
+        // console.log(`insert ${insert} at ${offset} offset`, insert)
+        inserted += insert;
+        offset += insert + 1;
+        insert = 0;
+      }
+
     }
 
+    console.log(`${inserted} inserted, ${dropped} skipped, ${measurements.length} left`)
     return this;
   }
 
   from(start) {
+    const startDate = new Date(start)
     return this.filter(measurement =>
-      new Date(measurement.startTime) >= new Date(start))
+      new Date(measurement.startTime) >= startDate)
   }
 
   to(end) {
+    const endDate = new Date(end)
     return this.filter(measurement =>
-      new Date(measurement.startTime) <= new Date(end));
+      new Date(measurement.startTime) <= endDate);
   }
 
   limit(count) {
@@ -106,8 +124,12 @@ export class ConsumptionData extends Array {
   }
 
   match(pattern) {
-    return this.filter(item => Object.keys(pattern)
-      .every(key => item[key] === pattern[key]))
+    const match = item => Object.keys(pattern)
+      .every(key => typeof pattern[key] === 'function'
+        ? pattern[key](item[key])
+        : pattern[key] === item[key])
+
+    return this.filter(match)
   }
 
   select(keys) {
