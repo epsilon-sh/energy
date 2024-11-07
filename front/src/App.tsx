@@ -16,7 +16,7 @@ const App: FC = () => {
   // const [hash] = useHash();
   // const view = hashRoutes.find(x => x === hash.slice(1));
   const view = 'preview';
-  const { panels, toggle, close, open } = usePanelManager(view);
+  const { panels, toggle, close, open, escape } = usePanelManager(view);
 
   useEffect(() => {
     console.log({view, panels});
@@ -37,7 +37,7 @@ const App: FC = () => {
         // App close button
         // Data management button
         <button key='options' onClick={() => toggle('options')}>Data</button>,
-        <button key='close' onClick={() => close('workspace')}>X</button>,
+        <button key='close' onClick={escape}>X</button>,
         ]}>
         <EnergyDashboard />
       </Workspace>

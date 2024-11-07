@@ -71,7 +71,7 @@ const EnergyChart: React.FC<EnergyChartProps> = ({
   }));
 
   return (
-    <div className='relative'>
+    <div className='relative overflow-hidden'>
       {(prices.isLoading || consumption.isLoading) && LoadingComponent}
       {(prices.error || consumption.error) && ErrorComponent(prices.error || consumption.error || 'Unknown error')}
       {(prices.data || consumption.data) && (

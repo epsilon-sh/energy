@@ -35,6 +35,8 @@ export const apiSlice = createApi({
         queryParams.append('start', params.start);
         queryParams.append('period', params.period);
         queryParams.append('resolution', params.resolution);
+        queryParams.append('meteringPoint', params.meteringPoint || 'TEST_METERINGPOINT')
+
         return `consumption?${queryParams.toString()}`;
       },
     }),

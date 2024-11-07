@@ -1,7 +1,8 @@
 import Card, { CardHeader, CardTitle } from "@ui/Card";
 import { Upload } from 'lucide-react';
 import { useState } from "react";
-import { parseDsv } from '../../fingrid/parseImport.mjs';
+
+import { parseDsv } from '../../fingrid/parseImport.mjs'
 import consumptionData, { ConsumptionData } from '../../fingrid/consumptionData.mjs';
 
 window.consumptionData = consumptionData;

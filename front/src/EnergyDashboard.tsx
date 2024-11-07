@@ -10,6 +10,7 @@ const defaults = {
   start: new Date('2023-01-01T00:00:00Z').toISOString(),
   period: 'P1D' as Duration,
   resolution: 'PT1H' as Duration,
+  deliveryPoint: 'TEST_DELIVERYPOINT'
 };
 
 const EnergyDashboard: React.FC = () => {
@@ -19,6 +20,7 @@ const EnergyDashboard: React.FC = () => {
     start: searchParams.get('start') || defaults.start,
     period: (searchParams.get('period') as Duration) || defaults.period,
     resolution: (searchParams.get('resolution') as Duration) || defaults.resolution,
+    deliveryPoint: (searchParams.get('deliveryPoint')) || defaults.deliveryPoint,
   };
 
   const { prices, consumption } = useEnergyData(query);
@@ -34,7 +36,7 @@ const EnergyDashboard: React.FC = () => {
     const availableResolutions = periodResolutions[period];
     const newResolution = availableResolutions.includes(query.resolution)
       ? query.resolution
-      : availableResolutions[availableResolutions.length - 1];
+      : availableResolutions.at(-1);
 
     setSearchParams(prev => {
       prev.set('period', period);

@@ -559,3 +559,7 @@ a {
   color: var(--color-text-primary);
   text-decoration: underline dashed;
 }
+
+.overflow-hidden {
+  overflow: hidden;
+}
