@@ -3,7 +3,8 @@ import { getDatabase } from '../db.mjs'
 import fetchPrices from '../../entso/query.mjs'
 import { transformPrices as extractPrices } from '../../entso/transform.mjs'
 import { formatDate } from '../../entso/utils.mjs'
-import { parse as parseDuration, toSeconds } from 'iso8601-duration'
+import { parse as parseDuration } from 'iso8601-duration'
+import { add, intervalToDuration } from 'date-fns'
 import pricesData from '../../entso/priceData.mjs'
 
 const router = express.Router()
@@ -12,18 +13,13 @@ const DB_PRICE_TABLE = process.env.DB_PRICE_TABLE || 'prices'
 router.get('/', async (req, res, next) => {
   try {
     const start = new Date(req.query.start || '2023/01/01 00:00 UTC')
-    const period = req.query.period || 'P1Y'
+    const duration = req.query.end
+      ? intervalToDuration({ start, end: new Date(req.query.end) })
+      : parseDuration(req.query.period || 'P7D')
+    const end = new Date(req.query.end || add(start, duration))
+
     const resolution = req.query.resolution || 'PT1H'
 
-    // Calculate end time based on period
-    const periodSeconds = toSeconds(parseDuration(period))
-    const end = new Date(start.getTime() + periodSeconds * 1000)
-
-    // TODO : check if data in pricesData already (start, end, resolution)
-    // - check from pricesData map
-    // - try to get missing datapoints from db
-    // - try to get missing datapoints from entso
-    // - insert missing datapoints
     const db = getDatabase()
     const dbData = await db.all(
       `SELECT * FROM ${DB_PRICE_TABLE} WHERE time >= ? AND time <= ?`,

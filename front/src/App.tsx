@@ -13,8 +13,6 @@ import { usePanelManager } from './PanelManager';
 // import { hashRoutes } from './types';
 
 const App: FC = () => {
-  // const [hash] = useHash();
-  // const view = hashRoutes.find(x => x === hash.slice(1));
   const view = 'preview';
   const { panels, toggle, close, open, escape } = usePanelManager(view);
 

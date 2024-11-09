@@ -5,12 +5,14 @@ import EnergyChart from './EnergyChart';
 import { DurationSelector } from './components/DurationSelector';
 // import { DateTimeInput } from './components/DateTimeInput'
 import { Duration, periodResolutions } from './types/duration';
+import { parse as parseDuration } from 'iso8601-duration';
+import { add, sub } from 'date-fns'
 
 const defaults = {
   start: new Date('2023-01-01T00:00:00Z').toISOString(),
-  period: 'P1D' as Duration,
+  end: new Date('2023-01-08T00:00:00Z').toISOString(),
   resolution: 'PT1H' as Duration,
-  deliveryPoint: 'TEST_DELIVERYPOINT'
+  meteringPoint: 'TEST_METERINGPOINT'
 };
 
 const EnergyDashboard: React.FC = () => {
@@ -18,11 +20,12 @@ const EnergyDashboard: React.FC = () => {
 
   const query = {
     start: searchParams.get('start') || defaults.start,
-    period: (searchParams.get('period') as Duration) || defaults.period,
+    end: searchParams.get('end') || defaults.end,
     resolution: (searchParams.get('resolution') as Duration) || defaults.resolution,
-    deliveryPoint: (searchParams.get('deliveryPoint')) || defaults.deliveryPoint,
+    meteringPoint: (searchParams.get('meteringPoint') || searchParams.get('MeteringPointGSRN')) || defaults.meteringPoint,
   };
 
+  console.log({ query }, 'useEnergyData query')
   const { prices, consumption } = useEnergyData(query);
 
   const handleStartChange = (date: Date) => {
@@ -32,18 +35,25 @@ const EnergyDashboard: React.FC = () => {
     });
   };
 
-  const handlePeriodChange = (period: Duration) => {
-    const availableResolutions = periodResolutions[period];
-    const newResolution = availableResolutions.includes(query.resolution)
-      ? query.resolution
-      : availableResolutions.at(-1);
-
+  const handleEndChange = (date: Date) => {
     setSearchParams(prev => {
-      prev.set('period', period);
-      prev.set('resolution', newResolution);
+      console.log(prev.set('end', date.toISOString()), `endChange: ${date.toISOString()}`);
       return prev;
     });
   };
+
+  // const handlePeriodChange = (period: Duration) => {
+  //   const availableResolutions = periodResolutions[period];
+  //   const newResolution = availableResolutions.includes(query.resolution)
+  //     ? query.resolution
+  //     : availableResolutions.at(-1);
+
+  //   setSearchParams(prev => {
+  //     prev.set('period', period);
+  //     prev.set('resolution', newResolution);
+  //     return prev;
+  //   });
+  // };
 
   const handleResolutionChange = (resolution: Duration) => {
     setSearchParams(prev => {
@@ -79,6 +89,16 @@ const EnergyDashboard: React.FC = () => {
         </div>
 
         <div className='my-s mx-s'>
+          <h3 className='my-s'>End Time:</h3>
+          <input type='datetime-local'
+            id='end'
+            step='PT1H'
+            value={new Date(query.end).toISOString().slice(0, -1)}
+            onChange={e => handleEndChange(new Date(e.target.value))}
+          />
+        </div>
+
+        {/* <div className='my-s mx-s'>
           <h3 className='my-s'>Period:</h3>
           <DurationSelector
             options={[
@@ -92,12 +112,12 @@ const EnergyDashboard: React.FC = () => {
             selected={query.period}
             onChange={handlePeriodChange}
           />
-        </div>
+        </div> */}
 
-        <div className='my-s mx-s'>
+        <div className='my-s mx-s block'>
           <h3 className='my-s'>Resolution:</h3>
           <DurationSelector
-            options={periodResolutions[query.period]}
+            options={periodResolutions['P7D']}
             selected={query.resolution}
             onChange={handleResolutionChange}
           />

@@ -26,20 +26,20 @@ router.get('/', async (req, res, next) => {
     const periodSeconds = toSeconds(parseDuration(period))
     const end = new Date(req.query.end || new Date(start.getTime() + periodSeconds * 1000))
     const resolution = req.query.resolution || 'PT1H'
-    const meteringPoint = req.query.MeteringPointGSRN || req.query.meteringPoint || req.query.meteringPointGSRN
+    const meteringPoint = req.query.MeteringPointGSRN ||
+      req.query.meteringPoint ||
+      req.query.meteringPointGSRN ||
+      'TEST_METERINGPOINT'
+
+    console.log({ start, end, resolution, meteringPoint })
 
     const db = await getDatabase()
-    let query = `SELECT * FROM ${DB_CONSUMPTION_TABLE} WHERE "Start Time" >= ? AND "Start Time" <= ?`
-    const params = [start.toISOString(), end.toISOString()]
+    const query = `SELECT * FROM ${DB_CONSUMPTION_TABLE}
+      WHERE "Start Time" >= ?
+        AND "Start Time" <= ?
+        AND "MeteringPointGSRN" = ?`
+    const params = [start.toISOString(), end.toISOString(), meteringPoint]
 
-    const filter = {
-    }
-
-    if (meteringPoint) {
-      query += ' AND "MeteringPointGSRN" = ?'
-      params.push(meteringPoint)
-      filter.meteringPoint = v => v === meteringPoint
-    }
     console.log({
       query,
       params,
@@ -64,12 +64,13 @@ router.get('/', async (req, res, next) => {
     const result = data
       .from(start)
       .to(end)
-      .match(filter)
+      .match({ meteringPoint })
       .groupBy(resolution)
 
     console.log(result.length, 'inmem results')
 
     res.send(result)
+    console.log(`${result.length} sent`)
   } catch (error) {
     next(error)
   }

@@ -1,20 +1,22 @@
 import Card, { CardHeader, CardTitle } from "@ui/Card";
 import { Upload } from 'lucide-react';
-import { useState } from "react";
-
+import { useState, useEffect } from "react";
+import { useSearchParams } from 'react-router-dom';
 import { parseDsv } from '../../fingrid/parseImport.mjs'
 import consumptionData, { ConsumptionData } from '../../fingrid/consumptionData.mjs';
-
-window.consumptionData = consumptionData;
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8989/api';
 
 const DataOptions = () => {
     const [file, setFile] = useState<File | null>(null);
     const [data, setData] = useState<ConsumptionData>(consumptionData);
+    const [searchParams, setSearchParams] = useSearchParams();
+    const meteringPoint = searchParams.get('meteringPoint') || 'TEST_METERINGPOINT';
     const [info, setInfo] = useState<{ data: ConsumptionData, info: { totals: number } } | null>(null);
     const [uploading, setUploading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+
+    console.log({ data, meteringPoint })
 
     const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0]?.name.endsWith('.csv') ? e.target.files[0] : null;
@@ -29,7 +31,8 @@ const DataOptions = () => {
             const measurements = parseDsv(text);
             if (!measurements?.length)
                 return setError('No valid measurements found in file');
-            else setData(new ConsumptionData(...measurements));
+            else setData(new ConsumptionData(...measurements))
+
         } catch (err) {
             console.error('Failed to parse file:', err);
             setError('Format error.');
@@ -56,6 +59,7 @@ const DataOptions = () => {
             const result = await response.json();
             setFile(null);
             setInfo(result);
+
         } catch (err) {
             console.error('Upload failed:', err);
             setError('Failed to upload measurements');
@@ -63,6 +67,27 @@ const DataOptions = () => {
             setUploading(false);
         }
     };
+
+    useEffect(() => {
+        const updates: Record<string, string> = {}
+
+        if (data[0]) {
+            if (meteringPoint !== data[0].meteringPoint)
+                updates.meteringPoint = data[0].meteringPoint
+            if (!searchParams.get('start') || new Date(data[0].startTime) < new Date(searchParams.get('start')!))
+                updates.start = data[0].startTime.toISOString()
+            if (!searchParams.get('end') || new Date(data[data.length - 1].startTime) > new Date(searchParams.get('end')!))
+                updates.end = data[data.length - 1].startTime.toISOString()
+            if (Object.keys(updates).length) {
+                setSearchParams(prev => {
+                    Object.entries(updates).forEach(([key, value]) => prev.set(key, value))
+                    return prev
+                })
+            }
+        }
+
+        console.log({ updates })
+    }, [data])
 
     return (
         <div className="container">
@@ -72,26 +97,26 @@ const DataOptions = () => {
                     {data[1] && (
                         <table>
                             <tbody>
-                            <tr>
-                                <td>Meter</td>
-                                <td>{data[0].meteringPoint}</td>
-                            </tr>
-                            <tr>
-                                <td>Start</td>
-                                <td>{data[0].startTime.toISOString().slice(0, -8)}</td>
-                            </tr>
-                            <tr>
-                                <td>End</td>
-                                <td>{data[data.length - 1].startTime.toISOString().slice(0, -8)}</td>
-                            </tr>
-                            <tr>
-                                <td>Count</td>
-                                <td>{data.length}</td>
-                            </tr>
-                            <tr>
-                                <td>Totals</td>
-                                <td>{data.reduce((acc: number, m: typeof data[0]) => +m.quantity + acc, 0).toFixed(6)}</td>
-                            </tr>
+                                <tr>
+                                    <td>Meter</td>
+                                    <td>{data[0].meteringPoint}</td>
+                                </tr>
+                                <tr>
+                                    <td>Start</td>
+                                    <td>{data[0].startTime.toISOString().slice(0, -8)}</td>
+                                </tr>
+                                <tr>
+                                    <td>End</td>
+                                    <td>{data[data.length - 1].startTime.toISOString().slice(0, -8)}</td>
+                                </tr>
+                                <tr>
+                                    <td>Count</td>
+                                    <td>{data.length}</td>
+                                </tr>
+                                <tr>
+                                    <td>Totals</td>
+                                    <td>{data.reduce((acc: number, m: typeof data[0]) => +m.quantity + acc, 0).toFixed(6)}</td>
+                                </tr>
                             </tbody>
                         </table>
                     )}
