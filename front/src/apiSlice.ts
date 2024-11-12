@@ -20,21 +20,20 @@ export const apiSlice = createApi({
   baseQuery: fetchBaseQuery({ baseUrl: API_URL }),
   tagTypes: ['Consumption'],
   endpoints: (builder) => ({
-    getPrices: builder.query<PricePoint[], { start: string; end: string; period: string; resolution: string; meteringPoint: string }>({
+    getPrices: builder.query<PricePoint[], { start: string; end: string; resolution: string; meteringPoint: string }>({
       query: (params) => {
         const queryParams = new URLSearchParams();
         params?.start && queryParams.append('start', params.start);
         params?.end && queryParams.append('end', params.end);
-        params?.period && queryParams.append('period', params.period);
         params?.resolution && queryParams.append('resolution', params.resolution);
         return `prices?${queryParams.toString()}`;
       },
     }),
-    getConsumption: builder.query<ConsumptionPoint[], { start: string; period: string; resolution: string; meteringPoint: string }>({
+    getConsumption: builder.query<ConsumptionPoint[], { start: string; end: string; resolution: string; meteringPoint: string }>({
       query: (params) => {
         const queryParams = new URLSearchParams();
         params?.start && queryParams.append('start', params.start);
-        params?.period && queryParams.append('period', params.period);
+        params?.end && queryParams.append('end', params.end);
         params?.resolution && queryParams.append('resolution', params.resolution);
         params?.meteringPoint && queryParams.append('meteringPoint', params.meteringPoint);
 

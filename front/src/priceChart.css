@@ -1,18 +1,5 @@
-/* .charts {
-  width: 100%;
-  min-width: 200px;
-  height: 100%;
-  min-height: 200px;
-} */
-
-/* .recharts-default-tooltip {
-  text-align: left;
-  color: rgba(255, 255, 255, 0.25);
-  background-color: rgba(255, 255, 255, 0.25);
-} */
-
 .custom-tooltip {
-  background-color: var(--color-bg-primary);
+  background-color: var(--color-shadow);
   border: var(--line-width-1) solid var(--color-shadow-mid);
   padding: var(--m-s);
   border-radius: var(--border-radius-1);
@@ -29,4 +16,11 @@
 .custom-tooltip .label {
   font-weight: var(--font-weight-semibold);
   margin-bottom: var(--m-xs);
+}
+
+/* Add this to your existing CSS */
+@media (max-width: 768px) {
+  .recharts-xaxis .recharts-text {
+    display: none;
+  }
 }
