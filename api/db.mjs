@@ -25,7 +25,8 @@ export const initializeDatabase = async () => {
       "Reading Type" TEXT,
       "Start Time" TEXT,
       "Quantity" TEXT,
-      "Quality" TEXT
+      "Quality" TEXT,
+      UNIQUE("MeteringPointGSRN", "Product Type", "Start Time", "Resolution")
     )`)
 
     await db.run(`CREATE TABLE IF NOT EXISTS waitlist (

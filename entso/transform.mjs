@@ -7,6 +7,10 @@ export const transformPrices = entsoData => {
   const { TimeSeries } = entsoData
   const results = []
 
+  if (!TimeSeries) {
+    return results
+  }
+
   for (const series of TimeSeries) {
     // Get domain from in_Domain
     const { Period } = series

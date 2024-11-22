@@ -7,6 +7,7 @@ import { Duration, periodResolutions } from './types/duration';
 import { Area, Bar, Line } from 'recharts';
 import { ChartElement } from './types/chart';
 import { toSeconds, parse as parseDuration } from 'iso8601-duration'
+import { SerializedError } from '@reduxjs/toolkit';
 
 const defaults = {
   start: new Date('2023-01-01T00:00:00Z').toISOString(),
@@ -38,12 +39,16 @@ const contractPricer = (contract: typeof placeholderContracts[number]) => {
     // Convert resolution to seconds and compare with a month's seconds
     const periodSeconds = toSeconds(parseDuration(resolution));
     const feeRatio = periodSeconds / monthSeconds;
-    
+
     const periodFee = monthlyFee * feeRatio;
     const kwhPrice = contract.centsPerKiwattHour / 100
       + (spotPriceMwh ?? 0) / 1000;
 
-    return periodFee + quantity * kwhPrice;
+    const total = periodFee + quantity * kwhPrice;
+
+    console.log({ monthlyFee, periodFee, kwhPrice, quantity, contract: contract.contractName, total });
+
+    return total;
   }
 }
 const spotPricer = contractPricer(placeholderContracts[0]);
@@ -72,7 +77,7 @@ const EnergyDashboard: React.FC = () => {
   const spotIncurred = consumption.data?.reduce((acc, { quantity, resolution }, idx) => {
     const incurred = acc.at(-1)?.cost ?? 0;
     const periodCost = spotPricer(
-      +quantity, 
+      +quantity,
       resolution as Duration,
       prices.data?.[idx]?.price,
     );
@@ -83,7 +88,7 @@ const EnergyDashboard: React.FC = () => {
   const fixedIncurred = consumption.data?.reduce((acc, { quantity, resolution }) => {
     const incurred = acc.at(-1)?.cost ?? 0;
     const periodCost = fixedPricer(
-      +quantity, 
+      +quantity,
       resolution as Duration,
     );
     acc.push({ cost: incurred + periodCost });
@@ -129,20 +134,21 @@ const EnergyDashboard: React.FC = () => {
     });
   };
 
-  const getErrorMessage = (error: unknown) => {
-    if (!error) return undefined;
-    return 'message' in (error as Error)
-      ? (error as Error).message
-      : String(error);
+  const getErrorMessage = (error: SerializedError | Error | undefined) => {
+    if (!error) return 'Something went wrong';
+    if (error instanceof Error) return error.message;
+    if ('data' in error) return error.data;
+
+    throw error;
   };
 
-  const spotColor = spotIncurred?.at(-1)?.cost > fixedIncurred?.at(-1)?.cost
-    ? priceColors.expensive
-    : priceColors.cheap;
+  const spotColor = (spotIncurred?.at(-1)?.cost || 0) < (fixedIncurred?.at(-1)?.cost || 0)
+    ? priceColors.cheap
+    : priceColors.expensive;
 
-  const fixedColor = fixedIncurred?.at(-1)?.cost > spotIncurred?.at(-1)?.cost
-    ? priceColors.expensive
-    : priceColors.cheap;
+  const fixedColor = (fixedIncurred?.at(-1)?.cost || 0) < (spotIncurred?.at(-1)?.cost || 0)
+    ? priceColors.cheap
+    : priceColors.expensive;
 
   const chartElements: Record<string, ChartElement> = {
     consumption: {
@@ -150,7 +156,7 @@ const EnergyDashboard: React.FC = () => {
       element: Bar,
       data: consumption.data,
       isLoading: consumption.isLoading,
-      error: getErrorMessage(consumption.error),
+      error: 'Error getting consumption data',
       dataKey: 'consumption',
       yAxisId: 'consumption',
       color: '#ffa500',
@@ -160,7 +166,7 @@ const EnergyDashboard: React.FC = () => {
       element: Line,
       data: prices.data,
       isLoading: prices.isLoading,
-      error: getErrorMessage(prices.error),
+      error: 'Error getting price data',
       dataKey: 'price',
       yAxisId: 'prices',
       color: '#8884d8',
@@ -175,7 +181,7 @@ const EnergyDashboard: React.FC = () => {
       element: Area,
       data: spotIncurred,
       isLoading: consumption.isLoading || prices.isLoading,
-      error: getErrorMessage(consumption.error) || getErrorMessage(prices.error),
+      error: `Market costs not available`,
       dataKey: 'spotCost',
       color: spotColor,
       props: {
@@ -190,7 +196,7 @@ const EnergyDashboard: React.FC = () => {
       element: Area,
       data: fixedIncurred,
       isLoading: consumption.isLoading || prices.isLoading,
-      error: getErrorMessage(consumption.error) || getErrorMessage(prices.error),
+      error: `Contract costs not available`,
       dataKey: 'fixedCost',
       color: fixedColor,
       props: {
@@ -248,8 +254,12 @@ const EnergyDashboard: React.FC = () => {
 
       <EnergyChart
         resolution={query.resolution}
-        elements={chartElements}
-      />
+      >
+        <Bar data = {consumption.data} isLoading={consumption.isLoading} error='Error getting consumption data' dataKey='consumption' yAxisId='consumption' color='#ffa500' />
+        <Line data = {prices.data} isLoading={prices.isLoading} error='Error getting price data' dataKey='price' yAxisId='prices' color='#8884d8' />
+        <Area data = {spotIncurred} isLoading={consumption.isLoading || prices.isLoading} error='Error getting spot incurred data' dataKey='spotCost' color={spotColor} />
+        <Area data = {fixedIncurred} isLoading={consumption.isLoading || prices.isLoading} error='Error getting fixed incurred data' dataKey='fixedCost' color={fixedColor} />
+      </EnergyChart>
 
     </>
   );

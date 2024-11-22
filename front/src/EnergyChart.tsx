@@ -1,4 +1,4 @@
-import './priceChart.css';
+import './energyChart.css';
 
 import React from 'react';
 import {
@@ -30,11 +30,20 @@ const ErrorComponent = (error: string) => (
 
 const CustomTooltip = ({ active, payload, label }: TooltipProps<ValueType, NameType>) => {
   if (active && payload && payload.length) {
+    const currentIndex = payload[0]?.payload?.index ?? 0;
+    const allData = payload[0]?.payload?.parent ?? [];
+    const cumulativeConsumption = allData
+      .slice(0, currentIndex + 1)
+      .reduce((sum, item) => sum + (parseFloat(item.quantity) || 0), 0);
+
     return (
       <div className="custom-tooltip">
         <p className="label">{new Date(label).toLocaleString()}</p>
         {payload.map((p, index) => {
-          const value = p.name.toLowerCase().includes('incurred') 
+          if (p.name === 'Consumption') {
+            return <p key={index}>{`${p.name}: ${p.value?.toFixed(2)} kWh (Σ ${cumulativeConsumption.toFixed(2)} kWh)`}</p>;
+          }
+          const value = p.name?.toLowerCase().includes('incurred') 
             ? Number(p.value).toFixed(2)
             : p.value;
           return <p key={index}>{`${p.name}: ${value}`}</p>;
@@ -89,36 +98,43 @@ const getTimeInterval = (startTime: string, endTime: string): {
   }
 };
 
-const EnergyChart: React.FC<EnergyChartProps> = ({ elements }) => {
-  const chartData = elements.price?.data?.map((priceItem, index) => ({
-    timeStart: priceItem.time,
-    timeEnd: index < (elements.price?.data?.length || 0) - 1 ? elements.price?.data?.[index + 1].time : '',
-    price: priceItem.price,
-    consumption: parseFloat(elements.consumption?.data?.[index]?.quantity || '0'),
-    spotCost: elements.spotContract?.data?.[index]?.cost || 0,
-    fixedCost: elements.fixedContract?.data?.[index]?.cost || 0,
-  }));
+const EnergyChart: React.FC<EnergyChartProps> = ({ interval, resolution, children}) => {
+  // const chartData = elements.price?.data?.map((priceItem, index) => ({
+  //   timeStart: priceItem.time,
+  //   timeEnd: index < (elements.price?.data?.length || 0) - 1 ? elements.price?.data?.[index + 1].time : '',
+  //   price: priceItem.price,
+  //   consumption: parseFloat(elements.consumption?.data?.[index]?.quantity || '0'),
+  //   spotCost: elements.spotContract?.data?.[index]?.cost || 0,
+  //   fixedCost: elements.fixedContract?.data?.[index]?.cost || 0,
+  //   index,
+  //   parent: elements.consumption?.data,
+  // }));
 
-  const timeInterval = chartData && chartData.length > 0
-    ? getTimeInterval(chartData[0].timeStart, chartData[chartData.length - 1].timeStart)
-    : { interval: 12, format: (date: Date) => date.toLocaleString() };
+  // const timeInterval = chartData && chartData.length > 0
+  //   ? getTimeInterval(chartData[0].timeStart, chartData[chartData.length - 1].timeStart)
+  //   : { interval: 12, format: (date: Date) => date.toLocaleString() };
 
-  const formatXAxis = (timestamp: string) => {
-    return timeInterval.format(new Date(timestamp));
+  const formatXAxis = (timestamp: string, ...args: any[]) => {
+    console.warn('formatXAxis', timestamp, args);
+    // return timeInterval.format(new Date(timestamp));
+
+    return 'fix me';
   };
 
   return (
     <div className='relative overflow-hidden'>
-      {elements.price?.isLoading && LoadingComponent}
+      {/* {elements.price?.isLoading || elements.consumption.isLoading && LoadingComponent}
       {elements.price?.error && ErrorComponent(elements.price?.error)}
-      {elements.price?.data && (
+      {elements.consumption?.error && ErrorComponent(elements.consumption?.error)}
+      {elements.price?.data && ( */}
         <ResponsiveContainer height={400}>
-          <ComposedChart data={chartData} margin={{ left: -25, right: -25, top: 10 }}>
+          {/* <ComposedChart data={chartData} margin={{ left: -25, right: -25, top: 10 }}> */}
+          <ComposedChart margin={{ left: -25, right: -25, top: 10 }}>
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis 
               dataKey="timeStart" 
               tickFormatter={formatXAxis}
-              interval={timeInterval.interval}
+              interval={interval}
               minTickGap={40}
             />
             <YAxis yAxisId="consumption" orientation="left" stroke="#ffa500" />
@@ -126,20 +142,10 @@ const EnergyChart: React.FC<EnergyChartProps> = ({ elements }) => {
             <YAxis yAxisId="cost" orientation="right" stroke="#8884d8" hide />
             <Tooltip content={<CustomTooltip />} />
             <Legend />
-            {Object.values(elements).map(({ element: Element, name, yAxisId, dataKey, color, props }) => (
-              <Element
-                key={name}
-                dataKey={dataKey}
-                name={name}
-                stroke={color}
-                fill={color}
-                yAxisId={yAxisId || 'consumption'}
-                {...props}
-              />
-            ))}
+            {children}
           </ComposedChart>
         </ResponsiveContainer>
-      )}
+      {/* )} */}
     </div>
   );
 };

@@ -130,7 +130,7 @@ router.post('/upload', upload.single('file'), async (req, res) => {
 
     // Insert measurements into database
     const stmt = await db.prepare(
-      `INSERT INTO measurements (
+      `INSERT OR REPLACE INTO measurements (
         "MeteringPointGSRN",
         "Product Type",
         "Resolution",

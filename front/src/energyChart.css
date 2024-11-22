@@ -1,0 +1,51 @@
+/*Light theme*/
+@media (prefers-color-scheme: light) {
+  :root {
+    --color-text-primary: rgba(5, 5, 5, 0.9);
+    --color-bg-primary: #FFF;
+
+
+    --color-shadow: rgba(250, 250, 250, 0.2);
+    --color-shadow-mid: rgba(250, 250, 250, 0.4);
+    --color-shadow-heavy: rgba(250, 250, 250, 0.7);
+
+  }
+}
+/*Dark theme*/
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-text-primary: rgba(250, 250, 250, 0.9);
+    --color-bg-primary: rgb(18 18 18);
+
+    --color-shadow: rgba(5, 5, 5, 0.2);
+    --color-shadow-mid: rgba(5, 5, 5, 0.4);
+    --color-shadow-heavy: rgba(5, 5, 5, 0.7);
+  }
+}
+
+.custom-tooltip {
+  background-color: var(--color-shadow-mid);
+  border: var(--line-width-1) solid var(--color-shadow-mid);
+  padding: var(--m-s);
+  border-radius: var(--border-radius-1);
+  box-shadow: 0 2px 4px var(--color-shadow);
+  color: var(--color-text-primary);
+  font-family: var(--font-family-alt);
+}
+
+.custom-tooltip p {
+  margin: 0;
+  padding: var(--m-xs) 0;
+}
+
+.custom-tooltip .label {
+  font-weight: var(--font-weight-semibold);
+  margin-bottom: var(--m-xs);
+}
+
+/* Add this to your existing CSS */
+@media (max-width: 768px) {
+  .recharts-xaxis .recharts-text {
+    display: none;
+  }
+}
