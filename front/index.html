@@ -1,5 +1,6 @@
 <!doctype html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
@@ -8,105 +9,107 @@
   <link rel="stylesheet" href="/styles/epsilon.css">
   <title>Epsilon Energy - Empowering Today</title>
 
-  <meta property="og:title" content="Epsilon Energy - Empowering Today"/>
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://energy.epsilon.sh/">
+  <meta property="og:title" content="Epsilon Energy - Empowering Today">
   <meta property="og:description"
-        content="Better energy, every step of the way. We design, deploy and operate the solutions of tomorrow."/>
-  <meta property="og:image" content="https://energy.epsilon.sh/favicon.svg"/>
-  <meta property="og:url" content="https://energy.epsilon.sh/"/>
-
+    content="Better energy, every step of the way. We design, deploy and operate the solutions of tomorrow.">
+  <meta property="og:image" content="https://energy.epsilon.sh/preview.png">
 
 </head>
+
 <body>
-<header>
-  <div class="container">
-    <h1 class="mb-0">epsilon energy</h1>
-    <p class="mt-0">empowering today</p>
+  <header>
+    <div class="container">
+      <h1 class="mb-0">epsilon energy</h1>
+      <p class="mt-0">empowering today</p>
 
-    <form name="waitlist" action="%VITE_API_URL%/waitlist" method="POST" class="flex-col w-fit mx">
-      <h3 class="mx">Ready to Shape the Future?</h3>
-      <p class="text-wrap text-center" style="width: 100%;">
-        We design, build and run the solutions of tomorrow.<br/>
-        New developments create new challenges and opportunities<br/>
-        for consumers, producers, and infrastructure.<br/>
-      </p>
+      <form name="waitlist" action="%VITE_API_URL%/waitlist" method="POST" class="flex-col w-fit mx">
+        <h3 class="mx">Ready to Shape the Future?</h3>
+        <p class="text-wrap text-center" style="width: 100%;">
+          We design, build and run the solutions of tomorrow.<br />
+          New developments create new challenges and opportunities<br />
+          for consumers, producers, and infrastructure.<br />
+        </p>
 
-      <label for="email" class="text-center">Step into the future of energy.</label>
-      <input id="email" type="email" name="email" placeholder="Enter your email" required>
-      <button type="submit">Follow updates</button>
-    </form>
+        <label for="email" class="text-center">Step into the future of energy.</label>
+        <input id="email" type="email" name="email" placeholder="Enter your email" required>
+        <button type="submit">Follow updates</button>
+      </form>
 
-  </div>
-</header>
+    </div>
+  </header>
 
-<main>
-  <div class="container">
+  <main>
+    <div class="container">
 
-    <section>
-      <h2>Empowering Today</h2>
+      <section>
+        <h2>Empowering Today</h2>
 
-      <div class="grid">
-        <div class="card">
-        <a href="#comparator">
-          <h3>Actionable insights</h3>
-          <p>
-            All the information you need at your fingertips.
-          </p>
-        </a>
+        <div class="grid">
+          <div class="card">
+            <a href="#comparator">
+              <h3>Actionable insights</h3>
+              <p>
+                All the information you need at your fingertips.
+              </p>
+            </a>
+          </div>
+
+          <div class="card">
+            <h3>Net positive</h3>
+            <p>
+              Participate in improving the energy network with our simple solutions.<br />
+            </p>
+          </div>
+
+          <div class="card center">
+            <h3>Power in Your Hands</h3>
+            <p>Take immediate control of your energy consumption and exports.</p>
+          </div>
         </div>
+      </section>
 
-        <div class="card">
-          <h3>Net positive</h3>
-          <p>
-            Participate in improving the energy network with our simple solutions.<br/>
-          </p>
+      <section>
+        <h3>Cutting-Edge Solutions</h3>
+        <div class="grid">
+
+          <div class="card">
+            <h4 class="mb-0">Energy monitoring</h4>
+            <p class="mt-0">Realtime access to your insights</p>
+
+            <ul>
+              <li>Consumption transparency</li>
+              <li>Storage planning</li>
+              <li>Generation patterns</li>
+            </ul>
+          </div>
+
+          <div class="card">
+            <h4 class="mb-0">Delivery optimization</h4>
+            <p class="mt-0">Energy transmission efficiency</p>
+
+            <ul>
+              <li>Optimized energy storage and release</li>
+              <li>Simple imports and exports management</li>
+              <li>Energy traceability</li>
+            </ul>
+          </div>
+
         </div>
+      </section>
+    </div>
+  </main>
 
-        <div class="card center">
-          <h3>Power in Your Hands</h3>
-          <p>Take immediate control of your energy consumption and exports.</p>
-        </div>
-      </div>
-    </section>
+  <footer>
+    <div class="container">
+      <p>Powering the future, today.<br />
+        &copy; 2024 Epsilon Energy</p>
+    </div>
+  </footer>
 
-    <section>
-      <h3>Cutting-Edge Solutions</h3>
-      <div class="grid">
-
-        <div class="card">
-          <h4 class="mb-0">Energy monitoring</h4>
-          <p class="mt-0">Realtime access to your insights</p>
-
-          <ul>
-            <li>Consumption transparency</li>
-            <li>Storage planning</li>
-            <li>Generation patterns</li>
-          </ul>
-        </div>
-
-        <div class="card">
-          <h4 class="mb-0">Delivery optimization</h4>
-          <p class="mt-0">Energy transmission efficiency</p>
-
-          <ul>
-            <li>Optimized energy storage and release</li>
-            <li>Simple imports and exports management</li>
-            <li>Energy traceability</li>
-          </ul>
-        </div>
-
-      </div>
-    </section>
-  </div>
-</main>
-
-<footer>
-  <div class="container">
-    <p>Powering the future, today.<br/>
-      &copy; 2024 Epsilon Energy</p>
-  </div>
-</footer>
-
-<div id="app" class="absolute top full"></div>
-<script type="module" src="/src/main.tsx"></script>
+  <div id="app" class="absolute top full"></div>
+  <script type="module" src="/src/main.tsx"></script>
 </body>
+
 </html>
