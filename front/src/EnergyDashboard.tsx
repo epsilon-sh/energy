@@ -4,7 +4,7 @@ import { useEnergyData } from './useEnergyData';
 import EnergyChart from './EnergyChart';
 import { DurationSelector } from './components/DurationSelector';
 import { Duration, periodResolutions } from './types/duration';
-import { Area, Bar, Line } from 'recharts';
+import { Area, Bar, Line, YAxis } from 'recharts';
 import { ChartElement } from './types/chart';
 import { toSeconds, parse as parseDuration } from 'iso8601-duration'
 
@@ -25,8 +25,8 @@ const placeholderContracts = [
   {
     contractName: 'Placeholder FIXED',
     contractType: 'fixed',
-    centsPerKiwattHour: 10,
-    euroPerMonth: 5.0,
+    centsPerKiwattHour: 12.65,
+    euroPerMonth: 3.54,
   }
 ]
 
@@ -38,7 +38,7 @@ const contractPricer = (contract: typeof placeholderContracts[number]) => {
     // Convert resolution to seconds and compare with a month's seconds
     const periodSeconds = toSeconds(parseDuration(resolution));
     const feeRatio = periodSeconds / monthSeconds;
-    
+
     const periodFee = monthlyFee * feeRatio;
     const kwhPrice = contract.centsPerKiwattHour / 100
       + (spotPriceMwh ?? 0) / 1000;
@@ -66,29 +66,31 @@ const EnergyDashboard: React.FC = () => {
 
   // console.log({ query }, 'useEnergyData query')
   const { prices, consumption } = useEnergyData(query);
-  window.prices = prices.data;
-  window.consumption = consumption.data;
+
+
+  // window.prices = prices.data || prices.error;
+  // window.consumption = consumption.data || consumption.error;
 
   const spotIncurred = consumption.data?.reduce((acc, { quantity, resolution }, idx) => {
-    const incurred = acc.at(-1)?.cost ?? 0;
     const periodCost = spotPricer(
-      +quantity, 
+      +quantity,
       resolution as Duration,
       prices.data?.[idx]?.price,
     );
-    acc.push({ cost: incurred + periodCost });
+    const total = acc.at(-1)?.total ?? 0;
+    acc.push({ cost: periodCost, total: total + periodCost });
     return acc;
-  }, [] as { cost: number }[]);
+  }, [] as { cost: number, total: number }[]) || [];
 
   const fixedIncurred = consumption.data?.reduce((acc, { quantity, resolution }) => {
-    const incurred = acc.at(-1)?.cost ?? 0;
     const periodCost = fixedPricer(
-      +quantity, 
+      +quantity,
       resolution as Duration,
     );
-    acc.push({ cost: incurred + periodCost });
+    const total = acc.at(-1)?.total ?? 0;
+    acc.push({ cost: periodCost, total: total + periodCost });
     return acc;
-  }, [] as { cost: number }[]);
+  }, [] as { cost: number, total: number }[]) || [];
 
   const handleStartChange = (date: Date) => {
     const endDate = new Date(searchParams.get('end') || defaults.end);
@@ -129,18 +131,19 @@ const EnergyDashboard: React.FC = () => {
     });
   };
 
-  const getErrorMessage = (error: unknown) => {
+  const getErrorMessage = (error: unknown, fallback = '') => {
     if (!error) return undefined;
     return 'message' in (error as Error)
       ? (error as Error).message
-      : String(error);
+      // : String(error);
+      : fallback || 'Something went oops';
   };
 
-  const spotColor = spotIncurred?.at(-1)?.cost > fixedIncurred?.at(-1)?.cost
+  const spotColor = spotIncurred.at(-1)?.total > fixedIncurred?.at(-1)?.total
     ? priceColors.expensive
     : priceColors.cheap;
 
-  const fixedColor = fixedIncurred?.at(-1)?.cost > spotIncurred?.at(-1)?.cost
+  const fixedColor = fixedIncurred.at(-1)?.total > spotIncurred?.at(-1)?.total
     ? priceColors.expensive
     : priceColors.cheap;
 
@@ -150,7 +153,7 @@ const EnergyDashboard: React.FC = () => {
       element: Bar,
       data: consumption.data,
       isLoading: consumption.isLoading,
-      error: getErrorMessage(consumption.error),
+      error: getErrorMessage(consumption.error, 'Error getting consumption data.'),
       dataKey: 'consumption',
       yAxisId: 'consumption',
       color: '#ffa500',
@@ -160,7 +163,7 @@ const EnergyDashboard: React.FC = () => {
       element: Line,
       data: prices.data,
       isLoading: prices.isLoading,
-      error: getErrorMessage(prices.error),
+      error: getErrorMessage(prices.error, 'Error getting prices data.'),
       dataKey: 'price',
       yAxisId: 'prices',
       color: '#8884d8',
@@ -170,32 +173,62 @@ const EnergyDashboard: React.FC = () => {
         strokeWidth: 1.5,
       }
     },
-    spotContract: {
-      name: 'Incurred (spot)',
+    fixedTotal: {
+      name: 'Total (fixed)',
       element: Area,
-      data: spotIncurred,
+      data: fixedIncurred,
       isLoading: consumption.isLoading || prices.isLoading,
-      error: getErrorMessage(consumption.error) || getErrorMessage(prices.error),
-      dataKey: 'spotCost',
-      color: spotColor,
+      error: getErrorMessage(consumption.error || prices.error, 'Couldn\'t compute fixed cost.'),
+      dataKey: 'fixedTotal',
+      yAxisId: 'costs',
+      color: fixedColor,
       props: {
         dot: false,
-        // type: 'step',
         strokeWidth: 1.5,
         fillOpacity: 0.2,
       }
     },
-    fixedContract: {
-      name: 'Incurred (fixed)',
-      element: Area,
+    fixedCost: {
+      name: 'Cost (fixed)',
+      element: Bar,
       data: fixedIncurred,
       isLoading: consumption.isLoading || prices.isLoading,
-      error: getErrorMessage(consumption.error) || getErrorMessage(prices.error),
+      error: getErrorMessage(consumption.error || prices.error, 'Couldn\'t compute fixed cost.'),
       dataKey: 'fixedCost',
+      yAxisId: 'costs',
       color: fixedColor,
       props: {
         dot: false,
-        // type: 'monotone',
+        strokeWidth: 1.5,
+        fillOpacity: 0.2,
+      }
+    },
+    spotTotal: {
+      name: 'Total (spot)',
+      element: Area,
+      data: spotIncurred,
+      isLoading: consumption.isLoading || prices.isLoading,
+      error: getErrorMessage(consumption.error || prices.error, 'Couldn\'t compute spot cost.'),
+      dataKey: 'spotTotal',
+      yAxisId: 'costs',
+      color: spotColor,
+      props: {
+        dot: false,
+        strokeWidth: 1.5,
+        fillOpacity: 0.2,
+      }
+    },
+    spotCost: {
+      name: 'Cost (spot)',
+      element: Bar,
+      data: spotIncurred,
+      isLoading: consumption.isLoading || prices.isLoading,
+      error: getErrorMessage(consumption.error || prices.error, 'Couldn\'t compute spot cost.'),
+      dataKey: 'spotCost',
+      yAxisId: 'costs',
+      color: spotColor,
+      props: {
+        dot: false,
         strokeWidth: 1.5,
         fillOpacity: 0.2,
       }

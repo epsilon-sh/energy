@@ -1,5 +1,5 @@
 .custom-tooltip {
-  background-color: var(--color-shadow);
+  background-color: var(--color-bg-primary);
   border: var(--line-width-1) solid var(--color-shadow-mid);
   padding: var(--m-s);
   border-radius: var(--border-radius-1);

@@ -3,7 +3,10 @@
   "version": "1.0.0",
   "main": "index.mjs",
   "scripts": {
-    "api:start": "npm --workspace=api start",
+    "dev": "npm-run-all --parallel dev:api dev:front",
+    "dev:api": "npm --workspace=api run dev",
+    "dev:front": "npm --workspace=front run dev",
+    "start:api": "npm --workspace=api start",
     "front:build": "npm --workspace=front build",
     "test": "node --test",
     "lint": "eslint . --fix"
