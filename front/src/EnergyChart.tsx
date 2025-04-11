@@ -147,38 +147,93 @@ const EnergyChart: React.FC<EnergyChartProps> = ({ elements }) => {
                 hide={true}
               />
               <Tooltip content={<CustomTooltip />} />
-              <Legend />
               {Object.values(elements).map(({ element: Element, name, yAxisId, dataKey, color, props }) => (
-                visibleElements[dataKey] && (
-                  <Element
-                    key={name}
-                    dataKey={dataKey}
-                    name={name}
-                    stroke={color}
-                    fill={color}
-                    yAxisId={yAxisId}
-                    {...props}
-                  />
-                )
+                <Element
+                  key={name}
+                  dataKey={dataKey}
+                  name={name}
+                  stroke={color}
+                  fill={color}
+                  yAxisId={yAxisId}
+                  hide={!visibleElements[dataKey]}
+                  {...props}
+                />
               ))}
             </ComposedChart>
           </ResponsiveContainer>
-          <div className="flex flex-wrap gap-4 mt-4 justify-center">
-            {Object.values(elements).map(({ name, dataKey, color }) => (
-              <button
-                key={dataKey}
-                onClick={() => setVisibleElements(prev => ({ ...prev, [dataKey]: !prev[dataKey] }))}
-                style={{
-                  padding: '8px 16px',
-                  borderRadius: '20px',
-                  border: 'none',
-                  background: visibleElements[dataKey] ? color : '#e0e0e0',
-                  color: visibleElements[dataKey] ? 'white' : 'black',
-                  cursor: 'pointer',
-                }}
-              >
-                {name}
-              </button>
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(2, 1fr)',
+            gap: '8px',
+            justifyItems: 'center',
+            width: '100%',
+            maxWidth: '600px',
+            margin: '16px auto 0',
+          }}>
+            {[
+              // First row: consumption and price
+              ['consumption', 'price'],
+              // Separator
+              ['separator1'],
+              // Second row: total fixed and total spot
+              ['fixedTotal', 'spotTotal'],
+              // Separator
+              ['separator2'],
+              // Third row: cost fixed and cost spot
+              ['fixedCost', 'spotCost'],
+            ].map((row, rowIndex) => (
+              <React.Fragment key={rowIndex}>
+                {row[0] === 'separator1' || row[0] === 'separator2' ? (
+                  <hr style={{
+                    gridColumn: '1 / -1',
+                    width: '100%',
+                    margin: '4px 0',
+                    border: 'none',
+                    borderTop: '1px solid rgba(255, 255, 255, 0.1)',
+                  }} />
+                ) : (
+                  row.map(key => {
+                    const element = Object.values(elements).find(el => el.dataKey === key)
+                    if (!element) return null
+                    const { name, dataKey, color } = element
+                    return (
+                      <button
+                        key={dataKey}
+                        onClick={() => setVisibleElements(prev => ({ ...prev, [dataKey]: !prev[dataKey] }))}
+                        style={{
+                          padding: '4px 12px',
+                          paddingLeft: '8px',
+                          borderRadius: '16px',
+                          border: 'none',
+                          background: visibleElements[dataKey] ? color : '#e0e0e0',
+                          color: visibleElements[dataKey] ? 'white' : 'black',
+                          cursor: 'pointer',
+                          fontSize: '0.875rem',
+                          fontWeight: visibleElements[dataKey] ? 500 : 400,
+                          transition: 'all 0.2s ease',
+                          boxShadow: visibleElements[dataKey] ? '0 1px 3px rgba(0,0,0,0.2)' : 'none',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '6px',
+                          whiteSpace: 'nowrap',
+                          width: '100%',
+                          justifyContent: 'center',
+                        }}>
+                        <span style={{
+                          display: 'inline-block',
+                          width: '12px',
+                          height: '12px',
+                          borderRadius: '2px',
+                          background: color,
+                          opacity: visibleElements[dataKey] ? 1 : 0.5,
+                          border: visibleElements[dataKey] ? '1px solid rgba(255,255,255,0.5)' : 'none',
+                        }} />
+                        {name}
+                      </button>
+                    )
+                  })
+                )}
+              </React.Fragment>
             ))}
           </div>
         </>
