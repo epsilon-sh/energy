@@ -105,14 +105,9 @@ const EnergyChart: React.FC<EnergyChartProps> = ({ elements }) => {
     fixedTotal: elements.fixedTotal?.data?.[index]?.total.toFixed(2) || 0,
   }));
 
-  const [renderList, setRenderList] = useState({
-    consumption: true,
-    price: true,
-    spotCost: true,
-    spotTotal: true,
-    fixedCost: true,
-    fixedTotal: true,
-  })
+  const [visibleElements, setVisibleElements] = useState(() =>
+    Object.fromEntries(Object.entries(elements).map(([key]) => [key, true]))
+  )
 
   const timeInterval = chartData && chartData.length > 0
     ? getTimeInterval(chartData[0].timeStart, chartData[chartData.length - 1].timeStart)
@@ -154,7 +149,7 @@ const EnergyChart: React.FC<EnergyChartProps> = ({ elements }) => {
               <Tooltip content={<CustomTooltip />} />
               <Legend />
               {Object.values(elements).map(({ element: Element, name, yAxisId, dataKey, color, props }) => (
-                renderList[dataKey as keyof typeof renderList] && (
+                visibleElements[dataKey] && (
                   <Element
                     key={name}
                     dataKey={dataKey}
@@ -169,18 +164,21 @@ const EnergyChart: React.FC<EnergyChartProps> = ({ elements }) => {
             </ComposedChart>
           </ResponsiveContainer>
           <div className="flex flex-wrap gap-4 mt-4 justify-center">
-            {Object.entries(renderList).map(([dataKey, isVisible]) => (
-              <label key={dataKey} className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={isVisible}
-                  onChange={() => setRenderList(prev => ({ ...prev, [dataKey]: !prev[dataKey as keyof typeof prev] }))}
-                  className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
-                />
-                <span className="text-sm font-medium text-gray-700">
-                  {dataKey.replace(/([A-Z])/g, ' $1').trim()}
-                </span>
-              </label>
+            {Object.values(elements).map(({ name, dataKey, color }) => (
+              <button
+                key={dataKey}
+                onClick={() => setVisibleElements(prev => ({ ...prev, [dataKey]: !prev[dataKey] }))}
+                style={{
+                  padding: '8px 16px',
+                  borderRadius: '20px',
+                  border: 'none',
+                  background: visibleElements[dataKey] ? color : '#e0e0e0',
+                  color: visibleElements[dataKey] ? 'white' : 'black',
+                  cursor: 'pointer',
+                }}
+              >
+                {name}
+              </button>
             ))}
           </div>
         </>
