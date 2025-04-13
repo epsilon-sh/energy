@@ -9,8 +9,8 @@ import { ChartElement } from './types/chart';
 import { toSeconds, parse as parseDuration } from 'iso8601-duration'
 
 const defaults = {
-  start: new Date('2023-01-01T00:00:00Z').toISOString(),
-  end: new Date('2023-01-08T00:00:00Z').toISOString(),
+  start: new Date('2023-01-01T00:00').toISOString(),
+  end: new Date('2023-02-01T00:00').toISOString(),
   resolution: 'PT1H' as Duration,
   meteringPoint: 'TEST_METERINGPOINT'
 };
@@ -63,15 +63,18 @@ const EnergyDashboard: React.FC = () => {
     resolution: (searchParams.get('resolution') as Duration) || defaults.resolution,
     meteringPoint: (searchParams.get('meteringPoint') || searchParams.get('MeteringPointGSRN')) || defaults.meteringPoint,
   };
+  if (query.end < query.start) {
+    const startDate = new Date(query.start)
+    const endDate = new Date(query.start)
+    endDate.setHours(startDate.getHours() + 24)
 
-  // console.log({ query }, 'useEnergyData query')
+    query.end = endDate.toISOString()
+    searchParams.set('end', query.end)
+  }
+
   const { prices, consumption } = useEnergyData(query);
 
-
-  // window.prices = prices.data || prices.error;
-  // window.consumption = consumption.data || consumption.error;
-
-  const spotIncurred = consumption.data?.reduce((acc, { quantity, resolution }, idx) => {
+  const spotIncurred = consumption?.data?.reduce((acc, { quantity, resolution }, idx) => {
     const periodCost = spotPricer(
       +quantity,
       resolution as Duration,
@@ -93,6 +96,7 @@ const EnergyDashboard: React.FC = () => {
   }, [] as { cost: number, total: number }[]) || [];
 
   const handleStartChange = (date: Date) => {
+    console.log('handleStartCHange', date)
     const endDate = new Date(searchParams.get('end') || defaults.end);
     if (date > endDate) {
       console.log('Adjusting end date to be one day after start date');
@@ -235,6 +239,19 @@ const EnergyDashboard: React.FC = () => {
     },
   };
 
+  const startDate = new Date(query.start)
+  const endDate = new Date(query.end)
+
+  const dateToLocalInputString = (date: Date) => {
+    const YYYY = date.getFullYear()
+    const MM = String(date.getMonth() + 1).padStart(2, '0')
+    const dd = String(date.getDate()).padStart(2, '0')
+    const hh = String(date.getHours()).padStart(2, '0');
+    const mm = String(date.getMinutes()).padStart(2, '0');
+
+    return `${YYYY}-${MM}-${dd}T${hh}:${mm}`;
+  }
+
   return (
     <>
 
@@ -244,10 +261,13 @@ const EnergyDashboard: React.FC = () => {
           <h3 className='my-s'>Start Time:</h3>
           <input type='datetime-local'
             id='start'
-            value={new Date(query.start).toISOString().slice(0, -1)}
+            value={dateToLocalInputString(startDate)}
             onChange={e => {
+              const elemDate = e.target.value
+              console.log('date elem change', elemDate)
               const date = new Date(e.target.value);
-              date.setHours(0, 0, 0, 0); // Round to midnight
+              console.log('parsed jsdate', date)
+              console.log('local isodate', date.toISOString())
               handleStartChange(date);
             }}
             step="86400" // 24 hours in seconds
@@ -258,7 +278,7 @@ const EnergyDashboard: React.FC = () => {
           <h3 className='my-s'>End Time:</h3>
           <input type='datetime-local'
             id='end'
-            value={new Date(query.end).toISOString().slice(0, -1)}
+            value={dateToLocalInputString(endDate)}
             onChange={e => {
               const date = new Date(e.target.value);
               date.setHours(0, 0, 0, 0); // Round to midnight

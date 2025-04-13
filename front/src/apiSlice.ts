@@ -27,7 +27,7 @@ export const apiSlice = createApi({
         params?.end && queryParams.append('end', params.end);
         params?.resolution && queryParams.append('resolution', params.resolution);
         return `prices?${queryParams.toString()}`;
-      },
+      }
     }),
     getConsumption: builder.query<ConsumptionPoint[], { start: string; end: string; resolution: string; meteringPoint: string }>({
       query: (params) => {

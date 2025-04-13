@@ -56,10 +56,9 @@ router.get('/', async (req, res, next) => {
       quality: x.Quality,
     })
 
-    dbData.length ? console.log(format(dbData[0]), dbData.length, 'from db') : console.log('no db data')
-    console.log(`inserting into ${data.length}`)
-    data.insert(...dbData.map(format))
-    console.log(`new size ${data.length}`)
+    console.log(`${dbData.length} found in db`)
+    if (dbData.length)
+      data.insert(...dbData.map(format))
 
     const result = data
       .from(start)
@@ -67,7 +66,7 @@ router.get('/', async (req, res, next) => {
       .match({ meteringPoint })
       .groupBy(resolution)
 
-    console.log(result.length, 'inmem results')
+    console.log(result.length, 'items to return')
 
     res.send(result)
     console.log(`${result.length} sent`)
