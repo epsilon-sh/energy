@@ -13,6 +13,10 @@ export const comparePricePoints = (p1, p2) => {
   if (p1.time > p2.time) return 1
 
   if (p1.resolution !== p2.resolution) {
+    if (!p1.resolution) {
+      console.error(p1)
+      throw new Error('No resolution?')
+    }
     const d1 = toSeconds(parseDuration(p1.resolution))
     console.log({ p1, d1, p2 })
     const d2 = toSeconds(parseDuration(p2.resolution))

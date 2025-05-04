@@ -142,7 +142,7 @@ const insertPrices = async data => {
       )
     }
 
-    pricesData.insert(data)
+    pricesData.insert(...data)
   } catch (error) {
     console.error(data, error)
   } finally {
