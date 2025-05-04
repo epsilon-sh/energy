@@ -20,8 +20,17 @@ export const getDomainKey = human => {
   return Object.entries(domains).find(([_key, value]) => value === human)[0]
 }
 
-export const getDomainHuman = key => {
-  return domains[key] || key
+export const getDomainName = key => {
+  console.log(key, 'key in getDomainName')
+  const domain = domains[key]
+    || key.split?.('-')[0]?.slice(-2)
+
+  if (!domain) {
+    console.error(`No domain found for key: ${key}`)
+    return key
+  }
+
+  return domain
 }
 
 export default {

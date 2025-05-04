@@ -75,25 +75,25 @@ router.get('/', async (req, res, next) => {
   }
 })
 
-router.get('/meteringPoints', async (_req, res, next) => {
-  try {
-    const memPoints = new Set(data.map(d => d.meteringPoint))
-    console.log(memPoints.size, 'inmem')
-
-    const db = await getDatabase()
-    const points = await db.all(
-      `SELECT DISTINCT "MeteringPointGSRN" FROM ${DB_CONSUMPTION_TABLE}`,
-    )
-    const dbPoints = new Set(points.map(p => p.MeteringPointGSRN))
-    console.log(dbPoints.size, 'in db')
-
-    const uniquePoints = new Set([...memPoints, ...dbPoints])
-    console.log(uniquePoints.size, 'unique')
-    res.send(Array.from(uniquePoints))
-  } catch (error) {
-    next(error)
-  }
-})
+// router.get('/meteringPoints', async (_req, res, next) => {
+//   try {
+//     const memPoints = new Set(data.map(d => d.meteringPoint))
+//     console.log(memPoints.size, 'inmem')
+// 
+//     const db = await getDatabase()
+//     const points = await db.all(
+//       `SELECT DISTINCT "MeteringPointGSRN" FROM ${DB_CONSUMPTION_TABLE}`,
+//     )
+//     const dbPoints = new Set(points.map(p => p.MeteringPointGSRN))
+//     console.log(dbPoints.size, 'in db')
+// 
+//     const uniquePoints = new Set([...memPoints, ...dbPoints])
+//     console.log(uniquePoints.size, 'unique')
+//     res.send(Array.from(uniquePoints))
+//   } catch (error) {
+//     next(error)
+//   }
+// })
 
 router.post('/upload', upload.single('file'), async (req, res) => {
   try {

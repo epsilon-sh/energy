@@ -3,8 +3,8 @@ import { getDatabase } from '../db.mjs'
 import fetchPrices from '../../entso/query.mjs'
 import { transformPrices as extractPrices } from '../../entso/transform.mjs'
 import { formatDate } from '../../entso/utils.mjs'
-import { parse as parseDuration } from 'iso8601-duration'
-import { add, intervalToDuration } from 'date-fns'
+import { parse as parseDuration, toSeconds } from 'iso8601-duration'
+import { add, interval, intervalToDuration, startOfMonth, endOfDay, min } from 'date-fns'
 import pricesData from '../../entso/priceData.mjs'
 
 const router = express.Router()
@@ -12,30 +12,99 @@ const DB_PRICE_TABLE = process.env.DB_PRICE_TABLE || 'prices'
 
 router.get('/', async (req, res, next) => {
   try {
-    const start = new Date(req.query.start || '2023/01/01 00:00 UTC')
+    const now = new Date()
+    const defaultStart = startOfMonth(now)
+    const defaultEnd = endOfDay(now)
+
+    const start = new Date(req.query.start || defaultStart)
+
     const duration = req.query.end
       ? intervalToDuration({ start, end: new Date(req.query.end) })
-      : parseDuration(req.query.period || 'P7D')
-    const end = new Date(req.query.end || add(start, duration))
+      : parseDuration(req.query.period || 'P7D') // Default period if no end or period
+
+    // If end is provided, use it. Otherwise, calculate from duration or use default end.
+    // Ensure the calculated/default end is not later than the actual defaultEnd (end of today).
+    const requestedEnd = req.query.end ? new Date(req.query.end) : null
+    console.error({ requestedEnd })
+    const end = requestedEnd
+      ? min([requestedEnd, defaultEnd]) // Use requested end, but cap at end of today
+      : req.query.period
+        ? min([add(start, duration), defaultEnd]) // Use period, cap at end of today
+        : defaultEnd // Default to end of today if neither end nor period is given
 
     const resolution = req.query.resolution || 'PT1H'
+
+    const padToRes = (interval, resolution) => {
+      console.log({ interval, resolution }, 'pad')
+      const { start, end } = interval
+      console.log(parseDuration(resolution))
+      const delta = toSeconds(parseDuration(resolution)) * 1000
+      const startPadded = start.getTime() - (start.getTime() % delta)
+      const endPadded = end.getTime() - (end.getTime() % delta) + delta
+
+      return { ...interval, start: new Date(startPadded), end: new Date(endPadded) }
+    }
+    console.log({ start, end, resolution }, 'requested')
+    const padded = padToRes({ start, end }, resolution)
 
     const db = getDatabase()
     const dbData = await db.all(
       `SELECT * FROM ${DB_PRICE_TABLE} WHERE time >= ? AND time <= ?`,
-      start.getTime(),
-      end.getTime(),
+      padded.start.getTime(),
+      padded.end.getTime(),
     )
 
-    if (dbData.length === 0) {
-      const fetchedData = await fetchPrices({
-        periodStart: formatDate(start),
-        periodEnd: formatDate(end),
-      })
+    const resolutionDuration = parseDuration(resolution)
+    const resolutionSeconds = toSeconds(resolutionDuration)
+    const intervalSeconds = toSeconds(intervalToDuration(padded))
+    const expectedCount = Math.floor(intervalSeconds / resolutionSeconds)
 
-      const fetchedPrices = extractPrices(fetchedData)
+    console.log({ resolution, resolutionSeconds, intervalSeconds, expectedCount })
 
-      await insertPrices(fetchedPrices)
+    const missingBefore = {
+      start: padded.start,
+      end: new Date(dbData[0]?.time || padded.end),
+    }
+    const toFetch = []
+    // Tolerance margin of 1 res for rounding? idk ¯\_(ツ)_/¯
+    if (toSeconds(intervalToDuration(missingBefore)) > toSeconds(resolution)) {
+      console.log('BEFORE:Should we fetch this?', missingBefore)
+      toFetch.push(missingBefore)
+    }
+    console.log(`${dbData.length} in dbData`)
+
+    if (dbData.length < expectedCount) {
+      console.warn(`Missing DB data: ${expectedCount - dbData.length}`)
+
+
+      if (dbData.length > 0) {
+
+        const missingAfter = {
+          start: new Date(dbData.at(-1)?.time),
+          end: padded.end,
+        }
+        if (toSeconds(intervalToDuration(missingAfter)) > toSeconds(resolution)) {
+          console.log('AFTER:Should we fetch this?', missingAfter)
+          toFetch.push(missingAfter)
+        }
+      }
+    }
+
+    const pricesRequests = toFetch.map(interval => fetchPrices({
+      periodStart: formatDate(interval.start),
+      periodEnd: formatDate(interval.end),
+    }))
+
+    const incoming = await Promise.all(pricesRequests) // [Period{TimeSeries:[]}]
+    if (incoming.length) {
+      // console.log(incoming)
+      console.log(incoming[0], 'incoming first')
+      console.log(incoming.at(-1), 'incoming last')
+      const extracted = incoming.flatMap(i => extractPrices(i))
+
+      console.log(extracted, `${extracted.length} price points extracted`)
+      if (extracted)
+        insertPrices(extracted)
     }
 
     pricesData.insert(...dbData.map(item => ({

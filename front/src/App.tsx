@@ -14,6 +14,7 @@ const App: FC = () => {
   const { panels, toggle, close, open, escape } = usePanelManager(view);
 
   useEffect(() => {
+    console.log(panels, 'panels')
     const noView = Object.values(panels).every(x => !x)
     const main = document.querySelector('main')!
     if (noView) {
