@@ -9,14 +9,8 @@ export const transformPrices = (entsoData, meta = {}) => {
     const { TimeSeries: data, ...seriesMeta } = entsoData
     console.log({ meta, seriesMeta })
 
-    if (!data.flatMap) {
-      if (data.Period)
-        return transformPrices(data.Period, { ...meta, ...seriesMeta })
-      else {
-        console.log(data, 'No flatmap no period god is dead')
-        throw new Error()
-      }
-    }
+    if (!data.flatMap)
+      return transformPrices(data, { ...meta, ...seriesMeta })
 
     const result = data.flatMap(series => transformPrices(series, { ...meta, ...seriesMeta }))
     if (!result) {
@@ -55,14 +49,14 @@ export const transformPrices = (entsoData, meta = {}) => {
     console.log(Object.keys({ ...meta }))
 
     const result = {
-      domain: meta.domain,
+      domain: getHumanDomain(meta['in_Domain.mRID']),
       resolution: meta.resolution,
       time: new Date(pointStartMillis),
       price: entsoData['price.amount'],
     }
     console.log({ entsoData, meta, result })
     console.log(meta)
-    process.exit(-1)
+
     return result
   } else {
     throw new Error('No price?')

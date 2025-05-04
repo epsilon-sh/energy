@@ -99,6 +99,7 @@ router.get('/', async (req, res, next) => {
     if (incoming.length) {
       // console.log(incoming)
       console.log(incoming[0], 'incoming first')
+      console.log(JSON.stringify(incoming[0], null, 2))
       console.log(incoming.at(-1), 'incoming last')
       const extracted = incoming.flatMap(i => extractPrices(i))
 
