@@ -9,8 +9,8 @@ import { ChartElement } from './types/chart';
 import { toSeconds, parse as parseDuration } from 'iso8601-duration'
 
 const defaults = {
-  start: new Date('2023-01-01T00:00').toISOString(),
-  end: new Date('2023-02-01T00:00').toISOString(),
+  start: new Date('2025-01-01T00:00').toISOString(),
+  end: new Date().toISOString(),
   resolution: 'PT1H' as Duration,
   meteringPoint: 'TEST_METERINGPOINT'
 };
