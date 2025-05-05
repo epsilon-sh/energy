@@ -2,8 +2,10 @@ name: Tests
 
 on:
   push:
+    branches-ignore:
+      - main # do not run when pushing to main
   pull_request:
-    branches: [ main, master ]
+    branches: [main] # run when PR targets main
 
 jobs:
   test:
@@ -18,15 +20,15 @@ jobs:
       - name: Use Node.js from .node-version
         uses: actions/setup-node@v3
         with:
-          node-version-file: './energy/.node-version'
+          node-version-file: "./.node-version"
           cache: "npm"
-          cache-dependency-path: "energy/package-lock.json"
+          cache-dependency-path: "./package-lock.json"
 
       - name: Install dependencies
-        working-directory: ./energy
+        working-directory: ./
         run: |
           npm ci
 
       - name: Run tests
-        working-directory: ./energy
+        working-directory: ./
         run: npm test
