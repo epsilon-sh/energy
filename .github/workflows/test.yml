@@ -15,15 +15,10 @@ jobs:
         with:
           fetch-depth: 1
 
-      - name: Read .node-version
-        id: node-version
-        run: echo "version=$(cat .node-version)" >> $GITHUB_OUTPUT
-        working-directory: ./energy
-
       - name: Use Node.js from .node-version
         uses: actions/setup-node@v3
         with:
-          node-version: ${{ steps.node-version.outputs.version }}
+          node-version-file: './energy/.node-version'
           cache: "npm"
           cache-dependency-path: "energy/package-lock.json"
 
