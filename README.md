@@ -36,8 +36,6 @@ To get a local copy up and running, follow these simple steps:
 
 ### Prerequisites
 
-For sqlite3 to function you need to have build-essqntials (headers) and python3 with node-gyp (as dev dependencies).
-
 Ensure you have Node.js 22.9.0 installed (we use nodenv for version management).
 
 ```sh
@@ -47,14 +45,6 @@ npm -v
 
 # If using nodenv, it will automatically pick up the correct version from .node-version
 nodenv install 22.9.0  # if you don't have this version yet
-
-```
-If `npm run dev` errors out with bindings error, make sure to rebuild sqlite manually (requires `node-gyp` and its dependencies installed):
-
-```sh
-cd node_modules/sqlite3
-npm run rebuild
-```
 
 
 ### Clone the repository

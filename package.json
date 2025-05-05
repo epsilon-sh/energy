@@ -1,6 +1,7 @@
 {
   "name": "@epsilon/energy",
   "version": "1.0.0",
+  "type": "module",
   "main": "index.mjs",
   "scripts": {
     "dev": "npm-run-all --parallel dev:api dev:front",

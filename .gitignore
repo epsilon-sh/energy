@@ -5,6 +5,8 @@
 
 # Local data storage for backend
 data/*
+!data/price.import.xml
+!data/import_from_entso.mjs
 
 # dependencies
 **/node_modules
