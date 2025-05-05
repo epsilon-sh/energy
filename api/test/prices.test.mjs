@@ -7,7 +7,7 @@ import http from 'node:http'
 
 process.env.DB_STRING = ':memory:'
 
-const filePath = fileURLToPath(import.meta.resolve('../../../data/price.import.xml'))
+const filePath = fileURLToPath(import.meta.resolve('../../data/price.import.xml'))
 
 // Load mock XML data
 console.log('Loading mock XML from:', filePath)
