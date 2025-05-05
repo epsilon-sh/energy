@@ -22,3 +22,6 @@ front/dist
 # IDE specific files
 .idea
 .vscode
+
+# real world data used as prices mock data
+api/tests/priceDump.xml

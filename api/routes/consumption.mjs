@@ -31,7 +31,7 @@ router.get('/', async (req, res, next) => {
       req.query.meteringPointGSRN ||
       'TEST_METERINGPOINT'
 
-    console.log({ start, end, resolution, meteringPoint })
+    console.log('Query params:', { start, end, resolution, meteringPoint })
 
     const db = getDatabase()
     const query = `SELECT * FROM ${DB_CONSUMPTION_TABLE}
@@ -45,7 +45,7 @@ router.get('/', async (req, res, next) => {
       params,
     }, 'for DB')
 
-    const dbData = db.prepare(query).all(...params)
+    const dbData = await db.all(query, ...params)
     const format = x => ({
       meteringPoint: x.MeteringPointGSRN,
       productType: x['Product Type'],
@@ -74,26 +74,6 @@ router.get('/', async (req, res, next) => {
     next(error)
   }
 })
-
-// router.get('/meteringPoints', async (_req, res, next) => {
-//   try {
-//     const memPoints = new Set(data.map(d => d.meteringPoint))
-//     console.log(memPoints.size, 'inmem')
-// 
-//     const db = await getDatabase()
-//     const points = await db.all(
-//       `SELECT DISTINCT "MeteringPointGSRN" FROM ${DB_CONSUMPTION_TABLE}`,
-//     )
-//     const dbPoints = new Set(points.map(p => p.MeteringPointGSRN))
-//     console.log(dbPoints.size, 'in db')
-// 
-//     const uniquePoints = new Set([...memPoints, ...dbPoints])
-//     console.log(uniquePoints.size, 'unique')
-//     res.send(Array.from(uniquePoints))
-//   } catch (error) {
-//     next(error)
-//   }
-// })
 
 router.post('/upload', upload.single('file'), async (req, res) => {
   try {
@@ -127,8 +107,8 @@ router.post('/upload', upload.single('file'), async (req, res) => {
     // Get database connection
     const db = getDatabase()
 
-    // Insert measurements into database
-    const stmt = db.prepare(
+    // Insert measurements into database using Promise-based API
+    const stmt = await db.prepare(
       `INSERT INTO measurements (
         "MeteringPointGSRN",
         "Product Type",
@@ -141,23 +121,19 @@ router.post('/upload', upload.single('file'), async (req, res) => {
       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
     )
 
-    // Use transaction for efficiency
-    const insert = db.transaction((measurements) => {
-      for (const measurement of measurements) {
-        stmt.run(
-          measurement['MeteringPointGSRN'],
-          measurement['Product Type'],
-          measurement['Resolution'],
-          measurement['Unit Type'],
-          measurement['Reading Type'],
-          measurement['Start Time'],
-          measurement['Quantity'],
-          measurement['Quality']
-        )
-      }
-    })
-
-    insert(measurements) // Execute transaction synchronously
+    // Insert measurements one by one (we could optimize this later if needed)
+    for (const measurement of measurements) {
+      await stmt.run(
+        measurement.MeteringPointGSRN,
+        measurement['Product Type'],
+        measurement.Resolution,
+        measurement['Unit Type'],
+        measurement['Reading Type'],
+        measurement['Start Time'],
+        measurement.Quantity,
+        measurement.Quality,
+      )
+    }
 
     // Clean up uploaded file
     await fs.unlink(req.file.path)
@@ -184,7 +160,6 @@ fs.readFile(source, 'utf-8')
   .then(parseDsv)
   .then(parsed => {
     data.push(...parsed)
-
     console.log(`Data size: ${data.length}`)
   })
   .catch(error => {
