@@ -8,9 +8,7 @@
     "dev": "node --env-file ./dev.env --env-file ./.env --watch index.mjs",
     "lint": "eslint --ext js,jsx,mjs --fix .",
     "test": "node --test test/**/*.test.mjs",
-    "test:dev": "node --env-file ./test.env --test --watch test/**/*.test.mjs",
-    "mock:prices": "node --env-file ./.env ../data/import_from_entso.mjs"
-  },
+    "test:dev": "node --env-file ./test.env --test --watch test/**/*.test.mjs"  },
   "dependencies": {
     "better-sqlite3": "^11.1.2",
     "cors": "^2.8.5",

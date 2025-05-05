@@ -1,9 +1,10 @@
+// run as `node --env-file ../api/.env ./import_from_entso.mjs`
 import { writeFileSync } from "fs";
 import { formatDate } from "../entso/utils.mjs";
 import { getDocumentTypeKey, getDomainKey } from "../entso/params.mjs";
 
-const START_DATE = "2025-01-01";
-const END_DATE = "2025-01-31";
+const START_DATE = "2024-12-31T22:00:00.000Z"; // 2025-01-01 00:00:00 Helsinki;
+const END_DATE = "2025-01-31T22:00:00.000Z"; // 2025-02-01 00:00:00 Helsinki
 const BASE_URL = "https://web-api.tp.entsoe.eu/api";
 const OUTPUT_PATH = "../data/price.import.xml";
 

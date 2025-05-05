@@ -6,7 +6,7 @@ import { dirname, resolve } from 'path'
 import fs from 'node:fs'
 import http from 'node:http'
 
-const __dirname = dirname(fileURLToPath(import.meta.url))
+process.env.DB_STRING = ':memory:'
 const TEST_DB = resolve(__dirname, '../test_prices.db')
 
 // Load mock XML data

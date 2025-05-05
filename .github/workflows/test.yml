@@ -1,34 +1,35 @@
 name: Tests
 
 on:
+  push:
   pull_request:
+    branches: [ main, master ]
 
 jobs:
   test:
+    name: Runs the tests
     runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        node-version: [22.x]
 
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 1
 
-      - name: Use Node.js ${{ matrix.node-version }}
+      - name: Read .node-version
+        id: node-version
+        run: echo "version=$(cat .node-version)" >> $GITHUB_OUTPUT
+        working-directory: ./energy
+
+      - name: Use Node.js from .node-version
         uses: actions/setup-node@v3
         with:
-          node-version: ${{ matrix.node-version }}
-          cache: 'npm'
-          cache-dependency-path: 'energy/package-lock.json'
+          node-version: ${{ steps.node-version.outputs.version }}
+          cache: "npm"
+          cache-dependency-path: "energy/package-lock.json"
 
       - name: Install dependencies
         working-directory: ./energy
         run: |
-          pwd
-          ls -la
           npm ci
 
       - name: Run tests
