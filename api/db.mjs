@@ -15,7 +15,8 @@ export const initializeDatabase = async () => {
       domain TEXT NOT NULL,
       resolution STRING NOT NULL,
       time INTEGER NOT NULL,
-      price REAL NOT NULL
+      price REAL NOT NULL,
+      UNIQUE(domain, resolution, time)
     )`).run()
 
     db.prepare(`CREATE TABLE IF NOT EXISTS ${DB_CONSUMPTION_TABLE} (
@@ -37,8 +38,8 @@ export const initializeDatabase = async () => {
 
     console.log(`Connected to database ${DB_STRING}`)
   } catch (error) {
-    console.error(`Couldn't connect to DB ${DB_STRING}:`, error)
-    throw error
+    console.error(`Couldn't connect or initialize DB ${DB_STRING}:`, error)
+    throw error // Re-throw to prevent application startup on DB error
   }
 }
 

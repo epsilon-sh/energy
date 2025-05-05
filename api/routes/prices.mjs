@@ -126,7 +126,7 @@ router.get('/', async (req, res, next) => {
 const insertPrices = async data => {
   const db = getDatabase()
   const stmt = db.prepare(
-    `INSERT INTO ${DB_PRICE_TABLE} (domain, resolution, time, price) VALUES (?, ?, ?, ?)`,
+    `INSERT OR IGNORE INTO ${DB_PRICE_TABLE} (domain, resolution, time, price) VALUES (?, ?, ?, ?)`,
   )
 
   try {
