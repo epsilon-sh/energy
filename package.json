@@ -9,7 +9,10 @@
     "start:api": "npm --workspace=api start",
     "front:build": "npm --workspace=front build",
     "test": "node --test",
-    "lint": "eslint . --fix"
+    "lint": "eslint . --fix",
+    "c:reset": "podman image rm -f localhost/energy_epsilon 2> /dev/null > /dev/null",
+    "c:dev": "podman compose down 2> /dev/null > /dev/null; VERSION_NODE=$(cat .node-version | xargs) podman compose up",
+    "c:console": "podman exec -it energy-1 sh"
   },
   "repository": {
     "type": "git",

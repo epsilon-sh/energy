@@ -1,0 +1,21 @@
+---
+services:
+  epsilon:
+    build:
+      dockerfile: ./Containerfile # for docker compat (because it is blind)
+      args:
+        # versions
+        VERSION_NODE: ${VERSION_NODE}
+      context: .
+      network: host
+    command: sh -c 'npm i; npm run dev'
+    container_name: energy-1
+    environment:
+      ENTSO_TOKEN: ${ENTSO_TOKEN}
+      DB_STRING: "../data/api.sqlite"
+    hostname: energy
+    working_dir: /app
+    ports:
+      - 5173:5173
+    volumes:
+      - ./:/app:z
