@@ -29,6 +29,16 @@ jobs:
         run: |
           npm ci
 
-      - name: Run tests
+      - name: Run API tests
+        run: |
+          echo "::group::Test Output"
+          echo "::debug::" # Enable debug mode for better formatting
+          npm test -- api/tests/
+          echo "::endgroup::"
         working-directory: ./
-        run: npm test
+        env:
+          FORCE_COLOR: 3 # Enable color output
+          GITHUB_STEP_SUMMARY: |-
+            ```js
+            ${{ steps.test.outputs.summary }}
+            ```

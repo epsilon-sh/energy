@@ -2,16 +2,18 @@ import { describe, it, beforeEach, afterEach } from 'node:test'
 import assert from 'node:assert/strict'
 import { initializeDatabase } from '../db.mjs'
 import { fileURLToPath } from 'url'
-import { dirname, resolve } from 'path'
+import { resolve } from 'path'
 import fs from 'node:fs'
 import http from 'node:http'
 
 process.env.DB_STRING = ':memory:'
-const TEST_DB = resolve(__dirname, '../test_prices.db')
+
+const __filename = fileURLToPath(import.meta.url)
+const testDir = resolve(__filename, '../../../data/price.import.xml')
 
 // Load mock XML data
-console.log('Loading mock XML from:', resolve(__dirname, 'priceDump.xml'))
-const MOCK_XML = fs.readFileSync(resolve(__dirname, 'priceDump.xml'), 'utf8')
+console.log('Loading mock XML from:', testDir)
+const MOCK_XML = fs.readFileSync(testDir, 'utf8')
 console.log('Mock XML loaded, length:', MOCK_XML.length)
 
 // Create a proper mock Response object
@@ -33,7 +35,7 @@ describe('Prices Route', async () => {
 
   beforeEach(async () => {
     // Reset environment and database
-    process.env.DB_STRING = TEST_DB
+    process.env.DB_STRING = ':memory:'
     dbForceError = false
     await initializeDatabase()
 
@@ -86,13 +88,6 @@ describe('Prices Route', async () => {
   })
 
   afterEach(async () => {
-    // Clean up test database
-    try {
-      fs.unlinkSync(TEST_DB)
-    } catch (err) {
-      // Ignore if file doesn't exist
-    }
-
     // Close server
     await new Promise(resolve => server.close(resolve))
 
