@@ -9,7 +9,8 @@
     "start:api": "npm --workspace=api start",
     "front:build": "npm --workspace=front build",
     "test": "node --test",
-    "lint": "eslint . --fix"
+    "lint": "eslint . --fix",
+    "postinstall": "sh -c 'cd node_modules/sqlite3; npm run rebuild'"
   },
   "repository": {
     "type": "git",
