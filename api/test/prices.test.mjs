@@ -2,18 +2,16 @@ import { describe, it, beforeEach, afterEach } from 'node:test'
 import assert from 'node:assert/strict'
 import { initializeDatabase } from '../db.mjs'
 import { fileURLToPath } from 'url'
-import { resolve } from 'path'
 import fs from 'node:fs'
 import http from 'node:http'
 
 process.env.DB_STRING = ':memory:'
 
-const __filename = fileURLToPath(import.meta.url)
-const testDir = resolve(__filename, '../../../data/price.import.xml')
+const filePath = fileURLToPath(import.meta.resolve('../../../data/price.import.xml'))
 
 // Load mock XML data
-console.log('Loading mock XML from:', testDir)
-const MOCK_XML = fs.readFileSync(testDir, 'utf8')
+console.log('Loading mock XML from:', filePath)
+const MOCK_XML = fs.readFileSync(filePath, 'utf8')
 console.log('Mock XML loaded, length:', MOCK_XML.length)
 
 // Create a proper mock Response object
