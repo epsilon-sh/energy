@@ -4,7 +4,7 @@ import fetchPrices from '../../entso/query.mjs'
 import { transformPrices as extractPrices } from '../../entso/transform.mjs'
 import { formatDate } from '../../entso/utils.mjs'
 import { parse as parseDuration, toSeconds } from 'iso8601-duration'
-import { add, interval, intervalToDuration, startOfMonth, endOfDay, min } from 'date-fns'
+import { add, intervalToDuration, startOfMonth, endOfDay, min } from 'date-fns'
 import pricesData from '../../entso/priceData.mjs'
 
 const router = express.Router()
@@ -48,8 +48,9 @@ router.get('/', async (req, res, next) => {
     const padded = padToRes({ start, end }, resolution)
 
     const db = getDatabase()
-    const dbData = await db.all(
+    const dbData = db.prepare(
       `SELECT * FROM ${DB_PRICE_TABLE} WHERE time >= ? AND time <= ?`,
+    ).all(
       padded.start.getTime(),
       padded.end.getTime(),
     )
@@ -128,25 +129,27 @@ router.get('/', async (req, res, next) => {
 
 const insertPrices = async data => {
   const db = getDatabase()
-  const stmt = await db.prepare(
+  const stmt = db.prepare(
     `INSERT INTO ${DB_PRICE_TABLE} (domain, resolution, time, price) VALUES (?, ?, ?, ?)`,
   )
 
   try {
-    for (const item of data) {
-      await stmt.run(
-        item.domain,
-        item.resolution,
-        new Date(item.time).getTime(),
-        item.price,
-      )
-    }
+    const insert = db.transaction((items) => {
+      for (const item of items) {
+        stmt.run(
+          item.domain,
+          item.resolution,
+          new Date(item.time).getTime(),
+          item.price,
+        )
+      }
+    })
+
+    insert(data)
 
     pricesData.insert(...data)
   } catch (error) {
     console.error(data, error)
-  } finally {
-    await stmt.finalize()
   }
 }
 

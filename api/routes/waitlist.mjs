@@ -7,6 +7,18 @@ const router = express.Router()
 router.use(express.json())
 router.use(express.urlencoded({ extended: true }))
 
+// GET /waitlist - Retrieve all waitlist entries
+router.get('/', (_req, res, next) => {
+  try {
+    const db = getDatabase()
+    const stmt = db.prepare('SELECT email, source, created_at FROM waitlist ORDER BY created_at DESC')
+    const waitlist = stmt.all()
+    res.json(waitlist)
+  } catch (error) {
+    next(error)
+  }
+})
+
 router.post('/', async (req, res, next) => {
   try {
     // Handle both JSON and form data submissions
@@ -23,10 +35,9 @@ router.post('/', async (req, res, next) => {
     }
 
     const db = getDatabase()
-    await db.run(
+    db.prepare(
       'INSERT OR IGNORE INTO waitlist (email, source) VALUES (?, ?)',
-      [email, source],
-    )
+    ).run(email, source)
 
     console.log(`waitlist ${email}`)
 

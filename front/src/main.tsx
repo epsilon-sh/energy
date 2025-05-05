@@ -40,6 +40,7 @@ const handleWaitlistSubmit = async (email: string) => {
     }
 
     alert('Successfully joined waitlist!')
+    return
   } catch (error) {
     console.error('Waitlist error:', error)
     alert('Failed to join waitlist. Please try again later.')
@@ -49,5 +50,5 @@ const handleWaitlistSubmit = async (email: string) => {
 // Update the event listener
 cta.addEventListener('submit', (e) => {
   e.preventDefault()
-  handleWaitlistSubmit(mail.value)
+  handleWaitlistSubmit(mail.value).then(() => mail.value = '')
 })

@@ -11,11 +11,11 @@ router.get('/', async (_req, res, next) => {
     const memPoints = new Set(data.map(d => d.meteringPoint?.toLowerCase()).filter(Boolean))
 
     // Get points from DB, convert to lowercase
-    const db = await getDatabase()
+    const db = getDatabase()
     // Use LOWER() for case-insensitive distinct selection in SQL
-    const points = await db.all(
+    const points = db.prepare(
       `SELECT DISTINCT LOWER("MeteringPointGSRN") as meteringPoint FROM ${DB_CONSUMPTION_TABLE}`,
-    )
+    ).all()
     const dbPoints = new Set(points.map(p => p.meteringPoint))
 
     // Merge and sort (case-insensitively)

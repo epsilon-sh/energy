@@ -1,4 +1,4 @@
-import { Database } from 'sqlite-async'
+import Database from 'better-sqlite3'
 
 const DB_STRING = process.env.DB_STRING
 const DB_PRICE_TABLE = process.env.DB_PRICE_TABLE || 'prices'
@@ -8,16 +8,17 @@ let db
 
 export const initializeDatabase = async () => {
   try {
-    db = await Database.open(DB_STRING)
+    db = new Database(DB_STRING)
+    db.pragma('journal_mode = WAL')
 
-    await db.run(`CREATE TABLE IF NOT EXISTS ${DB_PRICE_TABLE} (
+    db.prepare(`CREATE TABLE IF NOT EXISTS ${DB_PRICE_TABLE} (
       domain TEXT NOT NULL,
       resolution STRING NOT NULL,
       time INTEGER NOT NULL,
       price REAL NOT NULL
-    )`)
+    )`).run()
 
-    await db.run(`CREATE TABLE IF NOT EXISTS ${DB_CONSUMPTION_TABLE} (
+    db.prepare(`CREATE TABLE IF NOT EXISTS ${DB_CONSUMPTION_TABLE} (
       "MeteringPointGSRN" TEXT,
       "Product Type" TEXT,
       "Resolution" TEXT,
@@ -26,13 +27,13 @@ export const initializeDatabase = async () => {
       "Start Time" TEXT,
       "Quantity" TEXT,
       "Quality" TEXT
-    )`)
+    )`).run()
 
-    await db.run(`CREATE TABLE IF NOT EXISTS waitlist (
+    db.prepare(`CREATE TABLE IF NOT EXISTS waitlist (
       email TEXT PRIMARY KEY NOT NULL,
       source TEXT,
       created_at INTEGER DEFAULT (strftime('%s', 'now'))
-    )`)
+    )`).run()
 
     console.log(`Connected to database ${DB_STRING}`)
   } catch (error) {
@@ -46,4 +47,11 @@ export const getDatabase = () => {
     throw new Error('Database not initialized')
 
   return db
+}
+
+export const closeDatabase = () => {
+  if (db) {
+    db.close()
+    console.log('Database connection closed.')
+  }
 }

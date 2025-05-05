@@ -33,7 +33,7 @@ router.get('/', async (req, res, next) => {
 
     console.log({ start, end, resolution, meteringPoint })
 
-    const db = await getDatabase()
+    const db = getDatabase()
     const query = `SELECT * FROM ${DB_CONSUMPTION_TABLE}
       WHERE "Start Time" >= ?
         AND "Start Time" <= ?
@@ -45,7 +45,7 @@ router.get('/', async (req, res, next) => {
       params,
     }, 'for DB')
 
-    const dbData = await db.all(query, ...params)
+    const dbData = db.prepare(query).all(...params)
     const format = x => ({
       meteringPoint: x.MeteringPointGSRN,
       productType: x['Product Type'],
@@ -125,10 +125,10 @@ router.post('/upload', upload.single('file'), async (req, res) => {
     }
 
     // Get database connection
-    const db = await getDatabase()
+    const db = getDatabase()
 
     // Insert measurements into database
-    const stmt = await db.prepare(
+    const stmt = db.prepare(
       `INSERT INTO measurements (
         "MeteringPointGSRN",
         "Product Type",
@@ -141,21 +141,23 @@ router.post('/upload', upload.single('file'), async (req, res) => {
       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
     )
 
-    for (const measurement of measurements) {
-      console.log(measurement)
-      await stmt.run(
-        measurement.meteringPoint,
-        measurement.productType,
-        measurement.resolution,
-        measurement.unitType,
-        measurement.readingType,
-        measurement.startTime.toISOString(),
-        measurement.quantity.toString(),
-        measurement.quality,
-      )
-    }
+    // Use transaction for efficiency
+    const insert = db.transaction((measurements) => {
+      for (const measurement of measurements) {
+        stmt.run(
+          measurement['MeteringPointGSRN'],
+          measurement['Product Type'],
+          measurement['Resolution'],
+          measurement['Unit Type'],
+          measurement['Reading Type'],
+          measurement['Start Time'],
+          measurement['Quantity'],
+          measurement['Quality']
+        )
+      }
+    })
 
-    await stmt.finalize()
+    insert(measurements) // Execute transaction synchronously
 
     // Clean up uploaded file
     await fs.unlink(req.file.path)
