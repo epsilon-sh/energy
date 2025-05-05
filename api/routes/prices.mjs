@@ -98,13 +98,9 @@ router.get('/', async (req, res, next) => {
 
     const incoming = await Promise.all(pricesRequests) // [Period{TimeSeries:[]}]
     if (incoming.length) {
-      // console.log(incoming)
-      console.log(incoming[0], 'incoming first')
-      console.log(JSON.stringify(incoming[0], null, 2))
-      console.log(incoming.at(-1), 'incoming last')
       const extracted = incoming.flatMap(i => extractPrices(i))
 
-      console.log(extracted, `${extracted.length} price points extracted`)
+      console.log(`${extracted.length} price points from ENTSO`)
       if (extracted)
         insertPrices(extracted)
     }

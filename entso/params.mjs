@@ -21,7 +21,7 @@ export const getDomainKey = human => {
 }
 
 export const getDomainName = key => {
-  console.log(key, 'key in getDomainName')
+  // console.log(key, 'key in getDomainName')
   const domain = domains[key]
     || key.split?.('-')[0]?.slice(-2)
 
