@@ -2,49 +2,59 @@ import { parse as parseDuration, toSeconds } from 'iso8601-duration'
 import { getDomainName as getHumanDomain } from '../entso/params.mjs'
 
 export const transformPrices = (entsoData, meta = {}) => {
-  if (!entsoData) {
-    throw new Error('No data provided')
-  }
-
   if (entsoData.TimeSeries) {
     const { TimeSeries: data, ...seriesMeta } = entsoData
-    if (Array.isArray(data)) {
-      return data.flatMap(series => transformPrices(series, { ...meta, ...seriesMeta }))
+
+    if (!data.flatMap)
+      return transformPrices(data, { ...meta, ...seriesMeta })
+
+    const result = data.flatMap(series => transformPrices(series, { ...meta, ...seriesMeta }))
+    if (!result) {
+      throw new Error('No result?')
     }
-    return transformPrices(data, { ...meta, ...seriesMeta })
+    return result
   }
 
   if (entsoData.Period) {
-    const { Point, timeInterval, resolution, ...periodMeta } = entsoData.Period
-    if (!Point || !timeInterval || !resolution) {
-      throw new Error('Invalid period data structure')
+    const { Period: data, ...periodMeta } = entsoData
+    const result = transformPrices(data, { ...meta, ...periodMeta })
+    if (!result)
+      throw new Error('No results?')
+    return result
+  }
+
+  if (entsoData.Point) {
+    const { Point: data, ...pointMeta } = entsoData
+    // console.log({ data, meta, pointMeta })
+    const result = data.flatMap(point => transformPrices(point, { ...meta, ...pointMeta }))
+    if (!result)
+      throw new Error('No results?')
+    return result
+  }
+
+  if (!Number.isNaN(entsoData['price.amount'])) {
+    if (!meta['in_Domain.mRID'] && !meta.domain)
+      throw new Error('No domain!?')
+    const { start } = meta.timeInterval
+    const durationSeconds = toSeconds(parseDuration(meta.resolution))
+    const pointPosition = entsoData.position - 1 // ENTSO-E positions are 1-based
+    const startMillis = new Date(start).getTime()
+    const pointStartMillis = startMillis + (pointPosition * durationSeconds * 1000)
+
+    // console.log(Object.keys({ ...meta }))
+
+    const result = {
+      domain: getHumanDomain(meta['in_Domain.mRID']),
+      resolution: meta.resolution,
+      time: new Date(pointStartMillis),
+      price: entsoData['price.amount'],
     }
-    
-    // Pass down timeInterval and resolution along with other meta
-    return transformPrices(Point, { ...meta, timeInterval, resolution, ...periodMeta })
+
+    return result
+  } else {
+    throw new Error('No price?')
   }
 
-  if (Array.isArray(entsoData)) {
-    // This is an array of points
-    return entsoData.map((point, idx) => {
-      const { timeInterval, resolution } = meta
-      if (!timeInterval || !resolution) {
-        throw new Error('Missing timeInterval or resolution in meta')
-      }
-
-      const durationSeconds = toSeconds(parseDuration(resolution))
-      const position = point.position ? parseInt(point.position) - 1 : idx
-      const startMillis = new Date(timeInterval.start).getTime()
-      const pointStartMillis = startMillis + (position * durationSeconds * 1000)
-
-      return {
-        domain: meta['in_Domain.mRID'] ? getHumanDomain(meta['in_Domain.mRID']) : meta.domain,
-        resolution: resolution,
-        time: new Date(pointStartMillis).toISOString(),
-        price: parseFloat(point['price.amount']),
-      }
-    })
-  }
-
-  throw new Error('Unsupported data format')
+  console.log({ data: entsoData })
+  throw new Error('Not implemented')
 }

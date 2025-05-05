@@ -4,31 +4,7 @@ const DB_STRING = process.env.DB_STRING
 const DB_PRICE_TABLE = process.env.DB_PRICE_TABLE || 'prices'
 const DB_CONSUMPTION_TABLE = process.env.DB_CONSUMPTION_TABLE || 'measurements'
 
-let db = null
-
-export const resetDatabase = () => {
-  if (db) {
-    db.close()
-    db = null
-  }
-}
-
-// Helper function to convert statement to Promise-based API
-const wrapStatement = stmt => {
-  return {
-    run: async (...params) => {
-      return new Promise((resolve, reject) => {
-        try {
-          const result = stmt.run(...params)
-          resolve(result)
-        } catch (err) {
-          reject(err)
-        }
-      })
-    },
-    // No need for finalize() method as better-sqlite3 handles cleanup automatically
-  }
-}
+let db
 
 export const initializeDatabase = async () => {
   try {
@@ -70,47 +46,7 @@ export const getDatabase = () => {
   if (!db)
     throw new Error('Database not initialized')
 
-  return {
-    // Basic query methods
-    run: async (sql, ...params) => {
-      const stmt = db.prepare(sql)
-      return new Promise((resolve, reject) => {
-        try {
-          const result = stmt.run(...params)
-          resolve(result)
-        } catch (err) {
-          reject(err)
-        }
-      })
-    },
-    get: async (sql, ...params) => {
-      const stmt = db.prepare(sql)
-      return new Promise((resolve, reject) => {
-        try {
-          const result = stmt.get(...params)
-          resolve(result)
-        } catch (err) {
-          reject(err)
-        }
-      })
-    },
-    all: async (sql, ...params) => {
-      const stmt = db.prepare(sql)
-      return new Promise((resolve, reject) => {
-        try {
-          const result = stmt.all(...params)
-          resolve(result)
-        } catch (err) {
-          reject(err)
-        }
-      })
-    },
-    // Prepared statement support
-    prepare: async sql => {
-      const stmt = db.prepare(sql)
-      return wrapStatement(stmt)
-    },
-  }
+  return db
 }
 
 export const closeDatabase = () => {

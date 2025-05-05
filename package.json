@@ -1,6 +1,7 @@
 {
   "name": "@epsilon/energy",
   "version": "1.0.0",
+  "type": "module",
   "main": "index.mjs",
   "scripts": {
     "dev": "npm-run-all --parallel dev:api dev:front",
@@ -8,7 +9,7 @@
     "dev:front": "npm --workspace=front run dev",
     "start:api": "npm --workspace=api start",
     "front:build": "npm --workspace=front build",
-    "test": "node --test",
+    "test": "node --test test/",
     "lint": "eslint . --fix"
   },
   "repository": {
@@ -27,12 +28,8 @@
     "front"
   ],
   "dependencies": {
-    "fast-xml-parser": "^5.2.2",
     "iso8601-duration": "^2.1.2",
     "npm-run-all": "^4.1.5",
     "strip-bom": "^5.0.0"
-  },
-  "devDependencies": {
-    "eslint-config-standard": "^17.1.0"
   }
 }

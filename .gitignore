@@ -5,6 +5,8 @@
 
 # Local data storage for backend
 data/*
+!data/price.import.xml
+!data/import_from_entso.mjs
 
 # dependencies
 **/node_modules
@@ -22,6 +24,3 @@ front/dist
 # IDE specific files
 .idea
 .vscode
-
-# real world data used as prices mock data
-api/tests/priceDump.xml

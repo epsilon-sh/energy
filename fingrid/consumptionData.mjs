@@ -6,43 +6,20 @@ const compareString = (s1, s2) => {
   return s1 < s2 ? -1 : 1;
 }
 
-// Define expected duration order
-const durationOrder = {
-  "PT15M": 0,
-  "PT30M": 1,
-  "PT1H": 2
-};
-
 export const compare = (m1, m2) => {
-  // Compare by time first (normalize to ISO string format)
-  const t1 = new Date(m1.startTime).toISOString();
-  const t2 = new Date(m2.startTime).toISOString();
-  if (t1 !== t2) {
-    return t1 < t2 ? -1 : 1;
-  }
+  const timeDiff = new Date(m1.startTime).getTime() - new Date(m2.startTime).getTime()
+  if (timeDiff !== 0) return timeDiff
 
-  // Then by meteringPoint using string comparison
-  if (m1.meteringPoint !== m2.meteringPoint) {
-    return m1.meteringPoint < m2.meteringPoint ? -1 : 1;
-  }
+  if (m1.meteringPoint !== m2.meteringPoint) return compareString(m1.meteringPoint, m2.meteringPoint)
 
-  // Then by resolution using predefined order
+  if (m1.productType !== m2.productType) return compareString(m1.productType, m2.productType)
+
+  if (m1.readingType !== m2.readingType) return compareString(m1.readingType, m2.readingType)
   if (m1.resolution !== m2.resolution) {
-    const d1 = durationOrder[m1.resolution] ?? Infinity;
-    const d2 = durationOrder[m2.resolution] ?? Infinity;
-    return d1 - d2;
+    const d1 = parseDuration(m1.resolution)
+    const d2 = parseDuration(m2.resolution)
+    return d2 - d1
   }
-
-  // Then by productType
-  if (m1.productType !== m2.productType) {
-    return m1.productType < m2.productType ? -1 : 1;
-  }
-
-  // Finally by readingType
-  if (m1.readingType !== m2.readingType) {
-    return m1.readingType < m2.readingType ? -1 : 1;
-  }
-
   return 0;
 }
 
@@ -70,32 +47,63 @@ export const fromKWh = (quantity, targetUnit) => {
 
 export class ConsumptionData extends Array {
   insert(...measurements) {
+    console.log('inserting', measurements.length, 'into', this.length)
     if (!measurements?.length) return this;
 
-    // Create a map to track existings measurements by key
-    const replacementMap = new Map();
-    
-    // Function to create unique key for each measurement
-    const getKey = (m) => `${m.startTime}|${m.meteringPoint}|${m.resolution}|${m.productType}|${m.readingType}`;
-    
-    // Map existing measurements
-    for (const measurement of this) {
-      replacementMap.set(getKey(measurement), measurement);
+    measurements.sort(compare);
+
+    let offset = 0;
+    let insert = 0;
+    let dropped = 0;
+    let inserted = 0;
+    while (measurements.length) {
+      const thisItem = this[offset + insert];
+      const measurement = measurements[insert];
+
+      if (!thisItem) {
+        console.log('insert rest', measurements.length - insert, 'at', offset + insert)
+        insert += measurements.length - insert;
+        this.splice(offset, 0, ...measurements.splice(0, insert));
+        inserted += insert;
+        insert = 0;
+        break;
+      }
+
+      if (!measurement) {
+        if (insert) {
+          console.log(`insert ${insert} at ${offset}`)
+          this.splice(offset, 0, ...measurements.splice(0, insert));
+          inserted += insert;
+          offset += insert + 1;
+          insert = 0;
+        }
+        break; // done
+      }
+
+      const comp = compare(measurement, thisItem);
+
+      if (comp < 0) {
+        insert++;
+        console.log('from', offset, 'offset', insert)
+      }
+
+      if (comp === 0) {
+        measurements.splice(insert, 1);
+        dropped++;
+      }
+
+      if (comp > 0) {
+        // console.log('stop insert', insert, 'at', offset + insert)
+        this.splice(offset, 0, ...measurements.splice(0, insert));
+        // console.log(`insert ${insert} at ${offset} offset`, insert)
+        inserted += insert;
+        offset += insert + 1;
+        insert = 0;
+      }
+
     }
 
-    // Process new measurements, replacing existing ones
-    for (const measurement of measurements) {
-      replacementMap.set(getKey(measurement), measurement);
-    }
-
-    // Convert back to array and sort
-    const allMeasurements = Array.from(replacementMap.values());
-    allMeasurements.sort(compare);
-
-    // Clear and refill this array
-    this.length = 0;
-    this.push(...allMeasurements);
-    
+    console.log(`${inserted} inserted, ${dropped} skipped, ${measurements.length} left`)
     return this;
   }
 
