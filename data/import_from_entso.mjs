@@ -1,36 +1,34 @@
 import { writeFileSync } from "fs";
-import { endOfDay, sub } from "date-fns";
-import { formatDate } from "../../entso/utils.mjs";
-import { getDocumentTypeKey, getDomainKey } from "../../entso/params.mjs";
+import { formatDate } from "../entso/utils.mjs";
+import { getDocumentTypeKey, getDomainKey } from "../entso/params.mjs";
 
+const START_DATE = "2025-01-01";
+const END_DATE = "2025-01-31";
 const BASE_URL = "https://web-api.tp.entsoe.eu/api";
+const OUTPUT_PATH = "../data/price.import.xml";
 
-const dumpPriceData = async () => {
-  const end = endOfDay(new Date("2025-01-01"));
-  const start = sub(end, { days: 30 });
-
-  console.log(
-    `Fetching prices from ${formatDate(start)} to ${formatDate(end)}`,
-  );
-
-  const params = {
-    securityToken: process.env.ENTSO_TOKEN || "ENTSO_GUEST",
-    documentType: getDocumentTypeKey("DAY_AHEAD_PRICES"),
-    in_Domain: getDomainKey("FI"),
-    out_Domain: getDomainKey("FI"),
-    periodStart: formatDate(start),
-    periodEnd: formatDate(end),
-  };
-
-  const url = new URL(BASE_URL);
-  url.search = new URLSearchParams(params);
-
-  console.log(`Fetching from: ${url}`);
-  const response = await fetch(url);
-  const xml = await response.text();
-
-  writeFileSync(`priceDump.xml`, xml);
-  console.log("Raw XML price data written to priceDump.xml");
+const params = {
+  securityToken: process.env.ENTSO_TOKEN || "ENTSO_GUEST",
+  documentType: getDocumentTypeKey("DAY_AHEAD_PRICES"),
+  in_Domain: getDomainKey("FI"),
+  out_Domain: getDomainKey("FI"),
+  periodStart: formatDate(new Date(START_DATE)),
+  periodEnd: formatDate(new Date(END_DATE)),
 };
 
-dumpPriceData();
+const url = new URL(BASE_URL);
+url.search = new URLSearchParams(params);
+
+console.log(`Fetching prices from ${START_DATE} to ${END_DATE}`);
+console.log(`Fetching from: ${url}`);
+
+fetch(url)
+  .then((response) => response.text())
+  .then((xml) => {
+    writeFileSync(OUTPUT_PATH, xml);
+    console.log("Raw XML price data written to ", OUTPUT_PATH);
+  })
+  .catch((error) => {
+    console.error("Failed to fetch data:", error);
+    process.exit(1);
+  });
