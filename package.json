@@ -34,6 +34,7 @@
   },
   "devDependencies": {
     "@types/three": "^0.169.0",
-    "eslint-config-standard": "^17.1.0"
+    "eslint-config-standard": "^17.1.0",
+    "node-gyp": "^11.2.0"
   }
 }
