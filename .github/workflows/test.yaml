@@ -33,7 +33,7 @@ jobs:
         run: |
           echo "::group::Test Output"
           echo "::debug::" # Enable debug mode for better formatting
-          npm test -- api/tests/
+          npm --workspace=api run test
           echo "::endgroup::"
         working-directory: ./
         env:
