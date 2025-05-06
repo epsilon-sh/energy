@@ -4,17 +4,18 @@ import fetchPrices from '../../entso/query.mjs'
 import { transformPrices as extractPrices } from '../../entso/transform.mjs'
 import { formatDate } from '../../entso/utils.mjs'
 import { parse as parseDuration, toSeconds } from 'iso8601-duration'
-import { add, intervalToDuration, startOfMonth, endOfDay, min } from 'date-fns'
+import { add, intervalToDuration, min, endOfDay } from 'date-fns'
 import pricesData from '../../entso/priceData.mjs'
+import { getDefaultRange } from '../utils/dateDefaults.mjs'
 
 const router = express.Router()
 const DB_PRICE_TABLE = process.env.DB_PRICE_TABLE || 'prices'
 
 router.get('/', async (req, res, next) => {
   try {
-    const now = new Date()
-    const defaultStart = startOfMonth(now)
-    const defaultEnd = endOfDay(now)
+    const { start: defaultStart, end: defaultEndFromRange } = getDefaultRange()
+    // Cap for user-specified end or period should be end of next day
+    const capAtEndOfNextDay = endOfDay(add(new Date(), { days: 1 }))
 
     const start = new Date(req.query.start || defaultStart)
 
@@ -22,29 +23,26 @@ router.get('/', async (req, res, next) => {
       ? intervalToDuration({ start, end: new Date(req.query.end) })
       : parseDuration(req.query.period || 'P7D') // Default period if no end or period
 
-    // If end is provided, use it. Otherwise, calculate from duration or use default end.
-    // Ensure the calculated/default end is not later than the actual defaultEnd (end of today).
     const requestedEnd = req.query.end ? new Date(req.query.end) : null
-    console.error({ requestedEnd })
+
     const end = requestedEnd
-      ? min([requestedEnd, defaultEnd]) // Use requested end, but cap at end of today
+      ? min([requestedEnd, capAtEndOfNextDay]) // Cap with end of next day
       : req.query.period
-        ? min([add(start, duration), defaultEnd]) // Use period, cap at end of today
-        : defaultEnd // Default to end of today if neither end nor period is given
+        ? min([add(start, duration), capAtEndOfNextDay]) // Cap with end of next day
+        : defaultEndFromRange // Default to end of today if neither end nor period is given
 
     const resolution = req.query.resolution || 'PT1H'
 
     const padToRes = (interval, resolution) => {
       console.log({ interval, resolution }, 'pad')
       const { start, end } = interval
-      console.log(parseDuration(resolution))
       const delta = toSeconds(parseDuration(resolution)) * 1000
       const startPadded = start.getTime() - (start.getTime() % delta)
       const endPadded = end.getTime() - (end.getTime() % delta) + delta
 
       return { ...interval, start: new Date(startPadded), end: new Date(endPadded) }
     }
-    console.log({ start, end, resolution }, 'requested')
+    // console.log({ start, end, resolution }, 'requested')
     const padded = padToRes({ start, end }, resolution)
 
     const db = getDatabase()
@@ -60,7 +58,7 @@ router.get('/', async (req, res, next) => {
     const intervalSeconds = toSeconds(intervalToDuration(padded))
     const expectedCount = Math.floor(intervalSeconds / resolutionSeconds)
 
-    console.log({ resolution, resolutionSeconds, intervalSeconds, expectedCount })
+    // console.log({ resolution, resolutionSeconds, intervalSeconds, expectedCount })
 
     const missingBefore = {
       start: padded.start,
@@ -126,7 +124,7 @@ router.get('/', async (req, res, next) => {
 const insertPrices = async data => {
   const db = getDatabase()
   const stmt = db.prepare(
-    `INSERT OR IGNORE INTO ${DB_PRICE_TABLE} (domain, resolution, time, price) VALUES (?, ?, ?, ?)`,
+    `REPLACE INTO ${DB_PRICE_TABLE} (domain, resolution, time, price) VALUES (?, ?, ?, ?)`,
   )
 
   try {
