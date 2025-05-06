@@ -67,6 +67,7 @@ button {
   cursor: pointer;
   outline: 3px solid transparent;
   transition: border-color var(--animation-speed-1), background-color var(--animation-speed-1), outline var(--animation-speed-2);
+  user-select: none;
 }
 
 button:hover {
