@@ -16,18 +16,30 @@ const defaults = {
   meteringPoint: 'TEST_METERINGPOINT'
 };
 
+const defaultValues = {
+  spot_price: 0.5,
+  spot_fee: 5.0,
+  fixed_price: 12.65,
+  fixed_fee: 3.54,
+};
+
+const getStoredValue = (key: string) => {
+  const stored = localStorage.getItem(key);
+  return stored ? parseFloat(stored) : defaultValues[key as keyof typeof defaultValues];
+};
+
 const placeholderContracts = [
   {
     contractName: 'Placeholder SPOT',
     contractType: 'spot',
-    centsPerKiwattHour: 0.5,
-    euroPerMonth: 5.0,
+    centsPerKiwattHour: getStoredValue('spot_price'),
+    euroPerMonth: getStoredValue('spot_fee'),
   },
   {
     contractName: 'Placeholder FIXED',
     contractType: 'fixed',
-    centsPerKiwattHour: 12.65,
-    euroPerMonth: 3.54,
+    centsPerKiwattHour: getStoredValue('fixed_price'),
+    euroPerMonth: getStoredValue('fixed_fee'),
   }
 ]
 
@@ -257,47 +269,154 @@ const EnergyDashboard: React.FC = () => {
     <>
 
       <div className='my-m flex inputs-group'>
+        <div className='flex-column'>
+          <div className='my-s mx-s'>
+            <h3 className='my-s'>Start Time:</h3>
+            <input type='datetime-local'
+              id='start'
+              value={dateToLocalInputString(startDate)}
+              onChange={e => {
+                const elemDate = e.target.value
+                console.log('date elem change', elemDate)
+                const date = new Date(e.target.value);
+                console.log('parsed jsdate', date)
+                console.log('local isodate', date.toISOString())
+                handleStartChange(date);
+              }}
+              step="86400" // 24 hours in seconds
+            />
+          </div>
 
-        <div className='my-s mx-s'>
-          <h3 className='my-s'>Start Time:</h3>
-          <input type='datetime-local'
-            id='start'
-            value={dateToLocalInputString(startDate)}
-            onChange={e => {
-              const elemDate = e.target.value
-              console.log('date elem change', elemDate)
-              const date = new Date(e.target.value);
-              console.log('parsed jsdate', date)
-              console.log('local isodate', date.toISOString())
-              handleStartChange(date);
-            }}
-            step="86400" // 24 hours in seconds
-          />
+          <div className='my-s mx-s'>
+            <h3 className='my-s'>End Time:</h3>
+            <input type='datetime-local'
+              id='end'
+              value={dateToLocalInputString(endDate)}
+              onChange={e => {
+                const date = new Date(e.target.value);
+                date.setHours(0, 0, 0, 0); // Round to midnight
+                handleEndChange(date);
+              }}
+              step="86400" // 24 hours in seconds
+            />
+          </div>
+
+          <div className='my-s mx-s block'>
+            <h3 className='my-s'>Resolution:</h3>
+            <DurationSelector
+              options={periodResolutions['P7D']}
+              selected={query.resolution}
+              onChange={handleResolutionChange}
+            />
+          </div>
         </div>
 
-        <div className='my-s mx-s'>
-          <h3 className='my-s'>End Time:</h3>
-          <input type='datetime-local'
-            id='end'
-            value={dateToLocalInputString(endDate)}
-            onChange={e => {
-              const date = new Date(e.target.value);
-              date.setHours(0, 0, 0, 0); // Round to midnight
-              handleEndChange(date);
-            }}
-            step="86400" // 24 hours in seconds
-          />
-        </div>
+        <form className='flex-column' onSubmit={e => {
+          e.preventDefault();
+          const form = e.target as HTMLFormElement;
+          const formData = new FormData(form);
 
-        <div className='my-s mx-s block'>
-          <h3 className='my-s'>Resolution:</h3>
-          <DurationSelector
-            options={periodResolutions['P7D']}
-            selected={query.resolution}
-            onChange={handleResolutionChange}
-          />
-        </div>
+          localStorage.setItem('spot_price', formData.get('spot_price') as string);
+          localStorage.setItem('spot_fee', formData.get('spot_fee') as string);
+          localStorage.setItem('fixed_price', formData.get('fixed_price') as string);
+          localStorage.setItem('fixed_fee', formData.get('fixed_fee') as string);
 
+          window.location.reload();
+        }}>
+          <table className='my-s mx-s'>
+            <caption className='my-s'>Contract Settings</caption>
+            <tbody className='my-s'>
+              <tr>
+                <th>Spot Contract</th>
+              </tr>
+              <tr>
+                <td>
+                  <label htmlFor='spot-price'>Price (c/kWh):</label>
+                </td>
+                <td>
+                  <input
+                    type='number'
+                    id='spot-price'
+                    name='spot_price'
+                    step='0.01'
+                    min='0'
+                    defaultValue={getStoredValue('spot_price')}
+                    className='mx-s'
+                  />
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <label htmlFor='spot-fee'>Monthly Fee (€):</label>
+                </td>
+                <td>
+                  <input
+                    type='number'
+                    id='spot-fee'
+                    name='spot_fee'
+                    step='0.01'
+                    min='0'
+                    defaultValue={getStoredValue('spot_fee')}
+                    className='mx-s'
+                  />
+                </td>
+              </tr>
+            </tbody>
+
+            <tbody className='my-s'>
+              <tr>
+                <th>Fixed Contract</th>
+              </tr>
+
+              <tr>
+                <td>
+                  <label htmlFor='fixed-price'>Price (c/kWh):</label>
+                </td>
+                <td>
+                  <input
+                    type='number'
+                    id='fixed-price'
+                    name='fixed_price'
+                    step='0.01'
+                    min='0'
+                    defaultValue={getStoredValue('fixed_price')}
+                    className='mx-s'
+                  />
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <label htmlFor='fixed-fee'>Monthly Fee (€):</label>
+                </td>
+                <td>
+                  <input
+                    type='number'
+                    id='fixed-fee'
+                    name='fixed_fee'
+                    step='0.01'
+                    min='0'
+                    defaultValue={getStoredValue('fixed_fee')}
+                    className='mx-s'
+                  />
+                </td>
+              </tr>
+            </tbody>
+
+            <tfoot className='my-s'>
+              <tr>
+                <th>
+                  <button type='button' onClick={() => {
+                    Object.keys(defaultValues).forEach(key => localStorage.removeItem(key));
+                    window.location.reload();
+                  }} className='mx-s'>Reset to Defaults</button>
+                </th>
+                <th>
+                  <button type='submit' className='mx-s'>Apply Changes</button>
+                </th>
+              </tr>
+            </tfoot>
+          </table>
+        </form>
       </div>
 
       <EnergyChart
