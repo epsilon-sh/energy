@@ -51,8 +51,6 @@ export const transformPrices = (entsoData, meta = {}) => {
     }
 
     return result
-  } else {
-    throw new Error('No price?')
   }
 
   console.log({ data: entsoData })

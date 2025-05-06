@@ -4,13 +4,14 @@ import { useEnergyData } from './useEnergyData';
 import EnergyChart from './EnergyChart';
 import { DurationSelector } from './components/DurationSelector';
 import { Duration, periodResolutions } from './types/duration';
-import { Area, Bar, Line, YAxis } from 'recharts';
+import { Area, Bar, Line } from 'recharts';
 import { ChartElement } from './types/chart';
 import { toSeconds, parse as parseDuration } from 'iso8601-duration'
+import { startOfWeek, endOfDay } from 'date-fns';
 
 const defaults = {
-  start: new Date('2025-01-01T00:00').toISOString(),
-  end: new Date().toISOString(),
+  start: startOfWeek(new Date()).toISOString(),
+  end: endOfDay(new Date()).toISOString(),
   resolution: 'PT1H' as Duration,
   meteringPoint: 'TEST_METERINGPOINT'
 };

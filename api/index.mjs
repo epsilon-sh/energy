@@ -25,8 +25,6 @@ app.use(cors(corsOptions))
 // Log request details
 app.use((req, _res, next) => {
   console.log(`[${new Date().toISOString()}] ${req.ip} ${req.method} ${req.url}`)
-  if (Object.keys(req.query).length > 0)
-    console.log('Query params:', req.query)
 
   next()
 })
