@@ -83,28 +83,7 @@ router.post('/upload', upload.single('file'), async (req, res) => {
 
     // Read the uploaded file
     const fileContent = await fs.readFile(req.file.path, 'utf-8')
-
-    // Parse the CSV content
     const measurements = parseDsv(fileContent)
-
-    // Find common labels
-    const commonLabels = {}
-
-    // Initialize with first measurement's values
-    if (measurements.length > 0) {
-      Object.entries(measurements[0]).forEach(([key, value]) => {
-        commonLabels[key] = value
-      })
-    }
-
-    // Compare with all other measurements
-    for (const measurement of measurements) {
-      Object.entries(commonLabels).forEach(([key, value]) => {
-        if (measurement[key] !== value)
-          delete commonLabels[key]
-      })
-    }
-
     // Get database connection
     const db = getDatabase()
 
@@ -124,21 +103,20 @@ router.post('/upload', upload.single('file'), async (req, res) => {
 
     // Use transaction for efficiency
     const insert = db.transaction((measurements) => {
-      for (const measurement of measurements) {
+      for (const p of measurements) {
         stmt.run(
-          measurement['MeteringPointGSRN'],
-          measurement['Product Type'],
-          measurement['Resolution'],
-          measurement['Unit Type'],
-          measurement['Reading Type'],
-          measurement['Start Time'],
-          measurement['Quantity'],
-          measurement['Quality']
-        )
+          p.meteringPoint,
+          p.productType,
+          p.resolution,
+          p.unitType,
+          p.readingType,
+          p.startTime.toISOString(),
+          p.quantity,
+          p.quality)
       }
     })
 
-    insert(measurements) // Execute transaction synchronously
+    console.log(insert(measurements), 'sync exec tx insert()')
 
     // Clean up uploaded file
     await fs.unlink(req.file.path)
@@ -146,7 +124,7 @@ router.post('/upload', upload.single('file'), async (req, res) => {
     res.status(200).json({
       message: 'File uploaded and processed successfully',
       count: measurements.length,
-      info: commonLabels,
+      // info: commonLabels,
     })
   } catch (error) {
     console.error('Upload error:', error)
