@@ -24,7 +24,7 @@ Epsilon Energy is a web application built using modern web technologies. It offe
 - **TypeScript**: 5.2.2
 - **React**: 18.2.0
 - **React Redux**: 9.1.2
-- **Vite**: 5.2.0
+- **Vite**: 6.3.5
 - **Express**: 4.21.0
 - **Three.js**: 0.169.0
 - **date-fns**: 4.1.0
