@@ -5,7 +5,6 @@ import EnergyChart from './EnergyChart';
 import { DurationSelector } from './components/DurationSelector';
 import { Duration, periodResolutions } from './types/duration';
 import { Area, Bar, Line } from 'recharts';
-import { ChartElement } from './types/chart';
 import { toSeconds, parse as parseDuration } from 'iso8601-duration'
 import { startOfWeek, endOfDay, startOfDay } from 'date-fns';
 
@@ -156,7 +155,7 @@ const EnergyDashboard: React.FC = () => {
     ? priceColors.expensive
     : priceColors.cheap;
 
-  const chartElements: Record<string, ChartElement> = {
+  const chartElements = {
     consumption: {
       name: 'Consumption',
       element: Bar,
