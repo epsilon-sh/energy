@@ -5,9 +5,8 @@ import EnergyChart from './EnergyChart';
 import { DurationSelector } from './components/DurationSelector';
 import { Duration, periodResolutions } from './types/duration';
 import { Area, Bar, Line } from 'recharts';
-import { ChartElement } from './types/chart';
 import { toSeconds, parse as parseDuration } from 'iso8601-duration'
-import { startOfWeek, endOfDay } from 'date-fns';
+import { startOfWeek, endOfDay, startOfDay } from 'date-fns';
 
 const defaults = {
   start: startOfWeek(new Date()).toISOString(),
@@ -29,26 +28,7 @@ const placeholderContracts = [
     centsPerKiwattHour: 12.65,
     euroPerMonth: 3.54,
   }
-]
-
-const contractPricer = (contract: typeof placeholderContracts[number]) => {
-  const monthlyFee = contract.euroPerMonth;
-  const monthSeconds = toSeconds(parseDuration('P1M'));
-
-  return (quantity: number, resolution: Duration, spotPriceMwh?: number) => {
-    // Convert resolution to seconds and compare with a month's seconds
-    const periodSeconds = toSeconds(parseDuration(resolution));
-    const feeRatio = periodSeconds / monthSeconds;
-
-    const periodFee = monthlyFee * feeRatio;
-    const kwhPrice = contract.centsPerKiwattHour / 100
-      + (spotPriceMwh ?? 0) / 1000;
-
-    return periodFee + quantity * kwhPrice;
-  }
-}
-const spotPricer = contractPricer(placeholderContracts[0]);
-const fixedPricer = contractPricer(placeholderContracts[1]);
+];
 
 const priceColors = {
   expensive: '#ff6666',
@@ -56,7 +36,30 @@ const priceColors = {
 }
 
 const EnergyDashboard: React.FC = () => {
+  const [spotPrice, setSpotPrice] = React.useState(placeholderContracts[0].centsPerKiwattHour);
+  const [spotFee, setSpotFee] = React.useState(placeholderContracts[0].euroPerMonth);
+  const [fixedPrice, setFixedPrice] = React.useState(placeholderContracts[1].centsPerKiwattHour);
+  const [fixedFee, setFixedFee] = React.useState(placeholderContracts[1].euroPerMonth);
+
   const [searchParams, setSearchParams] = useSearchParams();
+
+  const contractPricer = React.useCallback((_name: string, price: number, fee: number) => {
+    const monthSeconds = toSeconds(parseDuration('P1M'));
+
+    return (quantity: number, resolution: Duration, spotPriceMwh?: number) => {
+      const periodSeconds = toSeconds(parseDuration(resolution));
+      const feeRatio = periodSeconds / monthSeconds;
+
+      const periodFee = fee * feeRatio;
+      const kwhPrice = price / 100
+        + (spotPriceMwh ?? 0) / 1000;
+
+      return periodFee + quantity * kwhPrice;
+    }
+  }, []);
+
+  const spotPricer = React.useMemo(() => contractPricer('Spot', spotPrice, spotFee), [spotPrice, spotFee, contractPricer]);
+  const fixedPricer = React.useMemo(() => contractPricer('Fixed', fixedPrice, fixedFee), [fixedPrice, fixedFee, contractPricer]);
 
   const query = {
     start: searchParams.get('start') || defaults.start,
@@ -64,6 +67,7 @@ const EnergyDashboard: React.FC = () => {
     resolution: (searchParams.get('resolution') as Duration) || defaults.resolution,
     meteringPoint: (searchParams.get('meteringPoint') || searchParams.get('MeteringPointGSRN')) || defaults.meteringPoint,
   };
+
   if (query.end < query.start) {
     const startDate = new Date(query.start)
     const endDate = new Date(query.start)
@@ -140,7 +144,6 @@ const EnergyDashboard: React.FC = () => {
     if (!error) return undefined;
     return 'message' in (error as Error)
       ? (error as Error).message
-      // : String(error);
       : fallback || 'Something went oops';
   };
 
@@ -152,7 +155,7 @@ const EnergyDashboard: React.FC = () => {
     ? priceColors.expensive
     : priceColors.cheap;
 
-  const chartElements: Record<string, ChartElement> = {
+  const chartElements = {
     consumption: {
       name: 'Consumption',
       element: Bar,
@@ -255,56 +258,154 @@ const EnergyDashboard: React.FC = () => {
 
   return (
     <>
-
       <div className='my-m flex inputs-group'>
+        <div className='flex-column'>
+          <div className='my-s mx-s'>
+            <h3 className='my-s'>Start Time:</h3>
+            <input type='datetime-local'
+              id='start'
+              value={dateToLocalInputString(startDate)}
+              onChange={e => {
+                const elemDate = e.target.value
+                console.log('date elem change', elemDate)
+                const date = new Date(e.target.value);
+                console.log('parsed jsdate', date)
+                console.log('local isodate', date.toISOString())
+                handleStartChange(date);
+              }}
+              step="86400" // 24 hours in seconds
+            />
+          </div>
 
-        <div className='my-s mx-s'>
-          <h3 className='my-s'>Start Time:</h3>
-          <input type='datetime-local'
-            id='start'
-            value={dateToLocalInputString(startDate)}
-            onChange={e => {
-              const elemDate = e.target.value
-              console.log('date elem change', elemDate)
-              const date = new Date(e.target.value);
-              console.log('parsed jsdate', date)
-              console.log('local isodate', date.toISOString())
-              handleStartChange(date);
-            }}
-            step="86400" // 24 hours in seconds
-          />
+          <div className='my-s mx-s'>
+            <h3 className='my-s'>End Time:</h3>
+            <input type='datetime-local'
+              id='end'
+              value={dateToLocalInputString(endDate)}
+              onChange={e => {
+                const date = startOfDay(new Date(e.target.value));
+                handleEndChange(date);
+              }}
+              step="86400" // 24 hours in seconds
+            />
+          </div>
+
+          <div className='my-s mx-s block'>
+            <h3 className='my-s'>Resolution:</h3>
+            <DurationSelector
+              options={periodResolutions['P7D']}
+              selected={query.resolution}
+              onChange={handleResolutionChange}
+            />
+          </div>
         </div>
 
-        <div className='my-s mx-s'>
-          <h3 className='my-s'>End Time:</h3>
-          <input type='datetime-local'
-            id='end'
-            value={dateToLocalInputString(endDate)}
-            onChange={e => {
-              const date = new Date(e.target.value);
-              date.setHours(0, 0, 0, 0); // Round to midnight
-              handleEndChange(date);
-            }}
-            step="86400" // 24 hours in seconds
-          />
-        </div>
+        <form className='flex-column'>
+          <table className='my-s mx-s'>
+            <caption className='my-s'>Contract Settings</caption>
+            <tbody className='my-s'>
+              <tr>
+                <th>Spot Contract</th>
+              </tr>
+              <tr>
+                <td>
+                  <label htmlFor='spot-price'>Price (c/kWh):</label>
+                </td>
+                <td>
+                  <input
+                    type='number'
+                    id='spot-price'
+                    name='spot_price'
+                    step='0.05'
+                    value={spotPrice}
+                    onChange={e => setSpotPrice(parseFloat(e.target.value))}
+                    className='mx-s'
+                  />
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <label htmlFor='spot-fee'>Monthly Fee (€):</label>
+                </td>
+                <td>
+                  <input
+                    type='number'
+                    id='spot-fee'
+                    name='spot_fee'
+                    step='0.05'
+                    value={spotFee}
+                    onChange={e => setSpotFee(parseFloat(e.target.value))}
+                    className='mx-s'
+                  />
+                </td>
+              </tr>
+            </tbody>
 
-        <div className='my-s mx-s block'>
-          <h3 className='my-s'>Resolution:</h3>
-          <DurationSelector
-            options={periodResolutions['P7D']}
-            selected={query.resolution}
-            onChange={handleResolutionChange}
-          />
-        </div>
+            <tbody className='my-s'>
+              <tr>
+                <th>Fixed Contract</th>
+              </tr>
 
+              <tr>
+                <td>
+                  <label htmlFor='fixed-price'>Price (c/kWh):</label>
+                </td>
+                <td>
+                  <input
+                    type='number'
+                    id='fixed-price'
+                    name='fixed_price'
+                    step='0.05'
+                    value={fixedPrice}
+                    onChange={e => setFixedPrice(parseFloat(e.target.value))}
+                    className='mx-s'
+                  />
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <label htmlFor='fixed-fee'>Monthly Fee (€):</label>
+                </td>
+                <td>
+                  <input
+                    type='number'
+                    id='fixed-fee'
+                    name='fixed_fee'
+                    step='0.05'
+                    value={fixedFee}
+                    onChange={e => setFixedFee(parseFloat(e.target.value))}
+                    className='mx-s'
+                  />
+                </td>
+              </tr>
+            </tbody>
+
+            <tfoot className='my-s'>
+              <tr>
+                <th>
+                  <button
+                    type='button'
+                    onClick={() => {
+                      setSpotPrice(placeholderContracts[0].centsPerKiwattHour);
+                      setSpotFee(placeholderContracts[0].euroPerMonth);
+                      setFixedPrice(placeholderContracts[1].centsPerKiwattHour);
+                      setFixedFee(placeholderContracts[1].euroPerMonth);
+                    }}
+                    className='mx-s'
+                  >
+                    Reset to Defaults
+                  </button>
+                </th>
+              </tr>
+            </tfoot>
+          </table>
+        </form>
       </div>
 
       <EnergyChart
         resolution={query.resolution}
         elements={chartElements}
       />
-
     </>
   );
 };
