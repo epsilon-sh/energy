@@ -70,8 +70,11 @@ button {
   user-select: none;
 }
 
-button:hover {
-  border-color: var(--color-accent-hover);
+button{
+  &:hover,
+  &.active {
+    border-color: var(--color-accent-hover);
+  }
 }
 
 button:focus,
