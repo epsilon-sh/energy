@@ -7,7 +7,7 @@ import { Duration, periodResolutions } from './types/duration';
 import { Area, Bar, Line } from 'recharts';
 import { ChartElement } from './types/chart';
 import { toSeconds, parse as parseDuration } from 'iso8601-duration'
-import { startOfWeek, endOfDay } from 'date-fns';
+import { startOfWeek, endOfDay, startOfDay } from 'date-fns';
 
 const defaults = {
   start: startOfWeek(new Date()).toISOString(),
@@ -23,52 +23,52 @@ const defaultValues = {
   fixed_fee: 3.54,
 };
 
-const getStoredValue = (key: string) => {
-  const stored = localStorage.getItem(key);
-  return stored ? parseFloat(stored) : defaultValues[key as keyof typeof defaultValues];
-};
-
-const placeholderContracts = [
-  {
-    contractName: 'Placeholder SPOT',
-    contractType: 'spot',
-    centsPerKiwattHour: getStoredValue('spot_price'),
-    euroPerMonth: getStoredValue('spot_fee'),
-  },
-  {
-    contractName: 'Placeholder FIXED',
-    contractType: 'fixed',
-    centsPerKiwattHour: getStoredValue('fixed_price'),
-    euroPerMonth: getStoredValue('fixed_fee'),
-  }
-]
-
-const contractPricer = (contract: typeof placeholderContracts[number]) => {
-  const monthlyFee = contract.euroPerMonth;
-  const monthSeconds = toSeconds(parseDuration('P1M'));
-
-  return (quantity: number, resolution: Duration, spotPriceMwh?: number) => {
-    // Convert resolution to seconds and compare with a month's seconds
-    const periodSeconds = toSeconds(parseDuration(resolution));
-    const feeRatio = periodSeconds / monthSeconds;
-
-    const periodFee = monthlyFee * feeRatio;
-    const kwhPrice = contract.centsPerKiwattHour / 100
-      + (spotPriceMwh ?? 0) / 1000;
-
-    return periodFee + quantity * kwhPrice;
-  }
-}
-const spotPricer = contractPricer(placeholderContracts[0]);
-const fixedPricer = contractPricer(placeholderContracts[1]);
-
 const priceColors = {
   expensive: '#ff6666',
   cheap: '#66a3ff',
 }
 
 const EnergyDashboard: React.FC = () => {
+  const [spotPrice, setSpotPrice] = React.useState(defaultValues.spot_price);
+  const [spotFee, setSpotFee] = React.useState(defaultValues.spot_fee);
+  const [fixedPrice, setFixedPrice] = React.useState(defaultValues.fixed_price);
+  const [fixedFee, setFixedFee] = React.useState(defaultValues.fixed_fee);
+
   const [searchParams, setSearchParams] = useSearchParams();
+
+  const placeholderContracts = React.useMemo(() => [
+    {
+      contractName: 'Placeholder SPOT',
+      contractType: 'spot',
+      centsPerKiwattHour: spotPrice,
+      euroPerMonth: spotFee,
+    },
+    {
+      contractName: 'Placeholder FIXED',
+      contractType: 'fixed',
+      centsPerKiwattHour: fixedPrice,
+      euroPerMonth: fixedFee,
+    }
+  ], [spotPrice, spotFee, fixedPrice, fixedFee]);
+
+  const contractPricer = React.useCallback((contract: typeof placeholderContracts[number]) => {
+    const monthlyFee = contract.euroPerMonth;
+    const monthSeconds = toSeconds(parseDuration('P1M'));
+
+    return (quantity: number, resolution: Duration, spotPriceMwh?: number) => {
+      const periodSeconds = toSeconds(parseDuration(resolution));
+      const feeRatio = periodSeconds / monthSeconds;
+
+      const periodFee = monthlyFee * feeRatio;
+      const kwhPrice = contract.centsPerKiwattHour / 100
+        + (spotPriceMwh ?? 0) / 1000;
+
+      return periodFee + quantity * kwhPrice;
+    }
+  }, []);
+
+  const spotPricer = React.useMemo(() => contractPricer(placeholderContracts[0]), [placeholderContracts, contractPricer]);
+  const fixedPricer = React.useMemo(() => contractPricer(placeholderContracts[1]), [placeholderContracts, contractPricer]);
 
   const query = {
     start: searchParams.get('start') || defaults.start,
@@ -76,6 +76,7 @@ const EnergyDashboard: React.FC = () => {
     resolution: (searchParams.get('resolution') as Duration) || defaults.resolution,
     meteringPoint: (searchParams.get('meteringPoint') || searchParams.get('MeteringPointGSRN')) || defaults.meteringPoint,
   };
+
   if (query.end < query.start) {
     const startDate = new Date(query.start)
     const endDate = new Date(query.start)
@@ -152,7 +153,6 @@ const EnergyDashboard: React.FC = () => {
     if (!error) return undefined;
     return 'message' in (error as Error)
       ? (error as Error).message
-      // : String(error);
       : fallback || 'Something went oops';
   };
 
@@ -267,7 +267,6 @@ const EnergyDashboard: React.FC = () => {
 
   return (
     <>
-
       <div className='my-m flex inputs-group'>
         <div className='flex-column'>
           <div className='my-s mx-s'>
@@ -293,8 +292,7 @@ const EnergyDashboard: React.FC = () => {
               id='end'
               value={dateToLocalInputString(endDate)}
               onChange={e => {
-                const date = new Date(e.target.value);
-                date.setHours(0, 0, 0, 0); // Round to midnight
+                const date = startOfDay(new Date(e.target.value));
                 handleEndChange(date);
               }}
               step="86400" // 24 hours in seconds
@@ -311,18 +309,7 @@ const EnergyDashboard: React.FC = () => {
           </div>
         </div>
 
-        <form className='flex-column' onSubmit={e => {
-          e.preventDefault();
-          const form = e.target as HTMLFormElement;
-          const formData = new FormData(form);
-
-          localStorage.setItem('spot_price', formData.get('spot_price') as string);
-          localStorage.setItem('spot_fee', formData.get('spot_fee') as string);
-          localStorage.setItem('fixed_price', formData.get('fixed_price') as string);
-          localStorage.setItem('fixed_fee', formData.get('fixed_fee') as string);
-
-          window.location.reload();
-        }}>
+        <form className='flex-column'>
           <table className='my-s mx-s'>
             <caption className='my-s'>Contract Settings</caption>
             <tbody className='my-s'>
@@ -340,7 +327,8 @@ const EnergyDashboard: React.FC = () => {
                     name='spot_price'
                     step='0.01'
                     min='0'
-                    defaultValue={getStoredValue('spot_price')}
+                    value={spotPrice}
+                    onChange={e => setSpotPrice(parseFloat(e.target.value))}
                     className='mx-s'
                   />
                 </td>
@@ -356,7 +344,8 @@ const EnergyDashboard: React.FC = () => {
                     name='spot_fee'
                     step='0.01'
                     min='0'
-                    defaultValue={getStoredValue('spot_fee')}
+                    value={spotFee}
+                    onChange={e => setSpotFee(parseFloat(e.target.value))}
                     className='mx-s'
                   />
                 </td>
@@ -379,7 +368,8 @@ const EnergyDashboard: React.FC = () => {
                     name='fixed_price'
                     step='0.01'
                     min='0'
-                    defaultValue={getStoredValue('fixed_price')}
+                    value={fixedPrice}
+                    onChange={e => setFixedPrice(parseFloat(e.target.value))}
                     className='mx-s'
                   />
                 </td>
@@ -395,7 +385,8 @@ const EnergyDashboard: React.FC = () => {
                     name='fixed_fee'
                     step='0.01'
                     min='0'
-                    defaultValue={getStoredValue('fixed_fee')}
+                    value={fixedFee}
+                    onChange={e => setFixedFee(parseFloat(e.target.value))}
                     className='mx-s'
                   />
                 </td>
@@ -405,13 +396,18 @@ const EnergyDashboard: React.FC = () => {
             <tfoot className='my-s'>
               <tr>
                 <th>
-                  <button type='button' onClick={() => {
-                    Object.keys(defaultValues).forEach(key => localStorage.removeItem(key));
-                    window.location.reload();
-                  }} className='mx-s'>Reset to Defaults</button>
-                </th>
-                <th>
-                  <button type='submit' className='mx-s'>Apply Changes</button>
+                  <button
+                    type='button'
+                    onClick={() => {
+                      setSpotPrice(defaultValues.spot_price);
+                      setSpotFee(defaultValues.spot_fee);
+                      setFixedPrice(defaultValues.fixed_price);
+                      setFixedFee(defaultValues.fixed_fee);
+                    }}
+                    className='mx-s'
+                  >
+                    Reset to Defaults
+                  </button>
                 </th>
               </tr>
             </tfoot>
@@ -423,7 +419,6 @@ const EnergyDashboard: React.FC = () => {
         resolution={query.resolution}
         elements={chartElements}
       />
-
     </>
   );
 };
