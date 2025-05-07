@@ -16,14 +16,7 @@ export const DurationSelector = ({
       <button
         key={duration}
         onClick={() => onChange(duration)}
-        style={{
-          padding: '8px 16px',
-          borderRadius: '20px',
-          border: 'none',
-          background: selected === duration ? '#8884d8' : '#e0e0e0',
-          color: selected === duration ? 'white' : 'black',
-          cursor: 'pointer',
-        }}
+        className={selected === duration ? 'active' : 'inactive'}
       >
         {humanReadableDurations[duration]}
       </button>
