@@ -12,7 +12,7 @@ const DataOptions = () => {
     const [data, setData] = useState<ConsumptionData>(consumptionData);
     const [searchParams, setSearchParams] = useSearchParams();
     const meteringPoint = searchParams.get('meteringPoint') || 'TEST_METERINGPOINT';
-    const [info, setInfo] = useState<{ data: ConsumptionData, info: { totals: number } } | null>(null);
+    const [info, setInfo] = useState<{ data: ConsumptionData, info: { totals: number, message: string } } | null>(null);
     const [uploading, setUploading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
@@ -94,74 +94,6 @@ const DataOptions = () => {
             <Card className="backdrop bg-shadow-light">
                 <CardHeader>
                     <h3 className="my-0">Consumption Data</h3>
-                    {data[1] && (
-                        <table>
-                            <tbody>
-                                <tr>
-                                    <td>Meter</td>
-                                    <td>{data[0].meteringPoint}</td>
-                                </tr>
-                                <tr>
-                                    <td>Start</td>
-                                    <td>{data[0].startTime.toISOString().slice(0, -8)}</td>
-                                </tr>
-                                <tr>
-                                    <td>End</td>
-                                    <td>{data[data.length - 1].startTime.toISOString().slice(0, -8)}</td>
-                                </tr>
-                                <tr>
-                                    <td>Count</td>
-                                    <td>{data.length}</td>
-                                </tr>
-                                <tr>
-                                    <td>Totals</td>
-                                    <td>{data.reduce((acc: number, m: typeof data[0]) => +m.quantity + acc, 0).toFixed(6)}</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    )}
-                </CardHeader>
-                <div style={{ border: '5px dashed grey', borderRadius: '10px' }} className="flex flex-col gap-s">
-                    {/* <div className="flex flex-col gap-s"> */}
-                    {/* <pre>{JSON.stringify(consumptionData, null, 2)}</pre> */}
-
-                    <label htmlFor="consumption-data-input" className="p-4">
-                        <CardTitle className="my-s">
-                            Import Consumption Data
-                        </CardTitle>
-                    </label>
-                    <input
-                        id="consumption-data-input"
-                        type="file"
-                        accept=".csv"
-                        onChange={handleFileChange}
-                        className="hidden block w-full flex flex-col gap-s"
-                        disabled={uploading}
-                        style={{
-                            height: '200px'
-                        }}
-                    />
-                    {/* </div> */}
-
-                    {error && (
-                        <p className="text-error my-0">{error}</p>
-                    )}
-
-                    {info ? (
-                        <p className="text-success my-0">
-                            {JSON.stringify(info)}
-                        </p>
-                    ) : file && data && (
-                        <>
-                            <button
-                                onClick={handleUpload}
-                                disabled={uploading}
-                                className={`flex gap-s items-center w-fit ${uploading ? 'opacity-50' : ''} ${error ? 'bg-error' : 'bg-primary'}`}>
-                                <Upload size={16} />
-                                {uploading ? 'Uploading...' : 'Upload Measurements'}
-                            </button>
-                        </>
-                    )}
 
                     <div className="mt-s">
                         <a href="https://www.fingrid.fi/sahkomarkkinat/datahub/kirjautuminen-datahubin-asiakasportaaliin/"
@@ -171,10 +103,89 @@ const DataOptions = () => {
                             Request data from Fingrid
                         </a>
                     </div>
+                </CardHeader>
+
+                <div className="flex gap-s my-s">
+                    <DataDropzone handleFileChange={handleFileChange} uploading={uploading} />
+                    <DataInfo data={data} />
                 </div>
-            </Card>
-        </div>
+
+                <DataError error={error} />
+
+                <DataFooter>
+
+                    <button
+                        onClick={handleUpload}
+                        disabled={uploading || !file || !data?.length}
+                        className={`flex gap-s items-center w-fit ${uploading ? 'opacity-50' : ''} ${error ? 'bg-error' : 'bg-primary'}`}>
+                        <Upload size={16} />
+                        {uploading ? 'Uploading...' : 'Upload Measurements'}
+                    </button>
+
+                    <p className="text-success my-0">
+                        {info && info.message}
+                    </p>
+
+                </DataFooter>
+            </Card >
+        </div >
     );
 };
 
 export default DataOptions;
+
+
+const DataInfo = ({ data }: { data: ConsumptionData[] }) => {
+    if (!data?.[0]) return null;
+
+    const info = {
+        Meter: data[0].meteringPoint,
+        Start: data[0].startTime.toDateString(),
+        End: data[data.length - 1].startTime.toDateString(),
+        Count: data.length,
+        Total: data.reduce((acc: number, m: typeof data[0]) => +m.quantity + acc, 0).toFixed()
+    }
+
+    return <table className="border-separate border-spacing-x-2">{data?.[0] &&
+        <tbody>
+            {Object.entries(info).map(([key, value]) => (
+                <tr key={key}>
+                    <td style={{ fontWeight: 'bold' }}>{key}</td>
+                    <td style={{ paddingLeft: '10px' }}>{value}</td>
+                </tr>
+            ))}
+        </tbody>}
+    </table>
+}
+
+const DataError = ({ error }: { error: string | null }) =>
+    error && (
+        <p className="text-error my-0">{error}</p>
+    )
+
+const DataDropzone = ({ handleFileChange, uploading }: { handleFileChange: (e: React.ChangeEvent<HTMLInputElement>) => void, uploading: boolean }) =>
+
+    <div style={{ border: '5px dashed grey', borderRadius: '10px' }} className="flex flex-col gap-s w-fit">
+        <input
+            id="consumption-data-input"
+            type="file"
+            accept=".csv"
+            onChange={handleFileChange}
+            className="hidden block w-full flex flex-col gap-s"
+            disabled={uploading}
+            style={{
+                display: 'none',
+                // height: '200px'
+            }}
+        />
+        <label htmlFor="consumption-data-input" className="p-4">
+            <CardTitle className="my-s">
+                Click / drop to import a consumption data CSV file.
+            </CardTitle>
+        </label>
+    </div>
+
+const DataFooter = ({ children }: { children: React.ReactNode }) =>
+    <div className="flex-col">
+        {children}
+    </div>
