@@ -121,20 +121,27 @@ const DataOptions = () => {
                         </table>
                     )}
                 </CardHeader>
-                <CardTitle className="my-s">
-                    Import Consumption Data
-                </CardTitle>
-                <div className="flex flex-col gap-s p-4">
-                    <div className="flex flex-col gap-s">
-                        {/* <pre>{JSON.stringify(consumptionData, null, 2)}</pre> */}
-                        <input
-                            type="file"
-                            accept=".csv"
-                            onChange={handleFileChange}
-                            className="block w-full"
-                            disabled={uploading}
-                        />
-                    </div>
+                <div style={{ border: '5px dashed grey', borderRadius: '10px' }} className="flex flex-col gap-s">
+                    {/* <div className="flex flex-col gap-s"> */}
+                    {/* <pre>{JSON.stringify(consumptionData, null, 2)}</pre> */}
+
+                    <label htmlFor="consumption-data-input" className="p-4">
+                        <CardTitle className="my-s">
+                            Import Consumption Data
+                        </CardTitle>
+                    </label>
+                    <input
+                        id="consumption-data-input"
+                        type="file"
+                        accept=".csv"
+                        onChange={handleFileChange}
+                        className="hidden block w-full flex flex-col gap-s"
+                        disabled={uploading}
+                        style={{
+                            height: '200px'
+                        }}
+                    />
+                    {/* </div> */}
 
                     {error && (
                         <p className="text-error my-0">{error}</p>
