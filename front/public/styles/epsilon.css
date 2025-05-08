@@ -445,6 +445,7 @@ section h4 {
 #app {
   max-height: 100dvh;
   max-height: -webkit-fill-available;
+  width: 100%;
 }
 
 .backdrop {
