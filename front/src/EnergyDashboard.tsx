@@ -295,7 +295,6 @@ const EnergyDashboard: React.FC = () => {
               </tr><tr>
                 <td colSpan={2}>
                   <DurationSelector
-                    className='float-right'
                     options={periodResolutions['P7D']}
                     selected={query.resolution}
                     onChange={handleResolutionChange}
@@ -309,7 +308,6 @@ const EnergyDashboard: React.FC = () => {
         <ContractsForm
           contracts={currentContracts}
           onUpdateContracts={setCurrentContracts}
-          onResetContracts={() => setCurrentContracts(placeholderContracts)}
         />
       </div>
 

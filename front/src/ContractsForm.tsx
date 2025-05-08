@@ -72,13 +72,11 @@ const ContractInput: React.FC<ContractInputProps> = ({ contract, onUpdate }) => 
 type ContractFormProps = {
   contracts: Contract[];
   onUpdateContracts: (contracts: Contract[]) => void;
-  onResetContracts: () => void;
 }
 
 const ContractsForm: React.FC<ContractFormProps> = ({
   contracts,
   onUpdateContracts,
-  onResetContracts
 }) => {
   const handleContractUpdate = (index: number, updatedContract: Contract) => {
     const newContracts = [...contracts];
@@ -100,19 +98,6 @@ const ContractsForm: React.FC<ContractFormProps> = ({
             />
             // </tbody>
           ))}
-
-          <tr>
-            <td/>
-            <th className='pt-s'>
-              <button
-                type='button'
-                onClick={onResetContracts}
-                className='w-full'
-              >
-                Reset
-              </button>
-            </th>
-          </tr>
         </tbody>
       </table>
     </form>
