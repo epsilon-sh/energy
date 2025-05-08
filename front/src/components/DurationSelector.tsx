@@ -11,7 +11,7 @@ export const DurationSelector = ({
   selected,
   onChange
 }: DurationSelectorProps) => (
-  <div className='flex-wrap gap-s space-between'>
+  <div className='flex-wrap gap-n button-multipill'>
     {options.map((duration) => (
       <button
         key={duration}
