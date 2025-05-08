@@ -90,13 +90,11 @@ const ContractsForm: React.FC<ContractFormProps> = ({
         <caption className='title'>Contract</caption>
         <tbody className='my-s'>
           {contracts.map((contract, index) => (
-            // <tbody>
             <ContractInput
               key={contract.name}
               contract={contract}
               onUpdate={(updated) => handleContractUpdate(index, updated)}
             />
-            // </tbody>
           ))}
         </tbody>
       </table>

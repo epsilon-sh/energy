@@ -16,11 +16,6 @@ const defaults = {
   meteringPoint: 'TEST_METERINGPOINT'
 };
 
-const priceColors = {
-  expensive: '#ff6666',
-  cheap: '#66a3ff',
-}
-
 const placeholderContracts = [
   {
     name: "Placeholder SPOT",
@@ -36,6 +31,11 @@ const placeholderContracts = [
   },
 ];
 export type Contract = typeof placeholderContracts[number];
+
+const priceColors = {
+  expensive: '#ff6666',
+  cheap: '#66a3ff',
+}
 
 const EnergyDashboard: React.FC = () => {
   const [currentContracts, setCurrentContracts] = React.useState(placeholderContracts);

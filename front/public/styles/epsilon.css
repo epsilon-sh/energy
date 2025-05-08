@@ -258,9 +258,6 @@ section h4 {
   justify-content: space-around;
 }
 
-.gap-n {
-  gap: 0;
-}
 
 .gap-s {
   gap: var(--m-s);
@@ -599,8 +596,4 @@ a {
 
 .va-baseline {
   vertical-align: baseline;
-}
-
-.float-right {
-  float: right;
 }
