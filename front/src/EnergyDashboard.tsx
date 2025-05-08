@@ -8,6 +8,7 @@ import { Area, Bar, Line } from "recharts";
 import { toSeconds, parse as parseDuration } from "iso8601-duration";
 import { startOfWeek, endOfDay, startOfDay } from "date-fns";
 import ContractsForm from "./ContractsForm";
+import Drawer from "./Drawer";
 
 const defaults = {
   start: startOfWeek(new Date()).toISOString(),
@@ -330,6 +331,8 @@ const EnergyDashboard: React.FC = () => {
           onUpdateContracts={setCurrentContracts}
         />
       </div>
+
+      <Drawer />
 
       <EnergyChart
         resolution={query.resolution}

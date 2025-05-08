@@ -47,6 +47,53 @@ const handleWaitlistSubmit = async (email: string) => {
   }
 }
 
+const handleMeteringPointsRequest = async () => {
+  try {
+    const target = new URL('/meteringPoints', API_URL)
+    const response = await fetch(target, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        // TODO: include auth headers => get permitted metering points
+      },
+    })
+
+    if (!response.ok) {
+      throw new Error('Failed to get metering points')
+    }
+
+    // Parse the JSON response
+    const data = await response.json()
+    console.log('Metering points loaded!')
+    return data // Return the actual data from the response
+  } catch (error) {
+    console.error('Metering points error:', error)
+    alert('Failed to load metering points. Please try again later.')
+    throw error // Re-throw the error to be handled by the caller if needed
+  }
+};
+
+// Wait for nav element to be available
+const observer = new MutationObserver((_mutations, obs) => {
+  const drawer = document.querySelector('nav');
+  if (drawer) {
+    drawer.addEventListener('click', async (_e) => {
+      try {
+        const meteringPoints = await handleMeteringPointsRequest();
+        console.log('Metering points:', meteringPoints);
+        drawer.innerHTML = meteringPoints.filter((mp: string | null) => mp !== null).map((meteringPointId: string) => `<a href="?meteringPoint=${meteringPointId}">${meteringPointId}</a>`)
+      } catch (error) {
+        console.error('Failed to handle metering points:', error);
+      }
+    });
+    obs.disconnect();
+  }
+});
+observer.observe(document.body, {
+  childList: true,
+  subtree: true
+});
+
 // Update the event listener
 cta.addEventListener('submit', (e) => {
   e.preventDefault()
