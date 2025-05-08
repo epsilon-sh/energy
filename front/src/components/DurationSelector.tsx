@@ -9,11 +9,12 @@ interface DurationSelectorProps {
 export const DurationSelector = ({
   options,
   selected,
-  onChange
-}: DurationSelectorProps) => (
-  <div className='flex-wrap'>
+  onChange,
+}: DurationSelectorProps): JSX.Element => (
+  <div className="flex-wrap">
     {options.map((duration) => (
-      <button className='multipill'
+      <button
+        className="multipill"
         disabled={selected === duration}
         key={duration}
         onClick={() => onChange(duration)}

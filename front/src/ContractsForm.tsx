@@ -1,28 +1,28 @@
 import React from 'react';
 import { Contract } from './EnergyDashboard';
 
-type ContractInputProps = {
+interface ContractInputProps {
   contract: Contract;
   onUpdate: (updatedContract: Contract) => void;
 }
 
 const ContractInput: React.FC<ContractInputProps> = ({ contract, onUpdate }) => {
-  const handleFeeChange = (value: string) => {
+  const handleFeeChange = (value: string): void => {
     const euroPerMonth = parseFloat(value);
     if (!isNaN(euroPerMonth)) {
       onUpdate({
         ...contract,
-        euroPerMonth
+        euroPerMonth,
       });
     }
   };
 
-  const handlePriceChange = (value: string) => {
+  const handlePriceChange = (value: string): void => {
     const centsPerKiwattHour = parseFloat(value);
     if (!isNaN(centsPerKiwattHour)) {
       onUpdate({
         ...contract,
-        centsPerKiwattHour
+        centsPerKiwattHour,
       });
     }
   };
@@ -30,46 +30,44 @@ const ContractInput: React.FC<ContractInputProps> = ({ contract, onUpdate }) => 
   return (
     <>
       <tr>
-        <th className='pt-s'>{contract.name}</th>
+        <th className="pt-s">{contract.name}</th>
       </tr>
       <tr>
-        <td className='px-s'>
+        <td className="px-s">
           <label htmlFor={`${contract.name}-price`}>Price:</label>
         </td>
         <td>
           <input
-            type='number'
+            type="number"
             id={`${contract.name}-price`}
             name={`${contract.name}_price`}
-            step='0.05'
+            step="0.05"
             value={contract.centsPerKiwattHour}
-            onChange={e => handlePriceChange(e.target.value)}
+            onChange={(e) => handlePriceChange(e.target.value)}
           />
-        </td><td className='va-baseline'>
-          c/kWh
         </td>
+        <td className="va-baseline">c/kWh</td>
       </tr>
       <tr>
-        <td className='px-s'>
+        <td className="px-s">
           <label htmlFor={`${contract.name}-fee`}>Monthly Fee:</label>
         </td>
         <td>
           <input
-            type='number'
+            type="number"
             id={`${contract.name}-fee`}
-            step='0.05'
+            step="0.05"
             value={contract.euroPerMonth}
-            onChange={e => handleFeeChange(e.target.value)}
+            onChange={(e) => handleFeeChange(e.target.value)}
           />
-        </td><td className='va-baseline'>
-          €
         </td>
+        <td className="va-baseline">€</td>
       </tr>
     </>
   );
 };
 
-type ContractFormProps = {
+interface ContractFormProps {
   contracts: Contract[];
   onUpdateContracts: (contracts: Contract[]) => void;
 }
@@ -78,17 +76,17 @@ const ContractsForm: React.FC<ContractFormProps> = ({
   contracts,
   onUpdateContracts,
 }) => {
-  const handleContractUpdate = (index: number, updatedContract: Contract) => {
+  const handleContractUpdate = (index: number, updatedContract: Contract): void => {
     const newContracts = [...contracts];
     newContracts[index] = updatedContract;
     onUpdateContracts(newContracts);
   };
 
   return (
-    <form className='flex-col'>
-      <table className='my-s mx-s'>
-        <caption className='title'>Contract</caption>
-        <tbody className='my-s'>
+    <form className="flex-col">
+      <table className="my-s mx-s">
+        <caption className="title">Contract</caption>
+        <tbody className="my-s">
           {contracts.map((contract, index) => (
             <ContractInput
               key={contract.name}
