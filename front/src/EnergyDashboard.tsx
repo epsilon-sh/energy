@@ -8,8 +8,6 @@ import { Area, Bar, Line } from 'recharts';
 import { toSeconds, parse as parseDuration } from 'iso8601-duration'
 import { startOfWeek, endOfDay, startOfDay } from 'date-fns';
 import ContractsForm from './ContractsForm';
-import { Contract } from './types/Contracts';
-import { contracts as placeholderContracts } from '../../data/contracts.import';
 
 const defaults = {
   start: startOfWeek(new Date()).toISOString(),
@@ -23,14 +21,28 @@ const priceColors = {
   cheap: '#66a3ff',
 }
 
+const placeholderContracts = [
+  {
+    name: "Placeholder SPOT",
+    pricingModel: "Spot",
+    centsPerKiwattHour: 0.5,
+    euroPerMonth: 5.0,
+  },
+  {
+    name: "Placeholder FIXED",
+    pricingModel: "FixedPrice",
+    centsPerKiwattHour: 12.65,
+    euroPerMonth: 3.54,
+  },
+];
+export type Contract = typeof placeholderContracts[number];
+
 const EnergyDashboard: React.FC = () => {
-  const [currentContracts, setCurrentContracts] = React.useState<Contract[]>(placeholderContracts);
+  const [currentContracts, setCurrentContracts] = React.useState(placeholderContracts);
 
   const [searchParams, setSearchParams] = useSearchParams();
 
-  const calculatePrice = React.useCallback((contract: Contract | null | undefined, quantity: number, resolution: Duration, spotPriceMwh?: number) => {
-    if (!contract) return 0;
-
+  const calculatePrice = React.useCallback((contract: Contract, quantity: number, resolution: Duration, spotPriceMwh?: number) => {
     const monthSeconds = toSeconds(parseDuration('P1M'));
     const periodSeconds = toSeconds(parseDuration(resolution));
     const feeRatio = periodSeconds / monthSeconds;
@@ -60,8 +72,8 @@ const EnergyDashboard: React.FC = () => {
 
   const { prices, consumption } = useEnergyData(query);
 
-  const spotContract = currentContracts.find(c => c.pricingModel === 'Spot');
-  const fixedContract = currentContracts.find(c => c.pricingModel === 'FixedPrice');
+  const spotContract = currentContracts.find(c => c.pricingModel === 'Spot') as Contract;
+  const fixedContract = currentContracts.find(c => c.pricingModel === 'FixedPrice') as Contract;
 
   const spotIncurred = consumption?.data?.reduce((acc, { quantity, resolution }, idx) => {
     const periodCost = calculatePrice(

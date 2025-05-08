@@ -1,5 +1,5 @@
 import React from 'react';
-import { Contract } from './types/Contracts';
+import { Contract } from './EnergyDashboard';
 
 type ContractInputProps = {
   contract: Contract;
