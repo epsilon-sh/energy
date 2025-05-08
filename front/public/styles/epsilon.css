@@ -250,15 +250,16 @@ section h4 {
     border-radius: 0;
 
     &:first-of-type {
-      border-radius: var(--m-xs) 0 0 var(--m-xs);
+      border-radius: var(--border-radius-1) 0 0 var(--border-radius-1);
     }
 
     &:last-of-type {
-      border-radius: 0 var(--m-xs) var(--m-xs) 0;
+      border-radius: 0 var(--border-radius-1) var(--border-radius-1) 0;
     }
   }
 
-  &.gap-n > button:not(:last-of-type) {
+  &.gap-n > button:has(+ .inactive) {
+    /* display dividers, if we are using zero-gap for multipill */
     border-right-color: var(--color-accent);
   }
 }
@@ -340,10 +341,6 @@ section h4 {
 
 .pt-s {
   padding-top: var(--m-s);
-}
-
-.pb-s {
-  padding-bottom: var(--m-s);
 }
 
 /* Newly added Utility classes */
@@ -608,4 +605,12 @@ a {
 
 .overflow-hidden {
   overflow: hidden;
+}
+
+.va-baseline {
+  vertical-align: baseline;
+}
+
+.float-right {
+  float: right;
 }

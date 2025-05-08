@@ -28,12 +28,12 @@ const ContractInput: React.FC<ContractInputProps> = ({ contract, onUpdate }) => 
   };
 
   return (
-    <tbody className='my-s'>
+    <>
       <tr>
-        <th>{contract.name}</th>
+        <th className='pt-s'>{contract.name}</th>
       </tr>
       <tr>
-        <td>
+        <td className='px-s'>
           <label htmlFor={`${contract.name}-price`}>Price:</label>
         </td>
         <td>
@@ -44,30 +44,28 @@ const ContractInput: React.FC<ContractInputProps> = ({ contract, onUpdate }) => 
             step='0.05'
             value={contract.centsPerKiwattHour}
             onChange={e => handlePriceChange(e.target.value)}
-            className='mx-s'
           />
-        </td><td>
+        </td><td className='va-baseline'>
           c/kWh
         </td>
       </tr>
       <tr>
-        <td className='pb-s'>
+        <td className='px-s'>
           <label htmlFor={`${contract.name}-fee`}>Monthly Fee:</label>
         </td>
-        <td className='pb-s'>
+        <td>
           <input
             type='number'
             id={`${contract.name}-fee`}
             step='0.05'
             value={contract.euroPerMonth}
             onChange={e => handleFeeChange(e.target.value)}
-            className='mx-s'
           />
-        </td><td>
+        </td><td className='va-baseline'>
           €
         </td>
       </tr>
-    </tbody>
+    </>
   );
 };
 
@@ -92,26 +90,30 @@ const ContractsForm: React.FC<ContractFormProps> = ({
     <form className='flex-col'>
       <table className='my-s mx-s'>
         <caption className='title'>Contract</caption>
-        {contracts.map((contract, index) => (
-          <ContractInput
-            key={contract.name}
-            contract={contract}
-            onUpdate={(updated) => handleContractUpdate(index, updated)}
-          />
-        ))}
-        <tfoot className='my-s text-right'>
+        <tbody className='my-s'>
+          {contracts.map((contract, index) => (
+            // <tbody>
+            <ContractInput
+              key={contract.name}
+              contract={contract}
+              onUpdate={(updated) => handleContractUpdate(index, updated)}
+            />
+            // </tbody>
+          ))}
+
           <tr>
-            <th colSpan={2}>
+            <td/>
+            <th className='pt-s'>
               <button
                 type='button'
                 onClick={onResetContracts}
-                className='mx-s'
+                className='w-full'
               >
-                Epsilon defaults
+                Reset
               </button>
             </th>
           </tr>
-        </tfoot>
+        </tbody>
       </table>
     </form>
   );

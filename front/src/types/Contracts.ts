@@ -1,8 +1,8 @@
-export type ContractKind = 'spot' | 'fixed';
+export type ContractPricingModel = 'Spot' | 'FixedPrice';
 
 export interface Contract {
   name: string;
-  kind: 'fixed' | 'spot';
+  pricingModel: ContractPricingModel;
   centsPerKiwattHour: number; // price
   euroPerMonth: number; // monthly fee
 }

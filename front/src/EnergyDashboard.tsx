@@ -37,7 +37,7 @@ const EnergyDashboard: React.FC = () => {
 
     const periodFee = contract.euroPerMonth * feeRatio;
     const kwhPrice = contract.centsPerKiwattHour / 100
-      + (contract.kind === 'spot' ? (spotPriceMwh ?? 0) / 1000 : 0);
+      + (contract.pricingModel === 'Spot' ? (spotPriceMwh ?? 0) / 1000 : 0);
 
     return periodFee + quantity * kwhPrice;
   }, []);
@@ -60,8 +60,8 @@ const EnergyDashboard: React.FC = () => {
 
   const { prices, consumption } = useEnergyData(query);
 
-  const spotContract = currentContracts.find(c => c.kind === 'spot');
-  const fixedContract = currentContracts.find(c => c.kind === 'fixed');
+  const spotContract = currentContracts.find(c => c.pricingModel === 'Spot');
+  const fixedContract = currentContracts.find(c => c.pricingModel === 'FixedPrice');
 
   const spotIncurred = consumption?.data?.reduce((acc, { quantity, resolution }, idx) => {
     const periodCost = calculatePrice(
@@ -249,45 +249,61 @@ const EnergyDashboard: React.FC = () => {
     <>
       <div className='my-m flex inputs-group'>
         <div className='flex-col'>
-          <h2>Duration</h2>
-          <div className='my-s mx-s'>
-            <h3 className='my-s'>Start Time:</h3>
-            <input type='datetime-local'
-              id='start'
-              value={dateToLocalInputString(startDate)}
-              onChange={e => {
-                const elemDate = e.target.value
-                console.log('date elem change', elemDate)
-                const date = new Date(e.target.value);
-                console.log('parsed jsdate', date)
-                console.log('local isodate', date.toISOString())
-                handleStartChange(date);
-              }}
-              step="86400" // 24 hours in seconds
-            />
-          </div>
+          <table className='my-s mx-s'>
+            <caption className='title'>Period</caption>
+            <tbody className='my-s'>
+              <tr>
+                <th className='pt-s'>TIME</th>
+              </tr>
+              <tr className='my-s mx-s'>
+                <td className='my-s'>Start:</td>
+                <td>
+                  <input type='datetime-local'
+                    id='start'
+                    value={dateToLocalInputString(startDate)}
+                    onChange={e => {
+                      const elemDate = e.target.value
+                      console.log('date elem change', elemDate)
+                      const date = new Date(e.target.value);
+                      console.log('parsed jsdate', date)
+                      console.log('local isodate', date.toISOString())
+                      handleStartChange(date);
+                    }}
+                    step="86400" // 24 hours in seconds
+                  />
+                </td>
+              </tr>
 
-          <div className='my-s mx-s'>
-            <h3 className='my-s'>End Time:</h3>
-            <input type='datetime-local'
-              id='end'
-              value={dateToLocalInputString(endDate)}
-              onChange={e => {
-                const date = startOfDay(new Date(e.target.value));
-                handleEndChange(date);
-              }}
-              step="86400" // 24 hours in seconds
-            />
-          </div>
 
-          <div className='my-s mx-s block'>
-            <h3 className='my-s'>Resolution:</h3>
-            <DurationSelector
-              options={periodResolutions['P7D']}
-              selected={query.resolution}
-              onChange={handleResolutionChange}
-            />
-          </div>
+              <tr className='my-s mx-s'>
+                <td className='my-s'>End:</td>
+                <td>
+                  <input type='datetime-local'
+                    id='end'
+                    value={dateToLocalInputString(endDate)}
+                    onChange={e => {
+                      const date = startOfDay(new Date(e.target.value));
+                      handleEndChange(date);
+                    }}
+                    step="86400" // 24 hours in seconds
+                  />
+                </td>
+              </tr>
+
+              <tr>
+                <th className='pt-s'>Resolution</th>
+              </tr><tr>
+                <td colSpan={2}>
+                  <DurationSelector
+                    className='float-right'
+                    options={periodResolutions['P7D']}
+                    selected={query.resolution}
+                    onChange={handleResolutionChange}
+                  />
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
 
         <ContractsForm

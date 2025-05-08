@@ -1,17 +1,19 @@
 import { humanReadableDurations, Duration } from '../types/duration';
 
 interface DurationSelectorProps {
+  className: string;
   options: Duration[];
   selected: Duration;
   onChange: (value: Duration) => void;
 }
 
 export const DurationSelector = ({
+  className,
   options,
   selected,
   onChange
 }: DurationSelectorProps) => (
-  <div className='flex-wrap gap-n button-multipill'>
+  <div className={[className, 'flex-wrap', 'gap-n', 'button-multipill'].join(' ')}>
     {options.map((duration) => (
       <button
         key={duration}
