@@ -8,7 +8,8 @@ import { Area, Bar, Line } from 'recharts';
 import { toSeconds, parse as parseDuration } from 'iso8601-duration'
 import { startOfWeek, endOfDay, startOfDay } from 'date-fns';
 import ContractsForm from './ContractsForm';
-import { Contract } from './types/contract';
+import { Contract } from './types/Contracts';
+import { contracts as placeholderContracts } from '../../data/contracts.import';
 
 const defaults = {
   start: startOfWeek(new Date()).toISOString(),
@@ -16,21 +17,6 @@ const defaults = {
   resolution: 'PT1H' as Duration,
   meteringPoint: 'TEST_METERINGPOINT'
 };
-
-const placeholderContracts: Contract[] = [
-  {
-    name: 'SPOT',
-    kind: 'spot',
-    centsPerKiwattHour: 0.5,
-    euroPerMonth: 5.0,
-  },
-  {
-    name: 'FIXED',
-    kind: 'fixed',
-    centsPerKiwattHour: 12.65,
-    euroPerMonth: 3.54,
-  }
-];
 
 const priceColors = {
   expensive: '#ff6666',
