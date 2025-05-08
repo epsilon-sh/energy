@@ -9,14 +9,15 @@ interface DurationSelectorProps {
 export const DurationSelector = ({
   options,
   selected,
-  onChange
-}: DurationSelectorProps) => (
-  <div className='flex-wrap gap-s space-between'>
+  onChange,
+}: DurationSelectorProps): JSX.Element => (
+  <div className="flex-wrap">
     {options.map((duration) => (
       <button
+        className="multipill"
+        disabled={selected === duration}
         key={duration}
         onClick={() => onChange(duration)}
-        className={selected === duration ? 'active' : 'inactive'}
       >
         {humanReadableDurations[duration]}
       </button>

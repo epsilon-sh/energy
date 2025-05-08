@@ -5,7 +5,7 @@
 
 # Local data storage for backend
 data/*
-!data/price.import.xml
+!data/*.import.*
 !data/import_from_entso.mjs
 
 # dependencies

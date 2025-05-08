@@ -70,8 +70,7 @@ button {
   user-select: none;
 }
 
-button:hover,
-button.active {
+button:hover {
   border-color: var(--color-accent-hover);
 }
 
@@ -241,9 +240,24 @@ section h4 {
   flex-wrap: wrap;
 }
 
+.multipill {
+  border: 1px solid var(--color-shadow-heavy);
+
+  &:not(:last-of-type) {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+  }
+
+  &:not(:first-of-type) {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+  }
+}
+
 .space-around {
   justify-content: space-around;
 }
+
 
 .gap-s {
   gap: var(--m-s);
@@ -319,6 +333,14 @@ section h4 {
 /* Newly added Utility classes */
 .text-center {
   text-align: center;
+}
+
+.text-left {
+  text-align: left;
+}
+
+.text-right {
+  text-align: right;
 }
 
 .text-wrap {
@@ -570,4 +592,8 @@ a {
 
 .overflow-hidden {
   overflow: hidden;
+}
+
+.va-baseline {
+  vertical-align: baseline;
 }

@@ -15,4 +15,6 @@ module.exports = {
       { allowConstantExport: true },
     ],
   },
+  'comma-dangle': ['error', 'always-multiline'],
+  'semi': ['error', 'always'],
 }
