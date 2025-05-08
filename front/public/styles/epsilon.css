@@ -75,6 +75,10 @@ button.active {
   border-color: var(--color-accent-hover);
 }
 
+button.active {
+  filter: invert(100%);
+}
+
 button:focus,
 button:focus-visible {
   outline: var(--line-width-1) solid var(--color-accent);
@@ -316,9 +320,21 @@ section h4 {
   padding-top: var(--m-s);
 }
 
+.pb-s {
+  padding-bottom: var(--m-s);
+}
+
 /* Newly added Utility classes */
 .text-center {
   text-align: center;
+}
+
+.text-left {
+  text-align: left;
+}
+
+.text-right {
+  text-align: right;
 }
 
 .text-wrap {
