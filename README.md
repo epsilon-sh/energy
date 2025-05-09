@@ -1,4 +1,4 @@
-# Epsilon Energy
+# Epsilon Echo
 
 ## Table of Contents
 
@@ -11,7 +11,7 @@
 
 ## Introduction
 
-Epsilon Energy is a web application built using modern web technologies. It offers a range of features designed to enhance user experience and provide seamless performance.
+Epsilon Echo is a web application built using modern web technologies. It offers a range of features designed to enhance user experience and provide seamless performance.
 
 ## Features
 
@@ -101,7 +101,7 @@ Contributions are what make the open-source community such an amazing place to l
 
 ## About
 
-Epsilon Energy aims to empower today by designing, building, and running the solutions of tomorrow. Our focus is on creating new opportunities and tackling the challenges faced by consumers, producers, and infrastructure in the energy sector. Step into the future of energy with us.
+Epsilon Echo aims to empower today by designing, building, and running the solutions of tomorrow. Our focus is on creating new opportunities and tackling the challenges faced by consumers, producers, and infrastructure in the energy sector. Step into the future of energy with us.
 
 ### Features Highlight
 
@@ -116,4 +116,4 @@ Epsilon Energy aims to empower today by designing, building, and running the sol
 
 ---
 
-By participating in Epsilon Energy, you're joining an initiative to shape the energy landscape of tomorrow. Ready to shape the future?
+By joining in Epsilon Echo, you're joining an initiative to shape the energy landscape of tomorrow. Ready to shape the future?
