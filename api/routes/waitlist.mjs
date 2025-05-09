@@ -1,5 +1,30 @@
 import express from 'express'
 import { getDatabase } from '../db.mjs'
+import { SMTPClient } from 'emailjs'
+
+
+const SMTPConfig = {
+  user: process.env.EMAIL_USER,
+  password: process.env.EMAIL_PASSWORD,
+  host: process.env.EMAIL_HOST,
+  ssl: false,
+}
+const client = new SMTPClient(SMTPConfig)
+
+// send the message and get a callback with an error or details of the message that was sent
+const sendConfirmationEmail = (address) => {
+  const email = {
+    text: 'Welcome!',
+    from: 'epsilon.sh waitlist <waitlist@epsilon.sh>',
+    to: address,
+    subject: 'Welcome to the waitlist!',
+  }
+  client.send(email,
+    (err, message) => {
+      console.log(err || message)
+    }
+  )
+}
 
 const router = express.Router()
 
@@ -40,6 +65,7 @@ router.post('/', async (req, res, next) => {
     ).run(email, source)
 
     console.log(`waitlist ${email}`)
+    sendConfirmationEmail(email)
 
     // Handle response based on request type
     if (req.is('json'))
