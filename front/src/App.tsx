@@ -2,6 +2,7 @@ import '/public/styles/epsilon.css'
 
 import Workspace from "@ui/Workspace.tsx";
 import Controls from "@ui/Controls.tsx";
+import Drawer from '@ui/Drawer';
 import Modal from "@ui/Modal.tsx";
 import EnergyDashboard from "./EnergyDashboard.tsx";
 
@@ -27,11 +28,22 @@ const App: FC = () => {
   return (Object.values(panels).every(x => !x))
     ? view && <Controls><button onClick={() => open('workspace')}>Early preview</button></Controls>
     : <div>
+      <input
+        type="checkbox"
+        id="drawer-toggle"
+        className="drawer-toggle display-none"
+      />
       <Workspace open={panels.workspace}
         controls={[
+          <label htmlFor="drawer-toggle" className="drawer-button" key="drawer-button">
+            <span />
+            <span />
+            <span />
+          </label>,
           <button key='options' onClick={() => toggle('options')}>Data</button>,
           <button key='close' onClick={escape}>X</button>,
         ]}>
+        <Drawer trackerCheckboxId="drawer-toggle" />
         <EnergyDashboard />
       </Workspace>
       <Modal open={panels.options} onClose={() => close('options')}>
