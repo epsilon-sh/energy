@@ -9,10 +9,15 @@ import EnergyDashboard from "./EnergyDashboard.tsx";
 import { FC, useEffect } from "react";
 import Settings from './DataOptions';
 import { usePanelManager } from './PanelManager';
+import MeteringPoints from './MeteringPoints.tsx';
+import { useSearchParams } from 'react-router-dom';
 
 const App: FC = () => {
   const view = 'preview';
   const { panels, toggle, close, open, escape } = usePanelManager(undefined);
+
+  const [searchParams, setSearchParams] = useSearchParams();
+  const selectedMeteringPoint = searchParams.get("meteringPoint") || "SYSTEM";
 
   useEffect(() => {
     console.log(panels, 'panels')
@@ -40,10 +45,12 @@ const App: FC = () => {
             <span />
             <span />
           </label>,
-          <button key='options' onClick={() => toggle('options')}>Data</button>,
+          <input className="drawer-title" key="currentMeteringView" disabled value={selectedMeteringPoint} />,
           <button key='close' onClick={escape}>X</button>,
         ]}>
-        <Drawer trackerCheckboxId="drawer-toggle" />
+        <Drawer trackerCheckboxId="drawer-toggle">
+          <MeteringPoints selectedMeteringPoint={selectedMeteringPoint} />
+        </Drawer>
         <EnergyDashboard />
       </Workspace>
       <Modal open={panels.options} onClose={() => close('options')}>

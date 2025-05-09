@@ -1,0 +1,14 @@
+.metering-point-label {
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: var(--border-radius-1);
+  flex: 1;
+}
+
+.metering-point-radio:checked + .metering-point-label {
+  background-color: var(--color-shadow);
+}
+
+.metering-point-label:hover {
+  background-color: var(--color-shadow-mid);
+}
