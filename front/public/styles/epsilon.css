@@ -559,6 +559,7 @@ section h4 {
   display: flex;
 
   padding: var(--m-s);
+  padding-left: 4.5vw;
 }
 
 .controls>button:not(:last-of-type) {
@@ -639,3 +640,86 @@ a {
 }
 
 /* Add before existing a{} styles */
+
+.float-right {
+  float: right;
+}
+
+.display-none {
+  display: none;
+}
+
+/* Drawer */
+
+.drawer {
+  position: fixed;
+  transform: translateX(-100%);
+  top: 0;
+  left: 0;
+  width: fit-content;
+  height: 100vh;
+  background: var(--color-bg-primary);
+  box-shadow: 2px 0 5px var(--color-shadow);
+  transition: transform var(--animation-speed-2);
+  padding: 1rem;
+  z-index: 999;
+}
+
+.drawer-button {
+  position: fixed;
+  left: 1.5rem;
+  top: 1.5rem;
+  z-index: 1001;
+  width: 24px;
+  height: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  cursor: pointer;
+  transition: left var(--animation-speed-2);
+}
+
+.drawer-button span {
+  display: block;
+  width: 100%;
+  height: 2px;
+  background: var(--color-text-primary);
+  transition: transform var(--animation-speed-2);
+}
+
+.drawer-toggle:checked ~ .drawer {
+  transform: translateX(0%);
+}
+
+.drawer-toggle:checked ~ .drawer-button {
+  left: 96.4vw;
+
+  > span:nth-child(1) {
+    transform: translateY(9px) rotate(45deg);
+  }
+
+  > span:nth-child(2) {
+    opacity: 0;
+  }
+
+  > span:nth-child(3) {
+    transform: translateY(-9px) rotate(-45deg);
+  }
+}
+
+.drawer-overlay {
+  position: fixed;
+  inset: 0;
+  background: var(--color-shadow-heavy);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity var(--animation-speed-2);
+  z-index: 998;
+  backdrop-filter: var(--backdrop-filter);
+}
+
+.drawer-toggle:checked ~ .drawer-overlay {
+  opacity: 1;
+  visibility: visible;
+  cursor: pointer;
+}
