@@ -12,14 +12,14 @@ const DataOptions = () => {
     const [data, setData] = useState<ConsumptionData>(consumptionData);
     const [searchParams, setSearchParams] = useSearchParams();
     const meteringPoint = searchParams.get('meteringPoint') || 'TEST_METERINGPOINT';
-    const [info, setInfo] = useState<{ data: ConsumptionData, info: { totals: number, message: string } } | null>(null);
+    const [info, setInfo] = useState<{ totals: number, message: string } | null>(null);
     const [uploading, setUploading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
     console.log({ data, meteringPoint })
 
-    const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0]?.name.endsWith('.csv') ? e.target.files[0] : null;
+    const handleFileChange = async (files: FileList | null) => {
+        const file = files?.[0]?.name.endsWith('.csv') ? files[0] : null;
         setFile(file);
         setInfo(null);
         if (!file) return;
@@ -58,7 +58,7 @@ const DataOptions = () => {
 
             const result = await response.json();
             setFile(null);
-            setInfo(result);
+            setInfo(result.info);
 
         } catch (err) {
             console.error('Upload failed:', err);
@@ -89,6 +89,11 @@ const DataOptions = () => {
         console.log({ updates })
     }, [data])
 
+    if (info) {
+        alert(info.message)
+        console.log({ info })
+    }
+
     return (
         <div className="container">
             <Card className="backdrop bg-shadow-light">
@@ -106,7 +111,7 @@ const DataOptions = () => {
                 </CardHeader>
 
                 <div className="flex gap-s my-s">
-                    <DataDropzone handleFileChange={handleFileChange} uploading={uploading} />
+                    <FilesInput handleChange={handleFileChange} uploading={uploading} />
                     <DataInfo data={data} />
                 </div>
 
@@ -163,28 +168,38 @@ const DataError = ({ error }: { error: string | null }) =>
         <p className="text-error my-0">{error}</p>
     )
 
-const DataDropzone = ({ handleFileChange, uploading }: { handleFileChange: (e: React.ChangeEvent<HTMLInputElement>) => void, uploading: boolean }) =>
+const FilesInput = ({ handleChange, uploading }: { handleChange: (files: FileList | null) => void, uploading: boolean }) => {
+    const [active, setActive] = useState(false);
+    const handleDrag = (e: React.DragEvent<HTMLElement>) => {
+        e.preventDefault()
+        e.stopPropagation()
+        setActive(e.type === 'dragover' || e.type === 'dragenter')
+        console.log(e.type, 'drag')
+    }
 
-    <div style={{ border: '5px dashed grey', borderRadius: '10px' }} className="flex flex-col gap-s w-fit">
+    return <div style={{ border: `5px dashed ${active ? 'var(--color-accent)' : 'var(--color-accent-hover)'}`, borderRadius: '10px' }} className="flex flex-col gap-s w-fit">
         <input
             id="consumption-data-input"
             type="file"
             accept=".csv"
-            onChange={handleFileChange}
-            className="hidden block w-full flex flex-col gap-s"
+            onChange={e => handleChange(e.target.files)}
             disabled={uploading}
-            style={{
-                display: 'none',
-                // height: '200px'
-            }}
+            style={{ display: 'none' }}
         />
-        <label htmlFor="consumption-data-input" className="p-4">
+        <label htmlFor="consumption-data-input" className="p-4"
+            onDragOver={e => handleDrag(e)}
+            onDragEnter={e => handleDrag(e)}
+            onDragLeave={e => handleDrag(e)}
+            onDrop={e => {
+                e.preventDefault()
+                handleChange(e.dataTransfer?.files)
+            }}>
             <CardTitle className="my-s">
                 Click / drop to import a consumption data CSV file.
             </CardTitle>
         </label>
     </div>
-
+}
 const DataFooter = ({ children }: { children: React.ReactNode }) =>
     <div className="flex-col">
         {children}
