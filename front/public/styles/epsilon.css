@@ -559,7 +559,6 @@ section h4 {
   display: flex;
 
   padding: var(--m-s);
-  padding-left: 4.5vw;
 }
 
 .controls>button:not(:last-of-type) {
@@ -650,33 +649,31 @@ a {
 }
 
 /* Drawer */
-
 .drawer {
   position: fixed;
   transform: translateX(-100%);
   top: 0;
   left: 0;
   width: fit-content;
+  min-width: 200px;
   height: 100vh;
   background: var(--color-bg-primary);
   box-shadow: 2px 0 5px var(--color-shadow);
   transition: transform var(--animation-speed-2);
   padding: 1rem;
   z-index: 999;
+  padding-top: 3rem;
 }
 
 .drawer-button {
-  position: fixed;
-  left: 1.5rem;
-  top: 1.5rem;
-  z-index: 1001;
-  width: 24px;
-  height: 20px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  width: 24px;
+  height: 20px;
   cursor: pointer;
-  transition: left var(--animation-speed-2);
+  z-index: 1001;
+  margin: 0.75rem;
 }
 
 .drawer-button span {
@@ -691,9 +688,7 @@ a {
   transform: translateX(0%);
 }
 
-.drawer-toggle:checked ~ .drawer-button {
-  left: 96.4vw;
-
+.drawer-toggle:checked ~ .controls .drawer-button {
   > span:nth-child(1) {
     transform: translateY(9px) rotate(45deg);
   }
@@ -707,10 +702,45 @@ a {
   }
 }
 
+.metering-points-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.metering-point-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.metering-point-label {
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: var(--border-radius-1);
+  flex: 1;
+}
+
+.metering-point-radio:checked + .metering-point-label {
+  background-color: var(--color-shadow);
+}
+
+.metering-point-label:hover {
+  background-color: var(--color-shadow-mid);
+}
+
+.error-message {
+  color: var(--color-down);
+  margin-top: 1rem;
+  padding: 0.5rem;
+  border-radius: var(--border-radius-1);
+  background-color: var(--color-shadow);
+}
+
 .drawer-overlay {
   position: fixed;
   inset: 0;
-  background: var(--color-shadow-heavy);
+  background: var(--color-shadow);
   opacity: 0;
   visibility: hidden;
   transition: opacity var(--animation-speed-2);
