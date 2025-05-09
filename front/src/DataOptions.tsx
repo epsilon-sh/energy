@@ -12,7 +12,7 @@ const DataOptions = () => {
     const [data, setData] = useState<ConsumptionData>(consumptionData);
     const [searchParams, setSearchParams] = useSearchParams();
     const meteringPoint = searchParams.get('meteringPoint') || 'TEST_METERINGPOINT';
-    const [info, setInfo] = useState<{ totals: number, message: string } | null>(null);
+    const [info, setInfo] = useState<{ count: number, message: string } | null>(null);
     const [uploading, setUploading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
@@ -56,7 +56,7 @@ const DataOptions = () => {
 
             const result = await response.json();
             setFile(null);
-            setInfo(result.info);
+            setInfo(result);
 
         } catch (err) {
             console.error('Upload failed:', err);
