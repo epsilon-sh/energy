@@ -35,6 +35,16 @@ export const initializeDatabase = async () => {
       created_at INTEGER DEFAULT (strftime('%s', 'now'))
     )`).run()
 
+    db.prepare(`CREATE TABLE IF NOT EXISTS confirm_codes (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      email TEXT NOT NULL,
+      code TEXT NOT NULL UNIQUE,
+      type TEXT NOT NULL CHECK(type IN ('activation', 'login', 'unsubscribe')),
+      created_at INTEGER DEFAULT (strftime('%s', 'now')),
+      expires_at INTEGER NOT NULL,
+      used_at INTEGER DEFAULT NULL
+    )`).run()
+
     console.log(`Connected to database ${DB_STRING}`)
   } catch (error) {
     console.error(`Couldn't connect to DB ${DB_STRING}:`, error)
