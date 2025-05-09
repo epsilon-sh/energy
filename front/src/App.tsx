@@ -11,7 +11,7 @@ import { usePanelManager } from './PanelManager';
 
 const App: FC = () => {
   const view = 'preview';
-  const { panels, toggle, close, open, escape } = usePanelManager(view);
+  const { panels, toggle, close, open, escape } = usePanelManager(undefined);
 
   useEffect(() => {
     console.log(panels, 'panels')
