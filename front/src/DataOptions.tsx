@@ -16,15 +16,13 @@ const DataOptions = () => {
     const [uploading, setUploading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
-    console.log({ data, meteringPoint })
-
     const handleFileChange = async (files: FileList | null) => {
         const file = files?.[0]?.name.endsWith('.csv') ? files[0] : null;
         setFile(file);
         setInfo(null);
         if (!file) return;
 
-        console.log({ file });
+        console.log(file);
 
         try {
             const text = await file.text();
@@ -79,20 +77,14 @@ const DataOptions = () => {
             if (!searchParams.get('end') || new Date(data[data.length - 1].startTime) > new Date(searchParams.get('end')!))
                 updates.end = data[data.length - 1].startTime.toISOString()
             if (Object.keys(updates).length) {
+                console.log({ updates })
                 setSearchParams(prev => {
                     Object.entries(updates).forEach(([key, value]) => prev.set(key, value))
                     return prev
                 })
             }
         }
-
-        console.log({ updates })
     }, [data])
-
-    if (info) {
-        alert(info.message)
-        console.log({ info })
-    }
 
     return (
         <div className="container">
@@ -173,8 +165,9 @@ const FilesInput = ({ handleChange, uploading }: { handleChange: (files: FileLis
     const handleDrag = (e: React.DragEvent<HTMLElement>) => {
         e.preventDefault()
         e.stopPropagation()
-        setActive(e.type === 'dragover' || e.type === 'dragenter')
-        console.log(e.type, 'drag')
+
+        const targetActive = e.type === 'dragover' || e.type === 'dragenter'
+        setActive(targetActive)
     }
 
     return <div style={{ border: `5px dashed ${active ? 'var(--color-accent)' : 'var(--color-accent-hover)'}`, borderRadius: '10px' }} className="flex flex-col gap-s w-fit">
