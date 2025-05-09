@@ -32,10 +32,10 @@ export const usePanelManager = (view: string | undefined) => {
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       switch (event.key) {
-        case '0':
+        /*case '0':
           if (!panels.workspace) update({ workspace: 'preview', options: true });
           else toggle('options');
-          break;
+          break;*/
         case 'Escape':
           escape();
           break;
