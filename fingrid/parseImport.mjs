@@ -1,5 +1,5 @@
-import stripBom from "strip-bom";
-import { parse as parseDuration } from 'iso8601-duration';
+import stripBom from "strip-bom"
+import { parse as parseDuration } from 'iso8601-duration'
 
 // MeteringPointGSRN;Product Type;Resolution;Unit Type;Reading Type;Start Time;Quantity;Quality
 // 643007574000138589;8716867000030;PT1H;kWh;BN01;2022-12-31T22:00:00Z;0,735000;OK
@@ -28,12 +28,12 @@ const qty = qty => qty.replace(',', '.')
 const ndef = x => x === undefined || x === ''
 const isISO8601D = (duration) => {
   try {
-    parseDuration(duration);
-    return true;
+    parseDuration(duration)
+    return true
   } catch {
-    return false;
+    return false
   }
-};
+}
 
 export const formats = {
   meteringPoint: id,
@@ -48,14 +48,14 @@ export const formats = {
 
 export const parseFields = fields => {
   const entries = Object.entries(formats)
-    .map(([key, format], ki) => [key, format(fields[ki])]);
+    .map(([key, format], ki) => [key, format(fields[ki])])
 
-  return Object.fromEntries(entries);
-};
+  return Object.fromEntries(entries)
+}
 
 export const validateHeader = (header) => {
-  return stripBom(header).trim() === EXPECTED_HEADER;
-};
+  return stripBom(header).trim() === EXPECTED_HEADER
+}
 
 /**
  * Validates a DSV line into an array of values.
@@ -65,12 +65,12 @@ export const validateHeader = (header) => {
  */
 export const validateRow = (line, sep = SEPARATOR) => {
   if (!line.length)
-    return console.warn(`Skip empty line.`);
+    return console.warn(`Skip empty line.`)
 
-  const fields = line.split(sep);
+  const fields = line.split(sep)
 
   if (fields.length !== 8)
-    return console.warn(`Invalid field count: ${fields.length} (${JSON.stringify(line)})`);
+    return console.warn(`Invalid field count: ${fields.length} (${JSON.stringify(line)})`)
 
   const [
     _meteringPointGSRN,
@@ -81,22 +81,22 @@ export const validateRow = (line, sep = SEPARATOR) => {
     startTime,
     quantity,
     _quality
-  ] = fields;
+  ] = fields
 
   if (fields.some(ndef))
-    return console.warn(`Missing fields in row: ${line}`);
+    return console.warn(`Missing fields in row: ${line}`)
 
   if (!dt(startTime))
-    return console.warn(`Invalid start time: ${startTime}`);
+    return console.warn(`Invalid start time: ${startTime}`)
 
   if (isNaN(qty(quantity)))
-    return console.warn(`Invalid quantity: ${quantity}`);
+    return console.warn(`Invalid quantity: ${quantity}`)
 
   if (!isISO8601D(resolution))
-    return console.warn(`Invalid resolution: ${resolution}`);
+    return console.warn(`Invalid resolution: ${resolution}`)
 
-  return fields;
-};
+  return fields
+}
 
 /**
  * Extracts and parses a DSV row string into a measurement object if valid.
@@ -108,26 +108,26 @@ export const extractRow = (line, delim = SEPARATOR) => {
   const fields = validateRow(line, delim)
 
   if (fields)
-    return parseFields(fields);
-};
+    return parseFields(fields)
+}
 
 export const parseDsv = (fileContent, delimiter = SEPARATOR) => {
-  const [header, ...lines] = stripBom(fileContent).split('\n');
+  const [header, ...lines] = stripBom(fileContent.toString()).split('\n')
 
   if (!validateHeader(header))
-    throw new Error('Invalid header in DSV');
+    throw new Error('Invalid header in DSV')
 
   const parsed = lines.reduce((measurements, line) => {
-    const measurement = extractRow(line, delimiter);
+    const measurement = extractRow(line, delimiter)
 
     if (measurement)
-      measurements.push(measurement);
+      measurements.push(measurement)
 
-    return measurements;
-  }, []);
+    return measurements
+  }, [])
 
-  console.log(`parsed ${parsed.length} consumption measurements`);
-  return parsed;
-};
+  console.log(`parsed ${parsed.length} consumption measurements`)
+  return parsed
+}
 
-export default parseDsv;
+export default parseDsv

@@ -10,7 +10,7 @@ import { getDefaultRange } from '../utils/dateDefaults.mjs'
 const router = express.Router()
 const DB_CONSUMPTION_TABLE = process.env.DB_CONSUMPTION_TABLE || 'measurements'
 const upload = multer({
-  dest: 'uploads/',
+  storage: multer.memoryStorage(),
   fileFilter: (_req, file, cb) => {
     if (file.mimetype !== 'text/csv') {
       cb(new Error('Only CSV files are allowed'))
@@ -81,36 +81,14 @@ router.post('/upload', upload.single('file'), async (req, res) => {
     if (!req.file)
       return res.status(400).json({ message: 'No file uploaded' })
 
-    // Read the uploaded file
-    const fileContent = await fs.readFile(req.file.path, 'utf-8')
-
-    // Parse the CSV content
-    const measurements = parseDsv(fileContent)
-
-    // Find common labels
-    const commonLabels = {}
-
-    // Initialize with first measurement's values
-    if (measurements.length > 0) {
-      Object.entries(measurements[0]).forEach(([key, value]) => {
-        commonLabels[key] = value
-      })
-    }
-
-    // Compare with all other measurements
-    for (const measurement of measurements) {
-      Object.entries(commonLabels).forEach(([key, value]) => {
-        if (measurement[key] !== value)
-          delete commonLabels[key]
-      })
-    }
-
+    const measurements = parseDsv(req.file.buffer)
+    console.log(`${req.file.buffer.length} bytes, ${measurements.length} measurements`)
     // Get database connection
     const db = getDatabase()
 
     // Insert measurements into database
     const stmt = db.prepare(
-      `INSERT INTO measurements (
+      `INSERT OR REPLACE INTO measurements (
         "MeteringPointGSRN",
         "Product Type",
         "Resolution",
@@ -123,30 +101,27 @@ router.post('/upload', upload.single('file'), async (req, res) => {
     )
 
     // Use transaction for efficiency
-    const insert = db.transaction((measurements) => {
+    const insert = db.transaction(measurements => {
       for (const measurement of measurements) {
         stmt.run(
-          measurement['MeteringPointGSRN'],
+          measurement.MeteringPointGSRN,
           measurement['Product Type'],
-          measurement['Resolution'],
+          measurement.Resolution,
           measurement['Unit Type'],
           measurement['Reading Type'],
           measurement['Start Time'],
-          measurement['Quantity'],
-          measurement['Quality']
+          measurement.Quantity,
+          measurement.Quality,
         )
       }
     })
 
-    insert(measurements) // Execute transaction synchronously
-
-    // Clean up uploaded file
-    await fs.unlink(req.file.path)
+    insert(measurements)
 
     res.status(200).json({
       message: 'File uploaded and processed successfully',
       count: measurements.length,
-      info: commonLabels,
+      // info: commonLabels,
     })
   } catch (error) {
     console.error('Upload error:', error)

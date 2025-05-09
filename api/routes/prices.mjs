@@ -53,16 +53,20 @@ router.get('/', async (req, res, next) => {
       padded.end.getTime(),
     )
 
-    const resolutionDuration = parseDuration(resolution)
-    const resolutionSeconds = toSeconds(resolutionDuration)
-    const intervalSeconds = toSeconds(intervalToDuration(padded))
-    const expectedCount = Math.floor(intervalSeconds / resolutionSeconds)
+    const countExpected = (period, resolution) => {
+      const intervalSeconds = toSeconds(intervalToDuration(period))
+      const resolutionSeconds = toSeconds(parseDuration(resolution))
+      return Math.floor(intervalSeconds / resolutionSeconds)
+    }
+    const expectedCount = countExpected(padded, resolution)
 
     // console.log({ resolution, resolutionSeconds, intervalSeconds, expectedCount })
 
     const missingBefore = {
       start: padded.start,
       end: new Date(dbData[0]?.time || padded.end),
+      resolution,
+      expectedCount: countExpected({ start: padded.start, end: new Date(dbData[0]?.time || padded.end) }, resolution),
     }
     const toFetch = []
     // Tolerance margin of 1 res for rounding? idk ¯\_(ツ)_/¯
@@ -75,12 +79,12 @@ router.get('/', async (req, res, next) => {
     if (dbData.length < expectedCount) {
       console.warn(`Missing DB data: ${expectedCount - dbData.length}`)
 
-
       if (dbData.length > 0) {
-
         const missingAfter = {
           start: new Date(dbData.at(-1)?.time),
           end: padded.end,
+          resolution,
+          expectedCount: countExpected({ start: new Date(dbData.at(-1)?.time), end: padded.end }, resolution),
         }
         if (toSeconds(intervalToDuration(missingAfter)) > toSeconds(resolution)) {
           console.log('AFTER:Should we fetch this?', missingAfter)
@@ -128,7 +132,7 @@ const insertPrices = async data => {
   )
 
   try {
-    const insert = db.transaction((items) => {
+    const insert = db.transaction(items => {
       for (const item of items) {
         stmt.run(
           item.domain,

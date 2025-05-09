@@ -49,7 +49,7 @@ app.use((err, _req, res, _next) => {
 let server
 
 const startServer = () => {
-  return new Promise((resolve) => {
+  return new Promise(resolve => {
     server = http.createServer(app)
     server.listen(PORT, () => {
       console.log(`Server running at http://${process.env.HOST || 'localhost'}:${PORT}`)
@@ -61,7 +61,7 @@ const startServer = () => {
 const stopServer = () => {
   return new Promise((resolve, reject) => {
     if (server) {
-      server.close((err) => {
+      server.close(err => {
         if (err) {
           console.error('Error stopping server:', err)
           return reject(err)
@@ -69,9 +69,8 @@ const stopServer = () => {
         console.log('Server stopped')
         resolve()
       })
-    } else {
+    } else
       resolve() // Resolve if server wasn't started
-    }
   })
 }
 
