@@ -18,10 +18,20 @@ const extractPriceInfo = (explicitPriceComponents) => {
     }
   }
 
-  return {
+  const commonData = {
+    pricingModel,
     centsPerKiwattHour,
     euroPerMonth,
   };
+
+  return full
+    ? {
+        ...commonData,
+        id,
+        name: explicitPriceComponents.name,
+        company,
+      }
+    : commonData;
 };
 
 export const extractContracts = (explicitContracts) =>
@@ -35,9 +45,12 @@ export const extractContracts = (explicitContracts) =>
       );
 
       return {
+        // premium info
         id: ec.Id,
         name: ec.Name,
         company: ec.Company.Name,
+
+        // data set after reduction
         pricingModel: ec.PricingModel,
         centsPerKiwattHour,
         euroPerMonth,

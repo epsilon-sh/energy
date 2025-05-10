@@ -1,9 +1,13 @@
 import express from 'express'
 import cors from 'cors'
-import pricesRouter from './routes/prices.mjs'
+
+// all routers from api/routes (alphabetically)
+import bestContractsRouter from './routes/bestContracts.mjs'
 import consumptionRouter from './routes/consumption.mjs'
-import waitlistRouter from './routes/waitlist.mjs'
 import meteringPointsRouter from './routes/meteringPoints.mjs'
+import pricesRouter from './routes/prices.mjs'
+import waitlistRouter from './routes/waitlist.mjs'
+
 import { initializeDatabase } from './db.mjs'
 import http from 'http'
 
@@ -29,10 +33,11 @@ app.use((req, _res, next) => {
   next()
 })
 
-// Setup routes
-app.use('/prices', pricesRouter)
+// Setup routes (alphabetically)
+app.use('/bestContracts', bestContractsRouter)
 app.use('/consumption', consumptionRouter)
 app.use('/meteringPoints', meteringPointsRouter)
+app.use('/prices', pricesRouter)
 app.use('/waitlist', waitlistRouter)
 
 // Basic root route

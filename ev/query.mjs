@@ -1,20 +1,19 @@
-const startDate = new Date();
-const endDate = new Date();
+import { extractContracts } from "./reducer.mjs";
+
 const BASE_URL =
-  "https://ev-shv-prod-app-wa-consumerapi1.azurewebsites.net/api/productlist/20100";
+  "https://ev-shv-prod-app-wa-consumerapi1.azurewebsites.net/api/productlist";
 
 const defaultParams = {
-  // not needed for now
+  postalCode: undefined,
+  // authCode?: 'GUEST', // TODO: also return name of contract if valid authCode is arrached [NOT NEEDED FOR NOW]
 };
 
-const getPrices = async (params = defaultParams) => {
+const getContracts = async (params = defaultParams) => {
   const url = new URL(BASE_URL);
   params = { ...defaultParams, ...params };
   url.search = new URLSearchParams(params);
 
-  // console.log(
-  //   `GET ENTSO RANGE ${params.periodStart} - ${params.periodEnd} | ${url}`,
-  // );
+  console.log("Getting productlist for postalCode ", params.postalCode);
 
   const response = await fetch(url);
 
@@ -42,7 +41,13 @@ const getPrices = async (params = defaultParams) => {
     return [];
   }
 
-  throw new Error("Error handling ENTSO new (nimpl)");
+  throw new Error("Error handling EV new (nimpl)");
 };
 
-export default getPrices;
+const fetchBestContracts = async (postalCode) => {
+  const allContracts = extractContracts(getContracts(postalCode));
+  // TODO: get the cheapest Spot and the cheapest Fixed
+  return allContracts[0], allContracts[1];
+};
+
+export default fetchBestContracts;
