@@ -15,7 +15,7 @@ const getContracts = async (postalCode) => {
 
   console.log("Getting productlist for postalCode ", params.postalCode);
 
-  const response = await fetch(url);
+  const response = await fetch(url + "/" + postalCode);
 
   if (!response.ok)
     console.error("Error fetching data", response.status || response.error);
