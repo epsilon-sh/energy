@@ -4,7 +4,15 @@ const extractPriceInfo = (explicitPriceComponents) => {
   let centsPerKiwattHour = 0.0;
   let euroPerMonth = 0.0;
 
+  console.log("Price components:", explicitPriceComponents);
+
   explicitPriceComponents.forEach((component) => {
+    console.log(
+      "Processing component:",
+      component.PriceComponentType,
+      component.OriginalPayment,
+    );
+
     switch (component.PriceComponentType) {
       case "Monthly":
         euroPerMonth += component.OriginalPayment.Price;
@@ -12,6 +20,15 @@ const extractPriceInfo = (explicitPriceComponents) => {
       case "General":
         centsPerKiwattHour += component.OriginalPayment.Price;
         break;
+
+      // assuming winter is 1/4 of year and other seasons are 3/4
+      case "SeasonalWinterDay":
+        centsPerKiwattHour += 0.25 * component.OriginalPayment.Price;
+        break;
+      case "SeasonalOther":
+        centsPerKiwattHour += 0.75 * component.OriginalPayment.Price;
+        break;
+
       case "DayTime":
       case "NightTime":
         centsPerKiwattHour += component.OriginalPayment.Price / 2.0;
@@ -19,6 +36,7 @@ const extractPriceInfo = (explicitPriceComponents) => {
     }
   });
 
+  console.log("Extracted prices:", { centsPerKiwattHour, euroPerMonth });
   return {
     centsPerKiwattHour,
     euroPerMonth,
