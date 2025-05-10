@@ -4,10 +4,10 @@
 **/notes.md
 
 # Local data storage for backend
-data/*
-!data/*.import.*
-!data/import_from_entso.mjs
-!data/import_from_energiavirasto.sh
+data/api.sqlite*
+
+data/*.json
+!data/postalCodes.json
 
 # dependencies
 **/node_modules
