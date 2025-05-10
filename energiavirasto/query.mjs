@@ -1,4 +1,4 @@
-import { filterContracts, getCheapest } from "./reducer.mjs";
+import { getCheapest } from "./reducer.mjs";
 
 const BASE_URL =
   "https://ev-shv-prod-app-wa-consumerapi1.azurewebsites.net/api/productlist";
@@ -36,30 +36,23 @@ const getContracts = async (postalCode) => {
   }
 };
 
-const fetchBestContracts = async (postalCode, filters, full) => {
-  let message = "OK",
-    bestSpot = undefined,
-    bestFixed = undefined;
+const fetchBestContracts = async (postalCode, filters, full = true) => {
+  let message = "OK";
   try {
     const allContracts = await getContracts(postalCode);
-    const filteredContracts = filterContracts(allContracts, filters);
-    bestSpot = getCheapest(filteredContracts, "Spot", full);
-    bestFixed = getCheapest(filteredContracts, "FixedPrice", full);
+    return {
+      meta: { message, postalCode, filters },
+      data: {
+        bestSpot: getCheapest(allContracts, "Spot", filters, full),
+        bestFixed: getCheapest(allContracts, "FixedPrice", filters, full),
+      },
+    };
   } catch (e) {
-    message = e.message;
+    return {
+      meta: { message: e.message, postalCode, filters },
+      data: { bestSpot: null, bestFixed: null },
+    };
   }
-
-  return {
-    meta: {
-      message,
-      postalCode,
-      filters,
-    },
-    data: {
-      bestSpot,
-      bestFixed,
-    },
-  };
 };
 
 export default fetchBestContracts;
