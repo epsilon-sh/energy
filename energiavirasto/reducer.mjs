@@ -4,15 +4,7 @@ const extractPriceInfo = (explicitPriceComponents) => {
   let centsPerKiwattHour = 0.0;
   let euroPerMonth = 0.0;
 
-  console.log("Price components:", explicitPriceComponents);
-
   explicitPriceComponents.forEach((component) => {
-    console.log(
-      "Processing component:",
-      component.PriceComponentType,
-      component.OriginalPayment,
-    );
-
     switch (component.PriceComponentType) {
       case "Monthly":
         euroPerMonth += component.OriginalPayment.Price;
@@ -20,15 +12,12 @@ const extractPriceInfo = (explicitPriceComponents) => {
       case "General":
         centsPerKiwattHour += component.OriginalPayment.Price;
         break;
-
-      // assuming winter is 1/4 of year and other seasons are 3/4
       case "SeasonalWinterDay":
         centsPerKiwattHour += 0.25 * component.OriginalPayment.Price;
         break;
       case "SeasonalOther":
         centsPerKiwattHour += 0.75 * component.OriginalPayment.Price;
         break;
-
       case "DayTime":
       case "NightTime":
         centsPerKiwattHour += component.OriginalPayment.Price / 2.0;
@@ -36,11 +25,48 @@ const extractPriceInfo = (explicitPriceComponents) => {
     }
   });
 
-  console.log("Extracted prices:", { centsPerKiwattHour, euroPerMonth });
   return {
     centsPerKiwattHour,
     euroPerMonth,
   };
+};
+
+/**
+ * Validates and normalizes consumption limits
+ * @param {Object} filters - The filters object containing consumption limits
+ * @returns {Object} Normalized min and max values, or null if invalid
+ */
+const validateConsumptionLimits = (filters) => {
+  const DEFAULT_MIN = 0;
+  const MAX_POSSIBLE = 1000000; // 1 million kWh per year as sanity check
+
+  let min =
+    filters.limitMinKWhPerY === undefined
+      ? DEFAULT_MIN
+      : parseFloat(filters.limitMinKWhPerY);
+
+  let max =
+    filters.limitMaxKWhPerY === "null"
+      ? MAX_POSSIBLE
+      : parseFloat(filters.limitMaxKWhPerY);
+
+  // Validate numbers
+  if (isNaN(min) || isNaN(max)) {
+    return null;
+  }
+
+  // Ensure min is not negative
+  min = Math.max(0, min);
+
+  // Ensure max is not below min
+  if (max < min) {
+    max = min;
+  }
+
+  // Sanity check on max
+  max = Math.min(max, MAX_POSSIBLE);
+
+  return { min, max };
 };
 
 /**
@@ -65,10 +91,17 @@ export const getCheapest = (
     return null;
   }
 
+  const consumptionLimits = validateConsumptionLimits(filters);
+  if (!consumptionLimits) {
+    return null;
+  }
+
   const matchingContracts = allContracts.filter((c) => {
+    // Pricing model check (case-insensitive)
     if (pricingModel.toLowerCase() !== c.Details.PricingModel.toLowerCase())
       return false;
 
+    // Target group check
     if (
       filters.targetGroup &&
       filters.targetGroup !== "Both" &&
@@ -76,18 +109,17 @@ export const getCheapest = (
     )
       return false;
 
-    const minKWhPerY = parseFloat(filters.limitMinKWhPerY || 0);
-    const maxKWhPerY =
-      filters.limitMaxKWhPerY === "null"
-        ? null
-        : parseFloat(filters.limitMaxKWhPerY);
-
+    // Consumption limitation checks
     const contractMin = c.Details.ConsumptionLimitation.MinXKWhPerY || 0;
-    const contractMax = c.Details.ConsumptionLimitation.MaxXKWhPerY || null;
+    const contractMax = c.Details.ConsumptionLimitation.MaxXKWhPerY || Infinity;
 
-    if (minKWhPerY < contractMin) return false;
-    if (maxKWhPerY !== null && contractMax !== null && maxKWhPerY > contractMax)
+    // Check if the user's consumption range overlaps with the contract's allowed range
+    if (
+      consumptionLimits.max < contractMin ||
+      consumptionLimits.min > contractMax
+    ) {
       return false;
+    }
 
     return true;
   });
