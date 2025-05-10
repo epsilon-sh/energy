@@ -64,4 +64,9 @@ export const apiSlice = createApi({
   }),
 });
 
-export const { useGetPricesQuery, useGetBestContractsQuery, useGetConsumptionQuery, useUploadConsumptionMutation } = apiSlice;
+export const {
+  useGetBestContractsQuery,
+  useGetConsumptionQuery,
+  useGetPricesQuery,
+  useUploadConsumptionMutation,
+} = apiSlice;

@@ -1,4 +1,4 @@
-const DEFAULT_FULL = false; // include contract company and name
+const DEFAULT_FULL = true; // include contract company and name
 
 const extractPriceInfo = (explicitPriceComponents) => {
   let centsPerKiwattHour = 0.0;
@@ -26,19 +26,38 @@ const extractPriceInfo = (explicitPriceComponents) => {
   };
 };
 
-export const extractContracts = (explicitContracts) => {
-  if (!Array.isArray(explicitContracts)) {
-    console.error(
-      "Expected array of contracts, got:",
-      typeof explicitContracts,
-    );
+export const filterContracts = (allContracts, filters) => {
+  if (!Array.isArray(allContracts)) {
+    console.error("Expected array of contracts, got:", typeof allContracts);
     return [];
   }
 
-  return explicitContracts
-    .filter((anyContract) =>
-      ["FixedPrice", "Spot"].includes(anyContract.Details.PricingModel),
-    )
+  return allContracts
+    .filter((c) => {
+      if (filters.pricingModel !== c.Details.PricingModel) return false;
+
+      if (
+        !(filters.targetGroup !== "Both"
+          ? filters.targetGroup === c.Details.targetGroup
+          : true)
+      )
+        return false;
+
+      if (
+        parseFloat(filters.limitMinKWhPerY) <
+        c.Details.ConsumptionLimitation.MinXKWhPerY
+      )
+        return false;
+
+      if (
+        filters.limitMaxKWhPerY !== "null" &&
+        parseFloat(filters.limitMaxKWhPerY) >
+          c.Details.ConsumptionLimitation.MaxXKWhPerY
+      )
+        return false;
+
+      return true;
+    })
     .map((ec) => {
       const { centsPerKiwattHour, euroPerMonth } = extractPriceInfo(
         ec.Details.Pricing.PriceComponents,
@@ -67,8 +86,8 @@ export const getCheapest = (contracts, pricingModel, full = DEFAULT_FULL) => {
     return null;
   }
 
-  // Assuming average monthly consumption of 1000 kWh for comparison
-  const MONTHLY_KWH = 1000;
+  // Assuming average consumption of 1000 kWh per month for comparison
+  const YEARLY_KWH = 1000 * 12;
 
   const typeContracts = contracts.filter(
     (contract) => contract.pricingModel === pricingModel,
@@ -81,9 +100,9 @@ export const getCheapest = (contracts, pricingModel, full = DEFAULT_FULL) => {
   const cheapest = typeContracts.reduce((cheapest, current) => {
     // Convert all costs to cents for comparison
     const currentTotalCost =
-      current.centsPerKiwattHour * MONTHLY_KWH + current.euroPerMonth * 100;
+      current.centsPerKiwattHour * YEARLY_KWH + current.euroPerMonth * 100;
     const cheapestTotalCost =
-      cheapest.centsPerKiwattHour * MONTHLY_KWH + cheapest.euroPerMonth * 100;
+      cheapest.centsPerKiwattHour * YEARLY_KWH + cheapest.euroPerMonth * 100;
 
     return currentTotalCost < cheapestTotalCost ? current : cheapest;
   }, typeContracts[0]);

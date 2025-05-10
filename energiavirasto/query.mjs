@@ -1,12 +1,9 @@
-import { extractContracts, getCheapest } from "./reducer.mjs";
+import { filterContracts, getCheapest } from "./reducer.mjs";
 
 const BASE_URL =
   "https://ev-shv-prod-app-wa-consumerapi1.azurewebsites.net/api/productlist";
 
-const getContracts = async (
-  postalCode,
-  _authCode = "GUEST", // TODO: also return name of contract if valid authCode is arrached [NOT NEEDED FOR NOW]
-) => {
+const getContracts = async (postalCode) => {
   if (!postalCode) {
     throw new Error("postalCode is required");
   }
@@ -39,22 +36,29 @@ const getContracts = async (
   }
 };
 
-const fetchBestContracts = async (postalCode) => {
-  const allContracts = await getContracts(postalCode);
-  const reducedContracts = extractContracts(allContracts);
-
-  /*
-  console.log(1111111);
-  console.log(reducedContracts);
-  console.log(1111111);
-  */
-
-  const bestSpot = getCheapest(reducedContracts, "Spot");
-  const bestFixed = getCheapest(reducedContracts, "FixedPrice");
+const fetchBestContracts = async (postalCode, filters, full) => {
+  let message = "OK",
+    bestSpot = undefined,
+    bestFixed = undefined;
+  try {
+    const allContracts = await getContracts(postalCode);
+    const filteredContracts = filterContracts(allContracts, filters);
+    bestSpot = getCheapest(filteredContracts, "Spot", full);
+    bestFixed = getCheapest(filteredContracts, "FixedPrice", full);
+  } catch (e) {
+    message = e.message;
+  }
 
   return {
-    bestSpot,
-    bestFixed,
+    meta: {
+      message,
+      postalCode,
+      filters,
+    },
+    data: {
+      bestSpot,
+      bestFixed,
+    },
   };
 };
 

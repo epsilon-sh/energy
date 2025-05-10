@@ -6,7 +6,8 @@
 # Local data storage for backend
 data/*
 !data/*.import.*
-!data/import_from_*
+!data/import_from_entso.mjs
+!data/import_from_energiavirasto.sh
 
 # dependencies
 **/node_modules
