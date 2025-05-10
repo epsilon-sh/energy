@@ -1,0 +1,164 @@
+[
+{
+  "Id": "d0dbcce5-734c-47f0-afaa-0019d6933fc9",
+  "Name": "Ilmasto pörssisähkö",
+  "Company": {
+    "Name": "Nordic Green Energy",
+    "CompanyUrl": "www.nordicgreen.fi",
+    "StreetAddress": "Myllykatu 15",
+    "PostalCode": "65100",
+    "PostalName": "VAASA",
+    "LogoURL": "https://evshvprodappstacon1.blob.core.windows.net/companyimages1/2220675-5.jpg"
+  },
+  "Details": {
+    "FixedTimeRange": "Fixed12",
+    "SpotPriceSelection": "NasdaqMonthly",
+    "Metering": "General",
+    "ElectricitySource": {
+      "Renewable": {
+        "Total": 0.00,
+        "BioMass": 0.00,
+        "Solar": 0.00,
+        "Wind": 0.00,
+        "General": 0.00,
+        "Hydro": 0.00
+      },
+      "Fossil": {
+        "Total": 0.00,
+        "Oil": 0.00,
+        "Coal": 0.0,
+        "NaturalGas": 0.00,
+        "Peat": 0.00
+      },
+      "Nuclear": {
+        "Total": 100.00,
+        "General": 0.0
+      }
+    },
+    "Pricing": {
+      "Id": "d0dbcce5-734c-47f0-afaa-0019d6933fc9",
+      "ElectricitySupplyProductId": "d0dbcce5-734c-47f0-afaa-0019d6933fc9",
+      "Name": "Ilmasto pörssisähkö",
+      "StartDate": "2025-05-01T00:00:00",
+      "EndDate": "2025-05-25T00:00:00",
+      "PriceComponents": [
+        {
+          "Id": "00000000-0000-0000-0000-000000000000",
+          "PriceVersionId": "00000000-0000-0000-0000-000000000000",
+          "HasDiscount": true,
+          "Discount": {
+            "DiscountValue": 2.49,
+            "IsPercentage": false,
+            "DiscountType": "NFirstMonth",
+            "NFirstKwh": 0.00,
+            "UntilDate": "0001-01-01T00:00:00",
+            "NfirstMonths": 9
+          },
+          "OriginalPayment": {
+            "Price": 4.99,
+            "PaymentUnit": "EurPerMonth"
+          },
+          "PriceComponentType": "Monthly",
+          "FuseSize": "Fuse_3x25",
+          "Created": "0001-01-01T00:00:00",
+          "Updated": "0001-01-01T00:00:00"
+        },
+        {
+          "Id": "00000000-0000-0000-0000-000000000000",
+          "PriceVersionId": "00000000-0000-0000-0000-000000000000",
+          "HasDiscount": true,
+          "Discount": {
+            "DiscountValue": 0.13,
+            "IsPercentage": false,
+            "DiscountType": "NFirstMonth",
+            "NFirstKwh": 9.00,
+            "UntilDate": "0001-01-01T00:00:00",
+            "NfirstMonths": 9
+          },
+          "OriginalPayment": {
+            "Price": 0.52,
+            "PaymentUnit": "CentPerKiwattHour"
+          },
+          "PriceComponentType": "General",
+          "FuseSize": "None",
+          "Created": "0001-01-01T00:00:00",
+          "Updated": "0001-01-01T00:00:00"
+        }
+      ],
+      "HasDiscount": true,
+      "Created": "2025-04-30T10:20:15.0423864",
+      "Updated": "2025-05-02T14:15:10.7588204"
+    },
+    "AvailabilityArea": {
+      "IsNational": true,
+      "PostalCodes": [],
+      "Dsos": []
+    },
+    "ConsumptionLimitation": {
+      "MinXKWhPerY": 0.00,
+      "MaxXKWhPerY": null
+    },
+    "PreBilling": false,
+    "AvailableForExistingUsers": true,
+    "ConsumptionControl": false,
+    "DeliveryResponsibilityProduct": false,
+    "OrderLink": "",
+    "ProductLink": "https://www.nordicgreen.fi/",
+    "ExtraInformation": {
+      "Default": null,
+      "FI": "Tarjoamme Sinulle toistaiseksi voimassa olevan Ilmasto pörssisähkö -sopimuksen. Ilmasto pörssisähkö -sopimuksessa sähkö on tuotettu täysin hiilidioksidivapaasti. Sopimuksessa sähkön hinta on läpinäkyvä ja perustuu todelliseen kysyntään ja tarjontaan, eikä siinä ole ylimääräisiä piilokuluja. Hinta perustuu välityspalkkioomme, Suomen alueen Spot-hintaan ja kuukausimaksuun. Ilmastoystävällinen sähkö on tuotettu alkuperätodennetulla ydinvoimalla ja sopimus on voimassa toistaiseksi. Pörssisähkö sopimus mahdollistaa Sinulle paremman kontrollin oman sähkönkulutuksesi suhteen. \r\n \r\nUudella sovelluksellamme autamme Sinua tehostamaan sähkönkäyttöäsi ja vähentämään kulutustasi. Älykkään teknologian avulla voit seurata sähkön hintaa reaaliajassa ja tehdä järkeviä kulutusvalintoja säästääksesi rahaa ja ympäristöä. Sovellus tarjoaa näkymän päivittäiseen sähkönkulutukseen, sähkön hintoihin, säätilaan, aurinkopaneelituotantoon ja voit myös ladata sovelluksen kautta sähköautoasi älylatauksella. Katso lisää sovelluksesta täältä: https://www.nordicgreen.fi/mobiilisovellus/\r\n",
+      "EN": "Tarjoamme Sinulle toistaiseksi voimassa olevan Ilmasto pörssisähkö -sopimuksen. Ilmasto pörssisähkö -sopimuksessa sähkö on tuotettu täysin hiilidioksidivapaasti. Sopimuksessa sähkön hinta on läpinäkyvä ja perustuu todelliseen kysyntään ja tarjontaan, eikä siinä ole ylimääräisiä piilokuluja. Hinta perustuu välityspalkkioomme, Suomen alueen Spot-hintaan ja kuukausimaksuun. Ilmastoystävällinen sähkö on tuotettu alkuperätodennetulla ydinvoimalla ja sopimus on voimassa toistaiseksi. Pörssisähkö sopimus mahdollistaa Sinulle paremman kontrollin oman sähkönkulutuksesi suhteen. \r\n \r\nUudella sovelluksellamme autamme Sinua tehostamaan sähkönkäyttöäsi ja vähentämään kulutustasi. Älykkään teknologian avulla voit seurata sähkön hintaa reaaliajassa ja tehdä järkeviä kulutusvalintoja säästääksesi rahaa ja ympäristöä. Sovellus tarjoaa näkymän päivittäiseen sähkönkulutukseen, sähkön hintoihin, säätilaan, aurinkopaneelituotantoon ja voit myös ladata sovelluksen kautta sähköautoasi älylatauksella. Katso lisää sovelluksesta täältä: https://www.nordicgreen.fi/mobiilisovellus/\r\n",
+      "SV": "Tarjoamme Sinulle toistaiseksi voimassa olevan Ilmasto pörssisähkö -sopimuksen. Ilmasto pörssisähkö -sopimuksessa sähkö on tuotettu täysin hiilidioksidivapaasti. Sopimuksessa sähkön hinta on läpinäkyvä ja perustuu todelliseen kysyntään ja tarjontaan, eikä siinä ole ylimääräisiä piilokuluja. Hinta perustuu välityspalkkioomme, Suomen alueen Spot-hintaan ja kuukausimaksuun. Ilmastoystävällinen sähkö on tuotettu alkuperätodennetulla ydinvoimalla ja sopimus on voimassa toistaiseksi. Pörssisähkö sopimus mahdollistaa Sinulle paremman kontrollin oman sähkönkulutuksesi suhteen. \r\n \r\nUudella sovelluksellamme autamme Sinua tehostamaan sähkönkäyttöäsi ja vähentämään kulutustasi. Älykkään teknologian avulla voit seurata sähkön hintaa reaaliajassa ja tehdä järkeviä kulutusvalintoja säästääksesi rahaa ja ympäristöä. Sovellus tarjoaa näkymän päivittäiseen sähkönkulutukseen, sähkön hintoihin, säätilaan, aurinkopaneelituotantoon ja voit myös ladata sovelluksen kautta sähköautoasi älylatauksella. Katso lisää sovelluksesta täältä: https://www.nordicgreen.fi/mobiilisovellus/\r\n"
+    },
+    "MicroProduction": {
+      "Buys": true,
+      "Details": {
+        "Default": null,
+        "FI": "",
+        "EN": "",
+        "SV": ""
+      }
+    },
+    "BillingFrequency": {
+      "Default": null,
+      "FI": "Kuukausittain",
+      "EN": "Kuukausittain",
+      "SV": "Kuukausittain"
+    },
+    "TimePeriodDefinitions": {
+      "DayAndNight": {
+        "Default": null,
+        "FI": "",
+        "EN": "",
+        "SV": ""
+      },
+      "WinterOtherSeasons": {
+        "Default": null,
+        "FI": "",
+        "EN": "",
+        "SV": ""
+      }
+    },
+    "TransparencyIndex": {
+      "IsBelowWholesalePrice": false,
+      "IsOnlyForNewCustomers": false,
+      "HasPreBilling": false,
+      "ProductHasHadErrors": false,
+      "CompanyHasOtherErroneousProducts": false,
+      "IsOpenEndedWarning": true,
+      "IsPermanentProduct": false,
+      "UsingGeneralTerms": false,
+      "AvailableOnlyInSingleDso": false,
+      "ProductErrors": [],
+      "CompanyErrors": [],
+      "TotalErrorCount": 0
+    },
+    "SpotFutures": 4.594,
+    "EnergySourceIconView": "SingleEnergySource",
+    "HasCustomPricingElement": false,
+    "TargetGroup": "Household",
+    "ContractType": "OpenEnded",
+    "PricingModel": "Spot"
+  }
+}
+]

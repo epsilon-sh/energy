@@ -5,10 +5,8 @@ const router = express.Router()
 
 router.get('/', async (req, res, next) => {
   try {
-    const postalCode = parseInt(req.query.postalCode)
-    if (!postalCode) {
-      return res.status(400).json({ error: 'Postal code is required' })
-    }
+    const postalCode = req.query.postalCode;
+
     const bestContracts = await fetchBestContracts(postalCode)
     res.json(bestContracts)
   } catch (error) {

@@ -6,7 +6,7 @@
 # Local data storage for backend
 data/*
 !data/*.import.*
-!data/import_from_entso.mjs
+!data/import_from_*
 
 # dependencies
 **/node_modules
