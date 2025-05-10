@@ -4,9 +4,7 @@
 **/notes.md
 
 # Local data storage for backend
-data/*.json
 data/*.sqlite*
-!data/postalCodes.json
 
 # dependencies
 **/node_modules
