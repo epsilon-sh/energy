@@ -1,10 +1,24 @@
 const DEFAULT_FULL = true;
 
+/**
+ * Extracts price information from contract components
+ * @param {Array} explicitPriceComponents - Array of price components from contract
+ * @returns {Object} Object containing calculated cents per kWh and euros per month
+ * @throws {Error} If price components are invalid or missing required fields
+ */
 const extractPriceInfo = (explicitPriceComponents) => {
+  if (!Array.isArray(explicitPriceComponents)) {
+    throw new Error("Price components must be an array");
+  }
+
   let centsPerKiwattHour = 0.0;
   let euroPerMonth = 0.0;
 
   explicitPriceComponents.forEach((component) => {
+    if (!component?.OriginalPayment?.Price || !component.PriceComponentType) {
+      throw new Error("Invalid price component structure");
+    }
+
     switch (component.PriceComponentType) {
       case "Monthly":
         euroPerMonth += component.OriginalPayment.Price;
@@ -25,20 +39,18 @@ const extractPriceInfo = (explicitPriceComponents) => {
     }
   });
 
-  return {
-    centsPerKiwattHour,
-    euroPerMonth,
-  };
+  return { centsPerKiwattHour, euroPerMonth };
 };
 
 /**
  * Validates and normalizes consumption limits
- * @param {Object} filters - The filters object containing consumption limits
- * @returns {Object} Normalized min and max values, or null if invalid
+ * @param {Object} filters - Filters object containing consumption limits
+ * @param {string|number} [filters.limitMinKWhPerY] - Minimum kWh per year
+ * @param {string|number} [filters.limitMaxKWhPerY] - Maximum kWh per year
+ * @returns {Object|null} Normalized min and max values, or null if invalid
  */
 const validateConsumptionLimits = (filters) => {
   const DEFAULT_MIN = 0;
-  const MAX_POSSIBLE = 1000000; // 1 million kWh per year as sanity check
 
   let min =
     filters.limitMinKWhPerY === undefined
@@ -46,36 +58,29 @@ const validateConsumptionLimits = (filters) => {
       : parseFloat(filters.limitMinKWhPerY);
 
   let max =
-    filters.limitMaxKWhPerY === "null"
-      ? MAX_POSSIBLE
+    filters.limitMaxKWhPerY === "null" || filters.limitMaxKWhPerY === undefined
+      ? Infinity
       : parseFloat(filters.limitMaxKWhPerY);
 
-  // Validate numbers
   if (isNaN(min) || isNaN(max)) {
     return null;
   }
 
-  // Ensure min is not negative
   min = Math.max(0, min);
-
-  // Ensure max is not below min
-  if (max < min) {
-    max = min;
-  }
-
-  // Sanity check on max
-  max = Math.min(max, MAX_POSSIBLE);
+  max = max < min ? min : max;
 
   return { min, max };
 };
 
 /**
- * Gets the cheapest contract of given pricingModel from the list, applying filters
- * @param {Array} allContracts - Array of all contracts
- * @param {string} pricingModel - Type of pricing model to filter for ("Spot" or "FixedPrice")
- * @param {Object} filters - Filters to apply (targetGroup, consumption limits, etc.)
- * @param {boolean} full - Whether to include contract name and company in result
- * @returns {Object|null} The cheapest matching contract, or null if none found
+ * Gets the cheapest contract matching the specified criteria
+ * @param {Array} allContracts - Array of all available contracts
+ * @param {string} pricingModel - Type of pricing model ("Spot" or "FixedPrice")
+ * @param {Object} filters - Filters to apply
+ * @param {string} [filters.targetGroup] - Target consumer group
+ * @param {boolean} [full=true] - Whether to include full contract details
+ * @returns {Object|null} The cheapest matching contract or null if none found
+ * @throws {Error} If input parameters are invalid
  */
 export const getCheapest = (
   allContracts,
@@ -83,11 +88,7 @@ export const getCheapest = (
   filters = {},
   full = DEFAULT_FULL,
 ) => {
-  if (
-    !allContracts ||
-    !Array.isArray(allContracts) ||
-    allContracts.length === 0
-  ) {
+  if (!allContracts?.length || !pricingModel) {
     return null;
   }
 
@@ -96,52 +97,64 @@ export const getCheapest = (
     return null;
   }
 
-  const matchingContracts = allContracts.filter((c) => {
-    // Pricing model check (case-insensitive)
-    if (pricingModel.toLowerCase() !== c.Details.PricingModel.toLowerCase())
-      return false;
-
-    // Target group check
+  const matchingContracts = allContracts.filter((contract) => {
     if (
-      filters.targetGroup &&
-      filters.targetGroup !== "Both" &&
-      filters.targetGroup !== c.Details.TargetGroup
-    )
-      return false;
-
-    // Consumption limitation checks
-    const contractMin = c.Details.ConsumptionLimitation.MinXKWhPerY || 0;
-    const contractMax = c.Details.ConsumptionLimitation.MaxXKWhPerY || Infinity;
-
-    // Check if the user's consumption range overlaps with the contract's allowed range
-    if (
-      consumptionLimits.max < contractMin ||
-      consumptionLimits.min > contractMax
+      !contract?.Details?.PricingModel ||
+      !contract?.Details?.ConsumptionLimitation
     ) {
       return false;
     }
 
-    return true;
+    if (
+      pricingModel.toLowerCase() !== contract.Details.PricingModel.toLowerCase()
+    ) {
+      return false;
+    }
+
+    if (
+      filters.targetGroup &&
+      filters.targetGroup !== "Both" &&
+      filters.targetGroup !== contract.Details.TargetGroup
+    ) {
+      return false;
+    }
+
+    const contractMin = contract.Details.ConsumptionLimitation.MinXKWhPerY || 0;
+    const contractMax =
+      contract.Details.ConsumptionLimitation.MaxXKWhPerY || Infinity;
+
+    return !(
+      consumptionLimits.max < contractMin || consumptionLimits.min > contractMax
+    );
   });
 
-  if (matchingContracts.length === 0) {
+  if (!matchingContracts.length) {
     return null;
   }
 
   const YEARLY_KWH = 1000 * 12;
 
   const cheapest = matchingContracts.reduce((cheapest, current) => {
-    const { centsPerKiwattHour: currentKwh, euroPerMonth: currentMonthly } =
-      extractPriceInfo(current.Details.Pricing.PriceComponents);
-    const { centsPerKiwattHour: cheapestKwh, euroPerMonth: cheapestMonthly } =
-      extractPriceInfo(cheapest.Details.Pricing.PriceComponents);
+    try {
+      const currentPrices = extractPriceInfo(
+        current.Details.Pricing.PriceComponents,
+      );
+      const cheapestPrices = extractPriceInfo(
+        cheapest.Details.Pricing.PriceComponents,
+      );
 
-    const currentTotalCost =
-      currentKwh * YEARLY_KWH + currentMonthly * 100 * 12;
-    const cheapestTotalCost =
-      cheapestKwh * YEARLY_KWH + cheapestMonthly * 100 * 12;
+      const currentTotalCost =
+        currentPrices.centsPerKiwattHour * YEARLY_KWH +
+        currentPrices.euroPerMonth * 100 * 12;
 
-    return currentTotalCost < cheapestTotalCost ? current : cheapest;
+      const cheapestTotalCost =
+        cheapestPrices.centsPerKiwattHour * YEARLY_KWH +
+        cheapestPrices.euroPerMonth * 100 * 12;
+
+      return currentTotalCost < cheapestTotalCost ? current : cheapest;
+    } catch (error) {
+      return cheapest;
+    }
   }, matchingContracts[0]);
 
   const { centsPerKiwattHour, euroPerMonth } = extractPriceInfo(

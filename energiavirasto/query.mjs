@@ -1,55 +1,58 @@
 import { getCheapest } from "./reducer.mjs";
+import postalCodes from "../data/postalCodes.mjs";
 
 const BASE_URL =
   "https://ev-shv-prod-app-wa-consumerapi1.azurewebsites.net/api/productlist";
 
+/**
+ * Fetches electricity contracts for a given postal code
+ * @param {string} postalCode - Finnish postal code
+ * @returns {Promise<Array>} Array of contract objects
+ * @throws {Error} If postal code is invalid or API request fails
+ */
 const getContracts = async (postalCode) => {
-  if (!postalCode) {
-    throw new Error("postalCode is required");
+  if (!postalCode || typeof postalCode !== "string") {
+    throw new Error("Invalid postal code format");
   }
 
-  const url = new URL(BASE_URL);
-  const params = {
-    postalCode,
-  };
+  if (!postalCodes.includes(postalCode)) {
+    throw new Error("Unsupported postal code");
+  }
 
-  console.log("Getting productlist for postalCode ", params.postalCode);
+  const response = await fetch(`${BASE_URL}/${postalCode}`);
 
-  const response = await fetch(url + "/" + postalCode);
+  if (!response.ok) {
+    throw new Error(`API request failed with status ${response.status}`);
+  }
 
-  if (!response.ok)
-    console.error("Error fetching data", response.status || response.error);
-
-  const expected = "application/json; charset=utf-8";
   const contentType = response.headers.get("content-type");
-  console.log("Got response type:", contentType);
-
-  if (contentType === expected) {
-    console.log("Reading JSON page.");
-    const resp = await response.json();
-    return resp;
-  } else {
-    console.error(
-      `Unsupported response body type: ${contentType} (expect ${expected})`,
-    );
-    throw new Error("Error handling EV new (nimpl)");
+  if (!contentType?.includes("application/json")) {
+    throw new Error(`Unexpected content type: ${contentType}`);
   }
+
+  return response.json();
 };
 
+/**
+ * Fetches best available electricity contracts for given postal code and filters
+ * @param {string} postalCode - Finnish postal code
+ * @param {Object} filters - Filter criteria for contracts
+ * @param {boolean} [full=true] - Whether to include full contract details
+ * @returns {Promise<Object>} Object containing best spot and fixed price contracts
+ */
 const fetchBestContracts = async (postalCode, filters, full = true) => {
-  let message = "OK";
   try {
     const allContracts = await getContracts(postalCode);
     return {
-      meta: { message, postalCode, filters },
+      meta: { message: "OK", postalCode, filters },
       data: {
         bestSpot: getCheapest(allContracts, "Spot", filters, full),
         bestFixed: getCheapest(allContracts, "FixedPrice", filters, full),
       },
     };
-  } catch (e) {
+  } catch (error) {
     return {
-      meta: { message: e.message, postalCode, filters },
+      meta: { message: error.message, postalCode, filters },
       data: { bestSpot: null, bestFixed: null },
     };
   }
