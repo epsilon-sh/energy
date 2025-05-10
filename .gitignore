@@ -4,9 +4,7 @@
 **/notes.md
 
 # Local data storage for backend
-data/*
-!data/*.import.*
-!data/import_from_entso.mjs
+data/*.sqlite*
 
 # dependencies
 **/node_modules
