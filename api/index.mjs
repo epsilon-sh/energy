@@ -4,7 +4,7 @@ import pricesRouter from './routes/prices.mjs'
 import consumptionRouter from './routes/consumption.mjs'
 import waitlistRouter from './routes/waitlist.mjs'
 import meteringPointsRouter from './routes/meteringPoints.mjs'
-import bestContractsRouter from './routes/contracts.mjs'
+import contractsRouter from './routes/contracts.mjs'
 import { initializeDatabase } from './db.mjs'
 import http from 'http'
 
@@ -34,7 +34,7 @@ app.use('/prices', pricesRouter)
 app.use('/consumption', consumptionRouter)
 app.use('/meteringPoints', meteringPointsRouter)
 app.use('/waitlist', waitlistRouter)
-app.use('/bestContracts', bestContractsRouter)
+app.use('/contracts', contractsRouter)
 
 // Basic root route
 app.get('/', (_req, res) => {

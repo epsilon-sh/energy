@@ -50,7 +50,7 @@ export const apiSlice = createApi({
       query: (params) => {
         const queryParams = new URLSearchParams();
         params?.postalCode && queryParams.append('postalCode', params.postalCode.toString());
-        return `bestContracts?${queryParams.toString()}`
+        return `contracts/best?${queryParams.toString()}`
       }
     }),
     uploadConsumption: builder.mutation<{ message: string }, FormData>({

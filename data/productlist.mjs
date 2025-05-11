@@ -1,7 +1,7 @@
-import { writeFileSync } from 'fs'
+// import { writeFileSync } from 'fs'
 
 const location = new URL("https://ev-shv-prod-app-wa-consumerapi1.azurewebsites.net/api/productlist")
-const output = import.meta.filename.replace(new RegExp(/\.mjs$/), ".json")
+// const output = import.meta.filename.replace(new RegExp(/\.mjs$/), ".json")
 
 const data = fetch(location).then(res => res.json())
 
@@ -134,6 +134,6 @@ const updateBestProducts = async (parameters = {}) => {
 // TODO getBestProducts caches by postal code + lastUpdated invalidate every 24hours
 export const getBestProducts = updateBestProducts
 
-writeFileSync(output, JSON.stringify(await data, null, 2))
+// writeFileSync(output, JSON.stringify(await data, null, 2))
 
 export default data

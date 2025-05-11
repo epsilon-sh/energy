@@ -19,12 +19,12 @@ const parameters = {
   }, { message: "Invalid number" }).optional().default('5000'),
 }
 
-router.get('/', async (req, res) => {
+router.get('/best', async (req, res) => {
   try {
     const filters = z.object(parameters).parse(req.query)
-    console.log({ filters })
 
     const result = await getBestProducts(filters)
+
     console.log(result, 'result in contractsRouter GET /')
     res.json({
       meta: filters,
