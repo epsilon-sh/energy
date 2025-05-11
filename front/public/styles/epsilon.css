@@ -539,11 +539,11 @@ section h4 {
   padding: var(--m-s);
 }
 
-.controls>button:not(:last-of-type) {
+.controls > button:not(:last-of-type) {
   margin-right: var(--m-s);
 }
 
-.controls>button:last-of-type {
+.controls > button:last-of-type {
   margin-left: auto;
 }
 
@@ -595,4 +595,20 @@ a {
 
 .va-baseline {
   vertical-align: baseline;
+}
+
+.float-right {
+  float: right;
+}
+
+.display-none {
+  display: none;
+}
+
+.error-message {
+  color: var(--color-down);
+  margin-top: 1rem;
+  padding: 0.5rem;
+  border-radius: var(--border-radius-1);
+  background-color: var(--color-shadow);
 }
