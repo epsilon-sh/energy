@@ -1,5 +1,5 @@
 import express from 'express'
-import { getBestProducts } from '../../data/productList.mjs'
+import { getBestProducts } from '../../data/productlist.mjs'
 
 import postalCodes from '../../data/postalCodes.mjs'
 

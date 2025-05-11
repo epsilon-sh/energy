@@ -71,7 +71,9 @@ const updateBestProducts = async (parameters = {}) => {
     } = product
 
     // Validate
-    const groupFilter = parameters.targetGroup ? [parameters.targetGroup] : ['Household', 'Both']
+    const groupFilter = !parameters.targetGroup ? ['Household', 'Both']
+      : parameters.targetGroup === 'Both' ? ['Household', 'Both', 'Company']
+        : ['Both', parameters.targetGroup]
     if (!groupFilter.includes(TargetGroup)) return acc
 
     const modelFilter = parameters.pricingModel ? [parameters.pricingModel] : ['FixedPrice', 'Spot']
