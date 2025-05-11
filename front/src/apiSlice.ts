@@ -13,6 +13,12 @@ export interface ConsumptionPoint {
   quantity: string;
 }
 
+export interface ContractPrice {
+  pricingModel: "Spot" | "FixedPrice";
+  centsPerKiwattHour: number;
+  euroPerMonth: number;
+}
+
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8989/';
 
 export const apiSlice = createApi({
@@ -40,6 +46,13 @@ export const apiSlice = createApi({
         return `consumption?${queryParams.toString()}`;
       },
     }),
+    getBestContracts: builder.query<ContractPrice[], { postalCode: number }>({
+      query: (params) => {
+        const queryParams = new URLSearchParams();
+        params?.postalCode && queryParams.append('postalCode', params.postalCode.toString());
+        return `contracts/best?${queryParams.toString()}`
+      }
+    }),
     uploadConsumption: builder.mutation<{ message: string }, FormData>({
       query: (formData) => ({
         url: 'consumption/upload',
@@ -51,4 +64,9 @@ export const apiSlice = createApi({
   }),
 });
 
-export const { useGetPricesQuery, useGetConsumptionQuery, useUploadConsumptionMutation } = apiSlice;
+export const {
+  useGetBestContractsQuery,
+  useGetConsumptionQuery,
+  useGetPricesQuery,
+  useUploadConsumptionMutation,
+} = apiSlice;
