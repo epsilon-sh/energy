@@ -1,252 +1,272 @@
-import { describe, it, beforeEach, afterEach } from 'node:test'
-import assert from 'node:assert/strict'
-import { initializeDatabase, getDatabase } from '../db.mjs'
-import http from 'node:http'
-import Database from 'better-sqlite3'
+import { describe, it, beforeEach, before, afterEach, after } from 'node:test';
+import assert from 'node:assert/strict';
+import { register } from 'node:module';
+import http from 'node:http';
+import express from 'express';
 
-process.env.DB_STRING = ':memory:'
-process.env.DB_CONSUMPTION_TABLE = 'consumption'
+// Set environment variables for testing
+process.env.DB_STRING = ':memory:';
+process.env.DB_CONSUMPTION_TABLE = 'measurements';
 
-describe('Consumption Route', async () => {
-  let server
-  let baseUrl
-  let originalFetch
-  let dbForceError = false
-  let db
-
-  // Sample test data
-  const TEST_METERING_POINT = 'MP123'
-  const TEST_DATA = [
-    {
-      meteringPoint: TEST_METERING_POINT,
-      timestamp: '2024-01-01T00:00:00.000Z',
-      value: 125.5,
-      unit: 'kWh'
-    },
-    {
-      meteringPoint: TEST_METERING_POINT,
-      timestamp: '2024-01-01T01:00:00.000Z',
-      value: 130.2,
-      unit: 'kWh'
-    },
-    {
-      meteringPoint: 'MP456',
-      timestamp: '2024-01-01T00:00:00.000Z',
-      value: 95.0,
-      unit: 'kWh'
-    }
-  ]
-
-  const createMockResponse = (data, status = 200, contentType = 'application/json') => {
-    const body = contentType === 'application/json' ? JSON.stringify(data) : data
-    return new Response(body, {
-      status,
-      headers: {
-        'Content-Type': contentType,
-      },
-    })
+// Mock data
+const mockDbData = [
+  {
+    MeteringPointGSRN: 'TEST_METERINGPOINT',
+    'Product Type': '8716867000030',
+    Resolution: 'PT15M',
+    'Unit Type': 'kWh',
+    'Reading Type': 'BN01',
+    'Start Time': '2024-01-01T00:00:00Z',
+    Quantity: 0.111,
+    Quality: 'OK'
+  },
+  {
+    MeteringPointGSRN: 'TEST_METERINGPOINT',
+    'Product Type': '8716867000030',
+    Resolution: 'PT15M',
+    'Unit Type': 'kWh',
+    'Reading Type': 'BN01',
+    'Start Time': '2024-01-01T00:15:00Z',
+    Quantity: 0.112,
+    Quality: 'OK'
   }
+];
+
+const mockResponseData = [
+  {
+    meteringPoint: 'TEST_METERINGPOINT',
+    startTime: '2024-01-01T00:00:00.000Z',
+    quantity: 0.111,
+    resolution: 'PT1H'
+  },
+  {
+    meteringPoint: 'TEST_METERINGPOINT',
+    startTime: '2024-01-01T01:00:00.000Z',
+    quantity: 0.442,
+    resolution: 'PT1H'
+  }
+];
+
+const mockImportedData = [
+  {
+    meteringPoint: '643007574000138589',
+    productType: '8716867000030',
+    resolution: 'PT15M',
+    unitType: 'kWh',
+    readingType: 'BN01',
+    startTime: new Date('2024-01-01T00:00:00Z'),
+    quantity: 0.111,
+    quality: 'OK'
+  },
+  {
+    meteringPoint: '643007574000138589',
+    productType: '8716867000030',
+    resolution: 'PT15M',
+    unitType: 'kWh',
+    readingType: 'BN01',
+    startTime: new Date('2024-01-01T00:15:00Z'),
+    quantity: 0.112,
+    quality: 'OK'
+  }
+];
+
+describe('Consumption API Routes', async () => {
+  let server;
+  let baseUrl;
+
+  // Capture original console methods to suppress errors in error test cases
+  const originalConsoleLog = console.log;
+  const originalConsoleError = console.error;
+
+  before(async () => {
+    // Silence expected logs and errors
+    console.log = (...args) => {
+      if (!args.some(arg =>
+        String(arg).includes('sync exec tx insert()') ||
+        String(arg).includes('Load ../data/fingrid.import.csv') ||
+        String(arg).includes('Parse') ||
+        String(arg).includes('Data size:') ||
+        String(arg).includes('DB ') ||
+        String(arg).includes(' found') ||
+        String(arg).includes(' sent')
+      )) {
+        originalConsoleLog(...args);
+      }
+    };
+
+    console.error = (...args) => {
+      if (!args.some(arg =>
+        String(arg).includes('Database error') ||
+        String(arg).includes('Upload error') ||
+        String(arg).includes('File read error')
+      )) {
+        originalConsoleError(...args);
+      }
+    };
+
+    // Register custom loaders for mocking dependencies
+    register('./mocks/consumption-mocks.mjs', import.meta.url);
+
+    // Initialize global variables for mock tracking
+    globalThis.mockCalls = {
+      getDatabase: [],
+      dataInsert: [],
+      dataPush: [],
+      parseDsv: [],
+      readFile: [],
+      unlink: []
+    };
+
+    // Store mock data in global scope for the mocks to access
+    globalThis.mockDbData = mockDbData;
+    globalThis.mockResponseData = mockResponseData;
+    globalThis.mockImportedData = mockImportedData;
+    globalThis.shouldThrowDatabaseError = false;
+    globalThis.shouldThrowFileReadError = false;
+  });
+
+  after(() => {
+    // Restore console methods
+    console.log = originalConsoleLog;
+    console.error = originalConsoleError;
+  });
 
   beforeEach(async () => {
-    // Reset environment and database
-    process.env.DB_STRING = ':memory:'
-    dbForceError = false
+    // Reset mock tracking
+    globalThis.mockCalls = {
+      getDatabase: [],
+      dataInsert: [],
+      dataPush: [],
+      parseDsv: [],
+      readFile: [],
+      unlink: []
+    };
 
-    // Initialize database
-    await initializeDatabase()
-    db = getDatabase()
-
-    // Create consumption table
-    db.prepare(`
-      CREATE TABLE IF NOT EXISTS ${process.env.DB_CONSUMPTION_TABLE} (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        metering_point_id TEXT NOT NULL,
-        timestamp INTEGER NOT NULL,
-        value REAL NOT NULL,
-        unit TEXT NOT NULL,
-        UNIQUE(metering_point_id, timestamp)
-      )
-    `).run()
-
-    // Insert test data
-    const stmt = db.prepare(
-      `INSERT INTO ${process.env.DB_CONSUMPTION_TABLE} (metering_point_id, timestamp, value, unit)
-       VALUES (?, ?, ?, ?)`
-    )
-
-    // Insert test data using transaction
-    const insert = db.transaction((items) => {
-      for (const item of items) {
-        stmt.run(
-          item.meteringPoint,
-          new Date(item.timestamp).getTime(),
-          item.value,
-          item.unit
-        )
-      }
-    })
-
-    try {
-      insert(TEST_DATA)
-    } catch (error) {
-      console.error('Error inserting test data:', error)
-    }
-
-    // Mock fetch responses
-    originalFetch = global.fetch
-    global.fetch = async (url, _) => {
-      const urlObj = new URL(url)
-
-      if (urlObj.pathname === '/consumption') {
-        if (dbForceError)
-          return createMockResponse({ error: 'Database error' }, 500)
-
-        // Handle invalid date parameters
-        const params = new URLSearchParams(urlObj.search)
-        if (params.has('start') && params.get('start') === 'invalid-date')
-          return createMockResponse({ error: 'Invalid date format' }, 400)
-
-        return createMockResponse(TEST_DATA)
-      }
-      return createMockResponse({ error: 'Not found' }, 404)
-    }
+    globalThis.shouldThrowDatabaseError = false;
+    globalThis.shouldThrowFileReadError = false;
 
     // Setup test server
-    const { default: createRouter } = await import('../routes/consumption.mjs')
-    const express = await import('express')
-    const app = express.default()
-    app.use(express.json())
-    app.use('/consumption', createRouter)
+    const app = express();
+    app.use(express.json());
 
-    server = http.createServer(app)
-    await new Promise(resolve => server.listen(0, resolve))
-    const address = server.address()
-    baseUrl = `http://localhost:${address.port}`
-    console.log('Test server started at:', baseUrl)
-  })
+    // Import our router after mocks are set up
+    const { default: consumptionRouter } = await import('../routes/consumption.mjs');
+    app.use('/consumption', consumptionRouter);
+
+    // Start server
+    server = http.createServer(app);
+    await new Promise(resolve => server.listen(0, resolve));
+    const address = server.address();
+    baseUrl = `http://localhost:${address.port}`;
+  });
 
   afterEach(async () => {
-    await new Promise(resolve => server.close(resolve))
-    global.fetch = originalFetch
-    if (db) {
-      db.prepare(`DROP TABLE IF EXISTS ${process.env.DB_CONSUMPTION_TABLE}`).run()
-    }
-  })
+    // Close server
+    await new Promise(resolve => server.close(resolve));
+  });
 
-  it('should return consumption data for default period', async () => {
-    const response = await fetch(`${baseUrl}/consumption`)
-    assert.equal(response.status, 200, 'Status should be 200')
+  describe('GET /consumption', () => {
+    it('should return consumption data with default parameters', async () => {
+      const response = await fetch(`${baseUrl}/consumption`);
 
-    const data = await response.json()
-    console.log('Response data:', data)
+      assert.equal(response.status, 200);
+      const data = await response.json();
+      assert.deepEqual(data, mockResponseData);
+      assert.ok(globalThis.mockCalls.getDatabase.length > 0);
+    });
 
-    assert.ok(Array.isArray(data), 'Response should be an array')
-    assert.ok(data.length > 0, 'Response should contain consumption data')
+    it('should accept custom date range parameters', async () => {
+      const response = await fetch(
+        `${baseUrl}/consumption?start=2024-02-01T00:00:00Z&end=2024-02-02T00:00:00Z`
+      );
 
-    const item = data[0]
-    assert.ok(item.meteringPoint, 'Item should have a metering point')
-    assert.ok(item.timestamp, 'Item should have a timestamp')
-    assert.ok(typeof item.value === 'number', 'Value should be a number')
-    assert.ok(item.unit, 'Item should have a unit')
-  })
+      assert.equal(response.status, 200);
+      const data = await response.json();
+      assert.deepEqual(data, mockResponseData);
+    });
 
-  it('should filter by metering point', async () => {
-    const response = await fetch(`${baseUrl}/consumption?meteringPoint=${TEST_METERING_POINT}`)
-    assert.equal(response.status, 200, 'Status should be 200')
+    it('should accept start and period parameters', async () => {
+      const response = await fetch(
+        `${baseUrl}/consumption?start=2024-02-01T00:00:00Z&period=P1D`
+      );
 
-    const data = await response.json()
-    assert.ok(Array.isArray(data), 'Response should be an array')
-    data.forEach(item => {
-      assert.equal(item.meteringPoint, TEST_METERING_POINT, 'Should only return data for requested metering point')
-    })
-  })
+      assert.equal(response.status, 200);
+      const data = await response.json();
+      assert.deepEqual(data, mockResponseData);
+    });
 
-  it('should accept custom date range', async () => {
-    const start = '2024-01-01T00:00:00.000Z'
-    const end = '2024-01-01T23:59:59.999Z'
+    it('should accept custom resolution parameter', async () => {
+      const response = await fetch(
+        `${baseUrl}/consumption?resolution=PT30M`
+      );
 
-    const params = new URLSearchParams({
-      start,
-      end,
-    })
+      assert.equal(response.status, 200);
+      const data = await response.json();
+      assert.deepEqual(data, mockResponseData);
+    });
 
-    const response = await fetch(`${baseUrl}/consumption?${params}`)
-    assert.equal(response.status, 200, 'Status should be 200')
+    it('should accept custom metering point parameter', async () => {
+      const response = await fetch(
+        `${baseUrl}/consumption?meteringPoint=CUSTOM_METERINGPOINT`
+      );
 
-    const data = await response.json()
-    assert.ok(Array.isArray(data), 'Response should be an array')
-    data.forEach(item => {
-      const timestamp = new Date(item.timestamp)
-      assert.ok(timestamp >= new Date(start), 'Timestamp should be after start date')
-      assert.ok(timestamp <= new Date(end), 'Timestamp should be before end date')
-    })
-  })
+      assert.equal(response.status, 200);
+      const data = await response.json();
+      assert.deepEqual(data, mockResponseData);
+    });
 
-  it('should handle invalid date parameters', async () => {
-    const params = new URLSearchParams({
-      start: 'invalid-date',
-      end: 'invalid-date',
-    })
+    it('should handle errors gracefully', async () => {
+      // Set flag to make db mock throw error
+      globalThis.shouldThrowDatabaseError = true;
 
-    const response = await fetch(`${baseUrl}/consumption?${params}`)
-    const data = await response.json()
-    console.log('Invalid date response:', { status: response.status, data })
+      const response = await fetch(`${baseUrl}/consumption`);
 
-    assert.equal(response.status, 400, 'Should return 400 status for invalid dates')
-    assert.ok(data.error, 'Should return error message for invalid dates')
-  })
+      assert.equal(response.status, 500);
+    });
+  });
 
-  it('should handle database errors gracefully', async () => {
-    dbForceError = true
+  describe('POST /consumption/upload', () => {
+    it('should process uploaded file successfully', async () => {
+      const formData = new FormData();
+      const fileContent = 'mock csv content';
+      const file = new File([fileContent], 'test.csv', { type: 'text/csv' });
+      formData.append('file', file);
 
-    const response = await fetch(`${baseUrl}/consumption`)
-    const data = await response.json()
-    console.log('Database error response:', { status: response.status, data })
+      const response = await fetch(`${baseUrl}/consumption/upload`, {
+        method: 'POST',
+        body: formData,
+      });
 
-    assert.equal(response.status, 500, 'Should return 500 status for database errors')
-    assert.ok(data.error, 'Should return error message')
-  })
+      assert.equal(response.status, 200);
+      const result = await response.json();
+      assert.equal(result.message, 'File uploaded and processed successfully');
+      assert.equal(result.count, 2);
+      assert.ok(globalThis.mockCalls.unlink.length > 0);
+    });
 
-  it('should return empty array for non-existent metering point', async () => {
-    const response = await fetch(`${baseUrl}/consumption?meteringPoint=NONEXISTENT`)
-    assert.equal(response.status, 200, 'Status should be 200')
+    it('should handle file processing errors', async () => {
+      globalThis.shouldThrowFileReadError = true;
 
-    const data = await response.json()
-    assert.ok(Array.isArray(data), 'Response should be an array')
-    assert.equal(data.length, 0, 'Array should be empty for non-existent metering point')
-  })
+      const formData = new FormData();
+      const fileContent = 'mock csv content';
+      const file = new File([fileContent], 'test.csv', { type: 'text/csv' });
+      formData.append('file', file);
 
-  it('should aggregate consumption data by day', async () => {
-    const params = new URLSearchParams({
-      meteringPoint: TEST_METERING_POINT,
-      aggregate: 'day'
-    })
+      const response = await fetch(`${baseUrl}/consumption/upload`, {
+        method: 'POST',
+        body: formData,
+      });
 
-    const response = await fetch(`${baseUrl}/consumption?${params}`)
-    assert.equal(response.status, 200, 'Status should be 200')
+      assert.equal(response.status, 500);
+      const result = await response.json();
+      assert.equal(result.message, 'File read error');
+    });
+  });
 
-    const data = await response.json()
-    assert.ok(Array.isArray(data), 'Response should be an array')
-
-    if (data.length > 0) {
-      const item = data[0]
-      assert.ok(item.meteringPoint, 'Aggregated item should have a metering point')
-      assert.ok(item.timestamp, 'Aggregated item should have a timestamp')
-      assert.ok(typeof item.value === 'number', 'Aggregated value should be a number')
-      assert.ok(item.unit, 'Aggregated item should have a unit')
-    }
-  })
-
-  it('should validate unit parameter', async () => {
-    const params = new URLSearchParams({
-      unit: 'invalid-unit'
-    })
-
-    const response = await fetch(`${baseUrl}/consumption?${params}`)
-    const data = await response.json()
-    console.log('Invalid unit response:', { status: response.status, data })
-
-    assert.equal(response.status, 400, 'Should return 400 status for invalid unit')
-    assert.ok(data.error, 'Should return error message for invalid unit')
-  })
-})
+  describe('Initial data loading', () => {
+    it('should attempt to load initial data on startup', async () => {
+      await import('../routes/consumption.mjs?t=' + Date.now());
+      assert.ok(globalThis.mockCalls.readFile.length > 0);
+    });
+  });
+});
