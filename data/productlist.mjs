@@ -53,7 +53,8 @@ console.log((await getCurrentPrice()).value, 'cts/kWh')
 // writeFileSync(output, JSON.stringify(data, null, 2))
 
 const updateBestProducts = async (parameters = {}) => {
-  console.log('updating best products')
+  // TODO: Cache by postal code + lastUpdated invalidate every 24hours?
+  // console.log('updating best products')
   return data.then(products => products.reduce((acc, product) => {
     // Extract
     const {

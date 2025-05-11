@@ -25,7 +25,6 @@ router.get('/best', async (req, res) => {
 
     const result = await getBestProducts(filters)
 
-    console.log(result, 'result in contractsRouter GET /')
     res.json({
       meta: filters,
       data: result
