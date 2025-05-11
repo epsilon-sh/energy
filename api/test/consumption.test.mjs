@@ -105,7 +105,7 @@ describe('Consumption API Routes', async () => {
     };
 
     // Register custom loaders for mocking dependencies
-    register('./mocks/consumption-mocks.mjs', import.meta.url);
+    register('./mocks/consumption/index.mjs', import.meta.url);
 
     // Initialize global variables for mock tracking
     globalThis.mockCalls = {
