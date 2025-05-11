@@ -102,7 +102,7 @@ router.post('/upload', upload.single('file'), async (req, res) => {
     )
 
     // Use transaction for efficiency
-    const insert = db.transaction((measurements) => {
+    const insert = db.transaction(measurements => {
       for (const p of measurements) {
         stmt.run(
           p.meteringPoint,
