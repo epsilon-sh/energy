@@ -128,7 +128,7 @@ const insertPrices = async data => {
   )
 
   try {
-    const insert = db.transaction((items) => {
+    const insert = db.transaction(items => {
       for (const item of items) {
         stmt.run(
           item.domain,

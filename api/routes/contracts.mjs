@@ -28,12 +28,12 @@ router.get('/best', async (req, res) => {
     res.header('Content-Type', 'application/json')
     res.send(JSON.stringify({
       meta: filters,
-      data: result
+      data: result,
     }, null, 2))
   } catch (error) {
-    if (error instanceof z.ZodError) {
+    if (error instanceof z.ZodError) 
       return res.status(400).json({ error: error.errors[0].message })
-    }
+    
   }
 })
 
