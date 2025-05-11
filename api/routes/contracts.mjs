@@ -25,10 +25,11 @@ router.get('/best', async (req, res) => {
 
     const result = await getBestProducts(filters)
 
-    res.json({
+    res.header('Content-Type', 'application/json')
+    res.send(JSON.stringify({
       meta: filters,
       data: result
-    })
+    }, null, 2))
   } catch (error) {
     if (error instanceof z.ZodError) {
       return res.status(400).json({ error: error.errors[0].message })
