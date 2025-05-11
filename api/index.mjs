@@ -4,7 +4,7 @@ import pricesRouter from './routes/prices.mjs'
 import consumptionRouter from './routes/consumption.mjs'
 import waitlistRouter from './routes/waitlist.mjs'
 import meteringPointsRouter from './routes/meteringPoints.mjs'
-import bestContractsRouter from './routes/bestContracts.mjs'
+import bestContractsRouter from './routes/contracts.mjs'
 import { initializeDatabase } from './db.mjs'
 import http from 'http'
 
