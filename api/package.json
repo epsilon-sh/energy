@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node --env-file ./.env index.mjs",
     "dev": "node --env-file ./dev.env --env-file ./.env --watch index.mjs",
-    "lint": "eslint --fix .",
+    "lint": "eslint . --fix",
     "test": "node --test **/*.test.mjs",
     "test:dev": "node --env-file ./test.env --test --watch **/*.test.mjs"
   },
@@ -19,5 +19,14 @@
     "fast-xml-parser": "^5.2.2",
     "multer": "^1.4.5-lts.1",
     "zod": "^3.24.4"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.26.0",
+    "eslint-config-standard": "^17.1.0",
+    "eslint-plugin-import": "^2.31.0",
+    "eslint-plugin-n": "^17.18.0",
+    "eslint-plugin-promise": "^7.2.1",
+    "globals": "^16.1.0",
+    "typescript-eslint": "^8.32.0"
   }
 }
