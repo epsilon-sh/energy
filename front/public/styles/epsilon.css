@@ -1,6 +1,6 @@
 :root {
-  --color-bg-primary: #FFF;
-  /*--color-bg-secondary: rgba(30, 30, 30, 0.9);*/
+  --color-bg-primary: #fff;
+  --color-bg-secondary: #f5f5f5;
   /*--color-bg-tertiary: rgba(42, 42, 42, 0.8);*/
   --color-text-primary: rgba(250, 250, 250, 0.9);
   --color-shadow: rgba(250, 250, 250, 0.1);
@@ -10,8 +10,15 @@
   --color-accent-hover: rgba(255, 255, 255, 0.5);
   /*--color-accent-alpha: rgba(255, 255, 255, 0.2);*/
   /*--color-overlay: rgba(42, 42, 42, 0.8);*/
-  --color-up: #4CAF50;
-  --color-down: #F44336;
+
+  /* Semantic colors */
+  --color-success: #4CAF50;
+  --color-error: #F44336;
+
+  /* Market indicators (aliased to semantic colors) */
+  --color-up: var(--color-success);
+  --color-down: var(--color-error);
+
   --backdrop-filter: blur(5px);
   --border-radius-1: 5px;
   --border-radius-2: 8px;
@@ -58,7 +65,8 @@ body {
 
 button {
   border-radius: var(--border-radius-1);
-  border: var(--line-width-1) solid transparent;
+
+  border: var(--line-width-1) solid var(--color-shadow);
   padding: 0.6em 1.2em;
   font-size: 1em;
   font-weight: var(--font-weight-semibold);
@@ -90,12 +98,15 @@ h1 {
   margin: 0.5em 0;
 }
 
+input {
+  background-color: var(--color-bg-secondary);
+}
 
 input[type="email"] {
-  padding: 10px;
-  margin: 10px 0;
+  padding: var(--m-xs);
+  margin: var(--m-xs) 0;
 
-  border: var(--line-width-1) solid #ddd;
+  border: var(--line-width-1) solid var(--color-shadow);
   border-radius: var(--border-radius-1);
 }
 
@@ -118,13 +129,14 @@ section h4 {
 /*Light theme*/
 @media (prefers-color-scheme: light) {
   :root {
-    --color-text-primary: rgba(5, 5, 5, 0.9);
-    --color-bg-primary: #FFF;
+    --color-text-primary: rgba(33, 33, 33, 0.95);
 
-    --color-shadow: rgba(5, 5, 5, 0.1);
-    --color-shadow-mid: rgba(5, 5, 5, 0.2);
-    --color-shadow-heavy: rgba(5, 5, 5, 0.3);
+    --color-shadow: rgba(33, 33, 33, 0.15);
+    --color-shadow-mid: rgba(33, 33, 33, 0.25);
+    --color-shadow-heavy: rgba(33, 33, 33, 0.35);
 
+    --color-accent: rgba(33, 33, 33, 0.75);
+    --color-accent-hover: rgba(33, 33, 33, 0.85);
   }
 }
 
@@ -133,6 +145,7 @@ section h4 {
   :root {
     --color-text-primary: rgba(250, 250, 250, 0.9);
     --color-bg-primary: rgb(18 18 18);
+    --color-bg-secondary: rgba(240, 245, 255, 0.03);
 
     --color-shadow: rgba(250, 250, 250, 0.1);
     --color-shadow-mid: rgba(250, 250, 250, 0.2);
@@ -262,6 +275,10 @@ section h4 {
   gap: var(--m-s);
 }
 
+.gap-xs {
+  gap: var(--m-xs);
+}
+
 .right {
   right: 0;
 }
@@ -290,7 +307,8 @@ section h4 {
   margin-bottom: var(--m-m);
 }
 
-.mx {
+.mx,
+.mx-auto {
   margin-left: auto;
   margin-right: auto;
 }
@@ -358,8 +376,12 @@ section h4 {
 }
 
 .border {
-  border: 1px solid #ddd;
-  border-radius: 4px;
+  border: var(--line-width-1) solid var(--color-shadow);
+  border-radius: var(--border-radius-1);
+}
+
+.border-bottom {
+  border-bottom: var(--line-width-1) solid var(--color-shadow)
 }
 
 .border-radius-right-0 {
@@ -596,3 +618,24 @@ a {
 .va-baseline {
   vertical-align: baseline;
 }
+
+/* Add these new utility classes */
+.success {
+  color: var(--color-success) !important;
+}
+
+.error {
+  color: var(--color-error) !important;
+}
+
+.bg-success {
+  background-color: var(--color-success);
+  color: var(--color-bg-primary);
+}
+
+.bg-error {
+  background-color: var(--color-error);
+  color: var(--color-bg-primary);
+}
+
+/* Add before existing a{} styles */

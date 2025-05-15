@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="/styles/epsilon.css">
+  <title>Epsilon Echo - Energy Rates</title>
+  <style>
+    .price-component {
+      display: flex;
+      align-items: baseline;
+      /* gap: var(--m-s); */
+    }
+
+    .spot-price {
+      text-align: left;
+      padding: var(--m-m) 0;
+      margin-bottom: var(--m-m);
+    }
+
+    .spot-price .amount {
+      font-size: 4em;
+      font-family: var(--font-family-alt);
+      font-weight: var(--font-weight-normal);
+      color: var(--color-text-primary);
+    }
+
+    .future {
+      font-family: var(--font-family-alt);
+      color: var(--color-shadow-heavy);
+    }
+
+    .unit {
+      font-size: 1rem;
+      color: var(--color-shadow-heavy);
+      font-family: var(--font-family-alt);
+    }
+
+    .contracts {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--m-m);
+      margin: var(--m-xs) 0;
+    }
+
+    .contract-item {
+      padding: var(--m-m);
+      border: var(--line-width-1) solid var(--color-shadow);
+      border-radius: var(--border-radius-2);
+      background-color: var(--color-bg-secondary);
+    }
+
+    .rate {
+      font-size: 2em;
+      font-family: var(--font-family-alt);
+      font-weight: var(--font-weight-normal);
+      color: var(--color-text-primary);
+    }
+
+    .rate-component {
+      display: flex;
+      align-items: baseline;
+      /* gap: var(--m-s); */
+      margin-bottom: var(--m-s);
+
+      &>.unit {
+        font-size: 0.875rem;
+      }
+    }
+
+    label {
+      font-family: var(--font-family);
+      color: var(--color-shadow-heavy);
+    }
+
+    .monthly {
+      font-family: var(--font-family-alt);
+      color: var(--color-shadow-heavy);
+    }
+
+    .monthly::before {
+      content: '€';
+      margin-right: 0.125rem;
+    }
+
+    .monthly::after {
+      content: ' monthly';
+    }
+
+    form {
+      margin-top: var(--m-l);
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+      width: 100%;
+    }
+
+    input[type="email"] {
+      border: var(--line-width-1) solid var(--color-shadow);
+      color: var(--color-text-primary);
+      font-family: var(--font-family);
+      margin-top: var(--m-xs);
+    }
+
+    button {
+      background: var(--color-shadow);
+      color: var(--color-text-primary);
+      font-family: var(--font-family);
+      width: 100%;
+    }
+
+    @media (max-width: 640px) {
+      .contracts {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .subtitle {
+      color: var(--color-shadow-heavy);
+      margin-bottom: 0;
+      text-align: center;
+      font-weight: bold;
+    }
+
+    .estimate-inputs {
+      display: flex;
+      flex-direction: column;
+      gap: var(--m-s);
+      justify-self: end;
+      width: min(300px, 100%);
+      margin-bottom: var(--m-m);
+    }
+
+    .estimate-inputs input {
+      border: var(--line-width-1) solid var(--color-shadow);
+      color: var(--color-text-primary);
+      font-family: var(--font-family);
+      padding: 10px;
+      width: 100%;
+      border-radius: var(--border-radius-1);
+      box-sizing: border-box;
+    }
+
+    .estimate-inputs label {
+      font-size: 0.875em;
+      color: var(--color-shadow-heavy);
+      font-family: var(--font-family);
+    }
+
+    .estimate-inputs button {
+      border: none;
+    }
+
+    .estimate-group {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--m-m);
+      margin-bottom: var(--m-m);
+    }
+
+    @media (max-width: 640px) {
+
+      .contracts,
+      .estimate-group {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .input-group {
+      display: flex;
+      /* margin: auto; */
+      flex-direction: column;
+      gap: var(--m-s);
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <header>
+      <h1 class="mb-0">epsilon Echo</h1>
+      <p class="mt-0">empowering today</p>
+    </header>
+
+    <main>
+      <section>
+        <div class="estimate-group border-bottom">
+          <div class="spot-price">
+            <div class="price-component">
+              <span class="amount">1.32</span>
+              <legend class="unit">cts/kWh</legend>
+            </div>
+            <label>SPOT energy price</label>
+            <div class="future">4.60cts/kWh estimate</div>
+          </div>
+
+          <div class="estimate-inputs">
+            <div class="input-group">
+              <label for="postcode">Postcode</label>
+              <input type="text" id="postcode" name="postcode" pattern="[0-9]{5}" maxlength="5" placeholder="00150"
+                required>
+            </div>
+            <div class="input-group">
+              <label for="consumption">Annual consumption (kWh)</label>
+              <input type="number" id="consumption" name="consumption" min="0" step="100" placeholder="5000" required>
+            </div>
+            <button>Refresh estimates</button>
+          </div>
+        </div>
+
+        <legend class="subtitle">Yearly savings: <span class="success">1013.42€</span> on average.</legend>
+
+        <div class="contracts">
+          <div class="contract-item">
+            <div class="contract-details">
+              <div class="rate-component">
+                <div class="rate">1.85</div>
+                <legend class="unit">cts/kWh</legend>
+              </div>
+              <label>SPOT + 0.43cts/kWh</label>
+              <div class="monthly">2.48</div>
+            </div>
+          </div>
+          <div class="contract-item">
+            <div class="contract-details">
+              <div class="rate-component">
+                <div class="rate">7.30</div>
+                <legend class="unit">cts/kWh</legend>
+              </div>
+              <label>Fixed price</label>
+              <div class="monthly">3</div>
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+      <section class="mt-m">
+        <p class="subtitle">10€ bonus for new customers.</p>
+        <form class="flex-col mx-auto mt-0" name="offer" method="POST">
+          <input type="email" name="email" placeholder="Enter your email" required>
+          <button type="submit">Free offer to your inbox!</button>
+        </form>
+      </section>
+    </main>
+  </div>
+</body>
+
+</html>

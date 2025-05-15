@@ -12,10 +12,15 @@ const SMTPConfig = {
 const mailClient = new SMTPClient(SMTPConfig)
 
 const waitlistOperations = {
-  getAllWaitlistEntries: (db) => {
-    const stmt = db.prepare('SELECT email, source, created_at FROM waitlist ORDER BY created_at DESC')
-    return stmt.all()
+  getWaitlistCount: (db) => {
+    const stmt = db.prepare('SELECT COUNT(*) FROM waitlist')
+    return stmt.get()['COUNT(*)']
   },
+  // getAllWaitlistEntries: (db) => {
+  //   console.warn('getAllWaitlistEntries is strictly reserved for admin use.')
+  //   const stmt = db.prepare('SELECT email, source, created_at FROM waitlist ORDER BY created_at DESC')
+  //   return stmt.all()
+  // },
   addToWaitlist: (db, email, source) => {
     const nowInSeconds = Math.floor(Date.now() / 1000)
     db.prepare('INSERT OR IGNORE INTO waitlist (email, source) VALUES (?, ?)').run(email, source)
@@ -152,10 +157,10 @@ router.use(express.json())
 router.use(express.urlencoded({ extended: true }))
 
 // GET /waitlist - Retrieve all waitlist entries
-router.get('/', (_req, res, next) => {
+router.get('/count', async (_req, res, next) => {
   try {
-    const db = getDatabase()
-    const waitlist = waitlistOperations.getAllWaitlistEntries(db)
+    const db = await getDatabase()
+    const waitlist = await waitlistOperations.getWaitlistCount(db)
     res.json(waitlist)
   } catch (error) {
     next(error)
