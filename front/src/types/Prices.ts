@@ -5,7 +5,7 @@ export type PricePoint = {
 export type PriceSeries = PricePoint[]
 
 // import data from '../../../common/data/spot.json'
-const data: PriceSeries = []
+const data: PriceSeries = [];
 
 // const prices = data.map(({ time, value }) => {
 //   const [ hours, minutes ] = time.split(':').map(Number)
@@ -19,4 +19,4 @@ const data: PriceSeries = []
 
 // export default prices
 
-export default data
+export default data;

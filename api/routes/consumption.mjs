@@ -49,7 +49,7 @@ router.get('/', async (req, res, next) => {
     console.log(`DB ${meteringPoint} FROM ${start.toISOString()} TO ${end.toISOString()}`)
 
     const dbData = db.prepare(query).all(...params)
-    const format = x => ({
+    const format = (x) => ({
       meteringPoint: x.MeteringPointGSRN,
       productType: x['Product Type'],
       readingType: x['Reading Type'],
@@ -60,8 +60,9 @@ router.get('/', async (req, res, next) => {
     })
 
     console.log(`${dbData.length} found`)
-    if (dbData.length)
+    if (dbData.length) {
       data.insert(...dbData.map(format))
+    }
 
     const result = data
       .from(start)
@@ -78,8 +79,9 @@ router.get('/', async (req, res, next) => {
 
 router.post('/upload', upload.single('file'), async (req, res) => {
   try {
-    if (!req.file)
+    if (!req.file) {
       return res.status(400).json({ message: 'No file uploaded' })
+    }
 
     // Read the uploaded file
     const fileContent = await fs.readFile(req.file.path, 'utf-8')
@@ -139,13 +141,15 @@ export default router
 const source = '../data/fingrid.import.csv'
 console.log(`Load ${source}`)
 fs.readFile(source, 'utf-8')
-  .then(content => { console.log(`Parse ${content.length} bytes`); return content })
+  .then((content) => {
+    console.log(`Parse ${content.length} bytes`); return content
+  })
   .then(parseDsv)
-  .then(parsed => {
+  .then((parsed) => {
     data.push(...parsed)
 
     console.log(`Data size: ${data.length}`)
   })
-  .catch(error => {
+  .catch((error) => {
     console.error(error)
   })

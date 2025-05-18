@@ -1,5 +1,5 @@
-import React from 'react';
-import { Contract } from './EnergyDashboard';
+import React from "react";
+import { Contract } from "./EnergyDashboard";
 
 interface ContractInputProps {
   contract: Contract;

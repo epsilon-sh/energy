@@ -6,4 +6,4 @@ export const getDefaultRange = () => {
     start: startOfWeek(now),
     end: endOfDay(now),
   }
-} 
+}

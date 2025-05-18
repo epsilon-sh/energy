@@ -1,13 +1,13 @@
-import React from 'react'
+import React from "react";
 
-import ReactDOM from 'react-dom/client'
+import ReactDOM from "react-dom/client";
 
-import { Provider as StoreProvider } from 'react-redux'
-import App from './App.tsx'
-import store from './store.ts'
-import { BrowserRouter } from 'react-router-dom'
+import { Provider as StoreProvider } from "react-redux";
+import App from "./App.tsx";
+import store from "./store.ts";
+import { BrowserRouter } from "react-router-dom";
 
-const appMount = document.getElementById('app')
+const appMount = document.getElementById("app");
 
 ReactDOM.createRoot(appMount!)
   .render(
@@ -17,38 +17,38 @@ ReactDOM.createRoot(appMount!)
           <App />
         </BrowserRouter>
       </StoreProvider>
-    </React.StrictMode>)
+    </React.StrictMode>);
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8989';
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8989";
 
-const cta = document.querySelector('form[name="waitlist"]')!
-const mail: HTMLInputElement = cta.querySelector('input[name="email"]')!
+const cta = document.querySelector('form[name="waitlist"]')!;
+const mail: HTMLInputElement = cta.querySelector('input[name="email"]')!;
 
 const handleWaitlistSubmit = async (email: string) => {
   try {
-    const target = new URL('/waitlist', API_URL)
+    const target = new URL("/waitlist", API_URL);
     const response = await fetch(target, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
       body: JSON.stringify({ email }),
-    })
+    });
 
     if (!response.ok) {
-      throw new Error('Failed to join waitlist')
+      throw new Error("Failed to join waitlist");
     }
 
-    alert('Successfully joined waitlist!')
-    return
+    alert("Successfully joined waitlist!");
+    return;
   } catch (error) {
-    console.error('Waitlist error:', error)
-    alert('Failed to join waitlist. Please try again later.')
+    console.error("Waitlist error:", error);
+    alert("Failed to join waitlist. Please try again later.");
   }
-}
+};
 
 // Update the event listener
-cta.addEventListener('submit', (e) => {
-  e.preventDefault()
-  handleWaitlistSubmit(mail.value).then(() => mail.value = '')
-})
+cta.addEventListener("submit", (e) => {
+  e.preventDefault();
+  handleWaitlistSubmit(mail.value).then(() => mail.value = "");
+});

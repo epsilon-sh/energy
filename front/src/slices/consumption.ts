@@ -1,4 +1,4 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit'
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 export interface ConsumptionPoint {
   time: string;
@@ -17,10 +17,10 @@ const initialState: ConsumptionState = {
   data: [],
   loading: false,
   error: null,
-}
+};
 
 const consumptionSlice = createSlice({
-  name: 'consumption',
+  name: "consumption",
   initialState,
   reducers: {
     fetchConsumptionStart(state) {
@@ -36,7 +36,7 @@ const consumptionSlice = createSlice({
       state.error = action.payload;
     },
   },
-})
+});
 
 export const { fetchConsumptionStart, fetchConsumptionSuccess, fetchConsumptionFailure } = consumptionSlice.actions;
 export default consumptionSlice.reducer;

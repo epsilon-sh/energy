@@ -26,18 +26,18 @@ const waitlistOperations = {
     db.prepare('INSERT OR IGNORE INTO waitlist (email, source) VALUES (?, ?)').run(email, source)
 
     const recentThresholdSeconds = 60
-    let recentActivationInfo = db.prepare(
+    const recentActivationInfo = db.prepare(
       `SELECT code FROM confirm_codes
        WHERE email = ? AND type = 'activation' AND used_at IS NULL AND expires_at > ? AND created_at > ?
-       ORDER BY created_at DESC LIMIT 1`
+       ORDER BY created_at DESC LIMIT 1`,
     ).get(email, nowInSeconds, nowInSeconds - recentThresholdSeconds)
 
     if (recentActivationInfo) {
       console.log(`addToWaitlist: Activation email recently sent for ${email}. Using existing codes.`)
-      let existingUnsubscribeInfo = db.prepare(
+      const existingUnsubscribeInfo = db.prepare(
         `SELECT code FROM confirm_codes
          WHERE email = ? AND type = 'unsubscribe' AND used_at IS NULL AND expires_at > ?
-         ORDER BY created_at DESC LIMIT 1`
+         ORDER BY created_at DESC LIMIT 1`,
       ).get(email, nowInSeconds)
 
       if (existingUnsubscribeInfo) {
@@ -75,7 +75,7 @@ const waitlistOperations = {
     const confirmCodeEntry = db.prepare(
       `SELECT id, email FROM confirm_codes
        WHERE code = ? AND type = 'unsubscribe' AND used_at IS NULL AND expires_at > ?
-       LIMIT 1`
+       LIMIT 1`,
     ).get(code, nowInSeconds)
 
     if (!confirmCodeEntry) {
@@ -95,7 +95,7 @@ const waitlistOperations = {
     const confirmCodeEntry = db.prepare(
       `SELECT id, email FROM confirm_codes
        WHERE code = ? AND type = 'activation' AND used_at IS NULL AND expires_at > ?
-       LIMIT 1`
+       LIMIT 1`,
     ).get(code, nowInSeconds)
 
     if (!confirmCodeEntry) {
@@ -107,8 +107,8 @@ const waitlistOperations = {
 
     // Expire other active 'activation' codes for the same email
     db.prepare(
-      `UPDATE confirm_codes SET expires_at = ? 
-       WHERE email = ? AND type = 'activation' AND used_at IS NULL AND expires_at > ? AND id != ?`
+      `UPDATE confirm_codes SET expires_at = ?
+       WHERE email = ? AND type = 'activation' AND used_at IS NULL AND expires_at > ? AND id != ?`,
     ).run(nowInSeconds, confirmCodeEntry.email, nowInSeconds, confirmCodeEntry.id)
 
     console.log(`WAITLIST CONFIRM: Email ${confirmCodeEntry.email} confirmed with code ${code}. Future: create/verify user account.`)
@@ -140,13 +140,13 @@ const sendConfirmationEmail = (mailer, address, activationCode, unsubscribeCode)
     Thanks for your interest!
 
     ---
-    To unsubscribe from future communications, please click here: ${unsubscribeLink}`
+    To unsubscribe from future communications, please click here: ${unsubscribeLink}`,
   }
 
   mailer.send(email,
     (err, message) => {
       console.log(err || message)
-    }
+    },
   )
 }
 
@@ -194,15 +194,15 @@ router.post('/', async (req, res, next) => {
     if (req.is('json')) {
       return res.status(200).json({ message: 'Successfully processed waitlist request. Please check your email.' })
     }
-    return res.redirect(new URL('#success=Thanks for joining our waitlist! Please check your email.', process.env.FRONTEND_URL))
 
+    return res.redirect(new URL('#success=Thanks for joining our waitlist! Please check your email.', process.env.FRONTEND_URL))
   } catch (error) {
     console.error('POST /waitlist error:', error)
     next(error)
   }
 })
 
-router.get('/bye', async (req, res, next) => {
+router.get('/bye', async (req, res, _next) => {
   try {
     const { code } = req.query
     if (!code) {
@@ -225,7 +225,7 @@ router.get('/bye', async (req, res, next) => {
   }
 })
 
-router.get('/confirm', async (req, res, next) => {
+router.get('/confirm', async (req, res, _next) => {
   try {
     const { code } = req.query
     if (!code) {

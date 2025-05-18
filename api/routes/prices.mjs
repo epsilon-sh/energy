@@ -75,9 +75,7 @@ router.get('/', async (req, res, next) => {
     if (dbData.length < expectedCount) {
       console.warn(`Missing DB data: ${expectedCount - dbData.length}`)
 
-
       if (dbData.length > 0) {
-
         const missingAfter = {
           start: new Date(dbData.at(-1)?.time),
           end: padded.end,
@@ -89,21 +87,22 @@ router.get('/', async (req, res, next) => {
       }
     }
 
-    const pricesRequests = toFetch.map(interval => fetchPrices({
+    const pricesRequests = toFetch.map((interval) => fetchPrices({
       periodStart: formatDate(interval.start),
       periodEnd: formatDate(interval.end),
     }))
 
     const incoming = await Promise.all(pricesRequests) // [Period{TimeSeries:[]}]
     if (incoming.length) {
-      const extracted = incoming.flatMap(i => extractPrices(i))
+      const extracted = incoming.flatMap((i) => extractPrices(i))
 
       console.log(`${extracted.length} price points from ENTSO`)
-      if (extracted)
+      if (extracted) {
         insertPrices(extracted)
+      }
     }
 
-    pricesData.insert(...dbData.map(item => ({
+    pricesData.insert(...dbData.map((item) => ({
       ...item,
       time: new Date(item.time).toISOString(),
     })))
@@ -121,7 +120,7 @@ router.get('/', async (req, res, next) => {
   }
 })
 
-const insertPrices = async data => {
+const insertPrices = async (data) => {
   const db = getDatabase()
   const stmt = db.prepare(
     `REPLACE INTO ${DB_PRICE_TABLE} (domain, resolution, time, price) VALUES (?, ?, ?, ?)`,

@@ -53,8 +53,9 @@ export const initializeDatabase = async () => {
 }
 
 export const getDatabase = () => {
-  if (!db)
+  if (!db) {
     throw new Error('Database not initialized')
+  }
 
   return db
 }

@@ -10,15 +10,15 @@ interface WorkspaceProps {
   controls?: ReactNode;
 }
 
-const Workspace: FC<WorkspaceProps> = ({ open, className = '', controls, children }) => {
+const Workspace: FC<WorkspaceProps> = ({ open, className = "", controls, children }) => {
   return <Background>
-    <div className={`workspace${className ? ' ' + className : ''}`}>
+    <div className={`workspace${className ? " " + className : ""}`}>
       <Controls>
         {controls}
       </Controls>
       {open && children}
     </div>
-  </Background>
-}
+  </Background>;
+};
 
 export default Workspace;

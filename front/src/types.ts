@@ -1,6 +1,6 @@
 export const hashRoutes = [
-  'comparator',
-  'preview',
+  "comparator",
+  "preview",
 ] as const;
 
 export type PanelsView = {

@@ -1,11 +1,11 @@
-import { useState, useEffect } from 'react';
-import { PanelsView } from './types';
+import { useState, useEffect } from "react";
+import { PanelsView } from "./types";
 
 export const usePanelManager = (view: string | undefined) => {
   const [panels, dispatch] = useState<PanelsView>({
     modal: !!view,
     options: false,
-    workspace: view as PanelsView['workspace'] || false,
+    workspace: view as PanelsView["workspace"] || false,
   });
 
   const update = (obj: Partial<PanelsView>) => dispatch({ ...panels, ...obj });
@@ -17,34 +17,34 @@ export const usePanelManager = (view: string | undefined) => {
   const escape = () => {
     for (const [panel, isOpen] of Object.entries(panels)) {
       if (isOpen) {
-        console.log('closing', panel);
+        console.log("closing", panel);
         return panels.workspace
           ? close(panel as keyof PanelsView)
           : update({
-              workspace: 'preview',
+              workspace: "preview",
               [panel]: false,
             });
       }
     }
-    open('workspace');
+    open("workspace");
   };
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       switch (event.key) {
-        case '0':
-          if (!panels.workspace) update({ workspace: 'preview', options: true });
-          else toggle('options');
+        case "0":
+          if (!panels.workspace) update({ workspace: "preview", options: true });
+          else toggle("options");
           break;
-        case 'Escape':
+        case "Escape":
           escape();
           break;
       }
     };
 
-    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener("keydown", handleKeyDown);
     return () => {
-      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener("keydown", handleKeyDown);
     };
   }, [panels]);
 

@@ -1,5 +1,5 @@
-import { useEffect } from 'react';
-import { PanelsView } from './types/Panels.ts';
+import { useEffect } from "react";
+import { PanelsView } from "./types/Panels.ts";
 
 interface KeyboardShortcutProps {
   panels: PanelsView;
@@ -13,11 +13,11 @@ export const useKeyboardShortcuts = ({ panels, update, toggle, close, open }: Ke
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       switch (event.key) {
-        case '0':
-          if (!panels.workspace) update({ workspace: 'preview', options: true });
-          else toggle('options');
+        case "0":
+          if (!panels.workspace) update({ workspace: "preview", options: true });
+          else toggle("options");
           break;
-        case 'Escape':
+        case "Escape":
           escape();
           break;
       }
@@ -26,22 +26,21 @@ export const useKeyboardShortcuts = ({ panels, update, toggle, close, open }: Ke
     const escape = () => {
       for (const [panel, isOpen] of Object.entries(panels)) {
         if (isOpen) {
-          console.log('closing', panel);
+          console.log("closing", panel);
           return panels.workspace
             ? close(panel as keyof PanelsView)
             : update({
-              workspace: 'preview',
+              workspace: "preview",
               [panel]: false,
             });
         }
       }
-      open('workspace');
+      open("workspace");
     };
 
-    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener("keydown", handleKeyDown);
     return () => {
-      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener("keydown", handleKeyDown);
     };
   }, [panels, update, toggle, close, open]);
 };
-

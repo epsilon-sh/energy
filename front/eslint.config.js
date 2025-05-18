@@ -42,10 +42,14 @@ export default [
         ...globals.browser,
         ...globals.es2020,
         React: true,
+        JSX: true,
       },
       parser: tseslint.parser,
       parserOptions: {
         project: './tsconfig.json',
+        ecmaFeatures: {
+          jsx: true,
+        },
       },
     },
     plugins: {
@@ -64,6 +68,15 @@ export default [
       ],
       'comma-dangle': ['error', 'always-multiline'],
       'semi': ['error', 'always'],
+      'react/jsx-uses-react': 'error',
+      'react/react-in-jsx-scope': 'error',
+      '@typescript-eslint/no-unused-vars': ['error', {
+        'argsIgnorePattern': '^_',
+        'varsIgnorePattern': '^(Props|State|Interface|I[A-Z]|T[A-Z]|E[A-Z])|^_',
+        'ignoreRestSiblings': true
+      }],
+      'no-unused-vars': 'off',
+      quotes: ['warn', 'double', { avoidEscape: true, allowTemplateLiterals: true }],
     },
   },
 ]

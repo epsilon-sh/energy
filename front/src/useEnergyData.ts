@@ -1,5 +1,5 @@
-import { useGetPricesQuery, useGetConsumptionQuery } from './apiSlice';
-import { Duration } from './types/duration';
+import { useGetPricesQuery, useGetConsumptionQuery } from "./apiSlice";
+import { Duration } from "./types/duration";
 
 interface EnergyDataParams {
   start?: string;
