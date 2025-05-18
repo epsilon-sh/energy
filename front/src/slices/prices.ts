@@ -1,4 +1,4 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit'
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 export interface PricePoint {
   time: string;
@@ -17,10 +17,10 @@ const initialState: PricesState = {
   data: [],
   loading: false,
   error: null,
-}
+};
 
 const pricesSlice = createSlice({
-  name: 'prices',
+  name: "prices",
   initialState,
   reducers: {
     fetchPricesStart(state) {
@@ -36,7 +36,7 @@ const pricesSlice = createSlice({
       state.error = action.payload;
     },
   },
-})
+});
 
 export const { fetchPricesStart, fetchPricesSuccess, fetchPricesFailure } = pricesSlice.actions;
 export default pricesSlice.reducer;

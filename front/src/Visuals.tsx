@@ -1,5 +1,5 @@
-import React, {useEffect, useRef} from 'react';
-import * as THREE from 'three';
+import React, {useEffect, useRef} from "react";
+import * as THREE from "three";
 
 const ThreeJSView: React.FC = () => {
   const mountRef = useRef<HTMLDivElement>(null);
@@ -45,16 +45,16 @@ const ThreeJSView: React.FC = () => {
       camera.aspect = width / height;
       camera.updateProjectionMatrix();
     };
-    window.addEventListener('resize', handleResize);
+    window.addEventListener("resize", handleResize);
 
     // Cleanup on component unmount
     return () => {
-      window.removeEventListener('resize', handleResize);
+      window.removeEventListener("resize", handleResize);
       mountRef.current!.removeChild(renderer.domElement);
     };
   }, []);
 
-  return <div ref={mountRef} style={{width: '100%', height: '100%'}}/>;
+  return <div ref={mountRef} style={{width: "100%", height: "100%"}}/>;
 };
 
 export default ThreeJSView;

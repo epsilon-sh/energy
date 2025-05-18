@@ -10,8 +10,9 @@ import http from 'http'
 
 const app = express()
 
-if (process.env.TRUST_PROXY)
+if (process.env.TRUST_PROXY) {
   app.set('trust proxy', process.env.TRUST_PROXY)
+}
 
 const PORT = process.env.PORT || 8989
 
@@ -84,7 +85,7 @@ if (process.env.NODE_ENV !== 'test') {
       // Then start the server
       return startServer()
     })
-    .catch(error => {
+    .catch((error) => {
       console.error('Failed to initialize database or start server:', error)
       process.exit(1)
     })

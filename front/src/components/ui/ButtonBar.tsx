@@ -1,6 +1,6 @@
 // File: ButtonBar.tsx
-import React from 'react';
-import { CircleFadingArrowUp, Radio, Cog } from 'lucide-react'; // Import icons from Lucide React package
+import React from "react";
+import { CircleFadingArrowUp, Radio, Cog } from "lucide-react"; // Import icons from Lucide React package
 
 export const ButtonBar: React.FC = () => {
     return (

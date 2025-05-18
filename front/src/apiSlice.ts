@@ -1,4 +1,4 @@
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 export interface PricePoint {
   time: string;
@@ -19,29 +19,29 @@ export interface ContractPrice {
   euroPerMonth: number;
 }
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8989/';
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8989/";
 
 export const apiSlice = createApi({
-  reducerPath: 'api',
+  reducerPath: "api",
   baseQuery: fetchBaseQuery({ baseUrl: API_URL }),
-  tagTypes: ['Consumption'],
+  tagTypes: ["Consumption"],
   endpoints: (builder) => ({
     getPrices: builder.query<PricePoint[], { start: string; end: string; resolution: string; meteringPoint: string }>({
       query: (params) => {
         const queryParams = new URLSearchParams();
-        params?.start && queryParams.append('start', params.start);
-        params?.end && queryParams.append('end', params.end);
-        params?.resolution && queryParams.append('resolution', params.resolution);
+        params?.start && queryParams.append("start", params.start);
+        params?.end && queryParams.append("end", params.end);
+        params?.resolution && queryParams.append("resolution", params.resolution);
         return `prices?${queryParams.toString()}`;
-      }
+      },
     }),
     getConsumption: builder.query<ConsumptionPoint[], { start: string; end: string; resolution: string; meteringPoint: string }>({
       query: (params) => {
         const queryParams = new URLSearchParams();
-        params?.start && queryParams.append('start', params.start);
-        params?.end && queryParams.append('end', params.end);
-        params?.resolution && queryParams.append('resolution', params.resolution);
-        params?.meteringPoint && queryParams.append('meteringPoint', params.meteringPoint);
+        params?.start && queryParams.append("start", params.start);
+        params?.end && queryParams.append("end", params.end);
+        params?.resolution && queryParams.append("resolution", params.resolution);
+        params?.meteringPoint && queryParams.append("meteringPoint", params.meteringPoint);
 
         return `consumption?${queryParams.toString()}`;
       },
@@ -49,17 +49,17 @@ export const apiSlice = createApi({
     getBestContracts: builder.query<ContractPrice[], { postalCode: number }>({
       query: (params) => {
         const queryParams = new URLSearchParams();
-        params?.postalCode && queryParams.append('postalCode', params.postalCode.toString());
-        return `contracts/best?${queryParams.toString()}`
-      }
+        params?.postalCode && queryParams.append("postalCode", params.postalCode.toString());
+        return `contracts/best?${queryParams.toString()}`;
+      },
     }),
     uploadConsumption: builder.mutation<{ message: string }, FormData>({
       query: (formData) => ({
-        url: 'consumption/upload',
-        method: 'POST',
+        url: "consumption/upload",
+        method: "POST",
         body: formData,
       }),
-      invalidatesTags: ['Consumption'],
+      invalidatesTags: ["Consumption"],
     }),
   }),
 });

@@ -1,4 +1,4 @@
-import { humanReadableDurations, Duration } from '../types/duration';
+import { humanReadableDurations, Duration } from "../types/duration";
 
 interface DurationSelectorProps {
   options: Duration[];

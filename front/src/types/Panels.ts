@@ -1,4 +1,4 @@
 export interface PanelsView {
-  workspace: 'preview' | false;
+  workspace: "preview" | false;
   options: boolean;
 } 

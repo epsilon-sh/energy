@@ -43,19 +43,22 @@ describe('Prices Route', async () => {
       const urlObj = new URL(url)
 
       // Mock ENTSO-E API responses
-      if (url.includes('web-api.tp.entsoe.eu'))
+      if (url.includes('web-api.tp.entsoe.eu')) {
         return createMockResponse(MOCK_XML, 200, 'text/xml')
+      }
 
       // Mock local API responses
       if (urlObj.pathname === '/prices') {
         // Handle database error case
-        if (dbForceError)
+        if (dbForceError) {
           return createMockResponse({ error: 'Database error' }, 500)
+        }
 
         // Handle invalid date parameters
         const params = new URLSearchParams(urlObj.search)
-        if (params.has('start') && params.get('start') === 'invalid-date')
+        if (params.has('start') && params.get('start') === 'invalid-date') {
           return createMockResponse({ error: 'Invalid date format' }, 400)
+        }
 
         // Return mock price data for valid requests
         return createMockResponse([{
@@ -79,7 +82,7 @@ describe('Prices Route', async () => {
 
     // Start test server
     server = http.createServer(app)
-    await new Promise(resolve => server.listen(0, resolve))
+    await new Promise((resolve) => server.listen(0, resolve))
     const address = server.address()
     baseUrl = `http://localhost:${address.port}`
     console.log('Test server started at:', baseUrl)
@@ -87,7 +90,7 @@ describe('Prices Route', async () => {
 
   afterEach(async () => {
     // Close server
-    await new Promise(resolve => server.close(resolve))
+    await new Promise((resolve) => server.close(resolve))
 
     // Restore original fetch
     global.fetch = originalFetch
@@ -148,8 +151,9 @@ describe('Prices Route', async () => {
 
     const data = await response.json()
     assert.ok(Array.isArray(data), 'Response should be an array')
-    if (data.length > 0)
+    if (data.length > 0) {
       assert.equal(data[0].domain, '10YFI-1--------U', 'Should return prices for requested domain')
+    }
   })
 
   it('should handle invalid date parameters', async () => {
