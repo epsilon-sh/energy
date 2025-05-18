@@ -3,6 +3,7 @@ import globals from 'globals'
 import tseslint from 'typescript-eslint'
 import reactRefresh from 'eslint-plugin-react-refresh'
 import reactHooks from 'eslint-plugin-react-hooks'
+import react from 'eslint-plugin-react'
 
 export default [
   // Base configuration and ignores
@@ -40,6 +41,7 @@ export default [
       globals: {
         ...globals.browser,
         ...globals.es2020,
+        React: true,
       },
       parser: tseslint.parser,
       parserOptions: {
@@ -50,10 +52,12 @@ export default [
       '@typescript-eslint': tseslint.plugin,
       'react-refresh': reactRefresh,
       'react-hooks': reactHooks,
+      'react': react,
     },
     rules: {
       ...tseslint.configs.recommended.rules,
       ...reactHooks.configs.recommended.rules,
+      ...react.configs.recommended.rules,
       'react-refresh/only-export-components': [
         'warn',
         { allowConstantExport: true },
