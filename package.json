@@ -15,14 +15,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/epsilon-sh/framework.git"
+    "url": "git+https://github.com/epsilon-sh/energy.git"
   },
   "author": "ubarbaxor@epsilon.sh",
   "license": "UNLICENSED",
   "bugs": {
-    "url": "https://github.com/epsilon-sh/framework/issues"
+    "url": "https://github.com/epsilon-sh/energy/issues"
   },
-  "homepage": "https://github.com/epsilon-sh/framework#readme",
+  "homepage": "https://github.com/epsilon-sh/energy#readme",
   "description": "",
   "workspaces": [
     "api",
