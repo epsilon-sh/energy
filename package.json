@@ -10,7 +10,9 @@
     "start:api": "npm --workspace=api start",
     "front:build": "npm --workspace=front build",
     "test": "node --test",
-    "lint": "eslint . --fix",
+    "lint": "npm-run-all --continue-on-error lint:*",
+    "lint:api": "npm --workspace=api run lint",
+    "lint:front": "npm --workspace=front run lint",
     "trivy": "trivy fs ."
   },
   "repository": {
