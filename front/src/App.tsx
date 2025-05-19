@@ -3,7 +3,8 @@ import '/public/styles/epsilon.css'
 import Workspace from "@ui/Workspace.tsx";
 import Controls from "@ui/Controls.tsx";
 import Modal from "@ui/Modal.tsx";
-import EnergyDashboard from "./EnergyDashboard.tsx";
+// import EnergyDashboard from "./EnergyDashboard.tsx";
+import EchoDashboard from './EchoDashboard.tsx';
 
 import { FC, useEffect } from "react";
 import Settings from './DataOptions';
@@ -32,7 +33,9 @@ const App: FC = () => {
           <button key='options' onClick={() => toggle('options')}>Data</button>,
           <button key='close' onClick={escape}>X</button>,
         ]}>
-        <EnergyDashboard />
+          {/* <EnergyDashboard /> */}
+          <link rel="stylesheet" href="./styles/echo.css" />
+          <EchoDashboard />
       </Workspace>
       <Modal open={panels.options} onClose={() => close('options')}>
         <Settings />

@@ -1,4 +1,5 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+import { BestContractsApiResponse } from './useBestContracts';
 
 export interface PricePoint {
   time: string;
@@ -46,10 +47,12 @@ export const apiSlice = createApi({
         return `consumption?${queryParams.toString()}`;
       },
     }),
-    getBestContracts: builder.query<ContractPrice[], { postalCode: number }>({
+    getBestContracts: builder.query <BestContractsApiResponse, { postalCode: string, consumption: string }>({
       query: (params) => {
         const queryParams = new URLSearchParams();
-        params?.postalCode && queryParams.append('postalCode', params.postalCode.toString());
+        params?.postalCode && queryParams.append('postalCode', params.postalCode);
+        params?.consumption && queryParams.append('consumption', params.consumption);
+
         return `contracts/best?${queryParams.toString()}`
       }
     }),

@@ -85,7 +85,7 @@ npm run build
 
 ## Usage
 
-After starting the development server, you can access the application in your browser at `http://localhost:3000`.
+After starting the development server, you can access the application in your browser at `http://localhost:5173`.
 
 ## Contributing
 
