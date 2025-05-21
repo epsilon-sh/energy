@@ -36,7 +36,7 @@ const CustomTooltip = ({ active, payload, label }: TooltipProps<ValueType, NameT
         {payload.map((p, index) => {
           const value = p.name?.toLowerCase().includes('incurred')
             ? Number(p.value).toFixed(2)
-            : p.value
+            : Number(Number(p.value).toFixed(3))
           return (
             <p key={index} style={{ color: p.color }}>
               {`${p.name}: ${value}`}
