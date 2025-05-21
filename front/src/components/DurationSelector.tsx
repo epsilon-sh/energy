@@ -11,7 +11,7 @@ export const DurationSelector = ({
   selected,
   onChange,
 }: DurationSelectorProps): JSX.Element => (
-  <div className="flex-wrap">
+  <div className="float-right flex-wrap">
     {options.map((duration) => (
       <button
         className="multipill"
